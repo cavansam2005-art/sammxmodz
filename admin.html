@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADMIN — SAMM X MODZ</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
+  body { background: #0d0202; color:#ffe8e8; padding:20px 12px; }
+  .wrap { max-width:800px; margin:0 auto; }
+  .panel { background: #1a0808; border:1px solid #4a1a1a; border-radius:16px; padding:20px; margin-bottom:16px; }
+  h1, h2 { color: #ff5050; text-align:center; margin-bottom:15px; font-size: 1.2rem;}
+  .input-group { margin-bottom:12px; display:flex; flex-direction:column; gap:6px;}
+  input, select { background:#2a1010; border:1px solid #6a2a2a; border-radius:8px; padding:10px; color:#fff; }
+  .btn { background: #b00000; color:#fff; border:none; border-radius:8px; padding:12px; font-weight:bold; cursor:pointer; width:100%; }
+  .file-card { background:#2a1010; border-radius:8px; padding:10px; margin-bottom:8px; display:flex; align-items:center; gap:10px; }
+  .file-card img { width:60px; height:60px; border-radius:6px; object-fit:cover; }
+  .btn-del { background:#4a1010; color:#ff8080; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; }
+  .code-tag { background:#2a1010; border:1px solid #ff3030; color:#ff8080; padding:4px 8px; border-radius:4px; font-family:monospace; margin:2px; display:inline-block; }
+  .hidden { display:none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>⚙ ADMIN PANEL</h1>
+
+  <div id="loginPanel" class="panel">
+    <h2>Đăng nhập Admin</h2>
+    <div class="input-group"><input type="text" id="adUser" placeholder="admin"></div>
+    <div class="input-group"><input type="password" id="adPass" placeholder="admin123"></div>
+    <button class="btn" id="loginAdminBtn">ĐĂNG NHẬP</button>
+  </div>
+
+  <div id="adminContent" class="hidden">
+    <div class="panel">
+      <h2>📤 Đăng file mới</h2>
+      <div class="input-group"><input type="text" id="upName" placeholder="Tên file hiển thị..."></div>
+      <div class="input-group" style="margin-top:10px;"><label style="font-size:0.8rem; color:#e0a0a0;">Chọn file:</label><input type="file" id="upFile"></div>
+      <div class="input-group"><label style="font-size:0.8rem; color:#e0a0a0;">Chọn ảnh bìa:</label><input type="file" id="upImage" accept="image/*"></div>
+      <button class="btn" id="uploadBtn" style="margin-top:10px;">TẢI LÊN</button>
+    </div>
+
+    <div class="panel">
+      <h2>📁 File đã đăng</h2>
+      <div id="fileList"></div>
+    </div>
+
+    <div class="panel">
+      <h2>🎟 Tạo Code</h2>
+      <div style="display:flex; gap:10px; margin-bottom:10px;">
+        <input type="number" id="codePoints" value="5" placeholder="Điểm" style="flex:1;">
+        <input type="number" id="codeCount" value="1" placeholder="SL" style="flex:1;">
+      </div>
+      <button class="btn" id="createCodeBtn">TẠO CODE</button>
+      <div id="newCodes" style="margin-top:10px; text-align:center;"></div>
+    </div>
+
+    <div class="panel">
+      <h2>📋 Danh sách Code</h2>
+      <div id="codeList"></div>
+    </div>
+
+    <div class="panel">
+      <h2>👥 Quản lý User</h2>
+      <div id="userList"></div>
+    </div>
+    
+    <button class="btn" style="background:#333; margin-bottom:30px;" onclick="localStorage.removeItem('sammx_admintoken'); location.reload();">ĐĂNG XUẤT ADMIN</button>
+  </div>
+</div>
+
+<script>
+let adToken = localStorage.getItem('sammx_admintoken') || '';
+const $ = id => document.getElementById(id);
+const auth = () => ({ 'Authorization': 'Bearer ' + adToken });
+
+$('loginAdminBtn').onclick = async () => {
+  const r = await fetch('/api/admin/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username: $('adUser').value, password: $('adPass').value }) });
+  const d = await r.json();
+  if (!r.ok) return alert(d.error);
+  adToken = d.token; localStorage.setItem('sammx_admintoken', adToken); enterAdmin();
+};
+
+function enterAdmin(){
+  $('loginPanel').classList.add('hidden'); $('adminContent').classList.remove('hidden');
+  loadFiles(); loadCodes(); loadUsers();
+}
+
+$('uploadBtn').onclick = async () => {
+  const fd = new FormData();
+  fd.append('name', $('upName').value);
+  if ($('upFile').files[0]) fd.append('file', $('upFile').files[0]);
+  if ($('upImage').files[0]) fd.append('image', $('upImage').files[0]);
+  const r = await fetch('/api/admin/upload', { method:'POST', headers: auth(), body: fd });
+  if (r.ok) { alert('Đăng file OK!'); $('upName').value=''; loadFiles(); }
+  else alert('Lỗi upload');
+};
+
+async function loadFiles(){
+  const r = await fetch('/api/files'); const files = await r.json();
+  $('fileList').innerHTML = files.map(f => `
+    <div class="file-card">
+      ${f.image_path ? `<img src="${f.image_path}">` : `<div style="width:60px;text-align:center;font-size:2rem;">📄</div>`}
+      <div style="flex:1; overflow:hidden;">
+        <div style="font-weight:bold; font-size:0.9rem;">${f.name}</div>
+        <div style="font-size:0.7rem; color:#a07070;">${(f.size/1024).toFixed(1)} KB</div>
+      </div>
+      <button class="btn-del" onclick="delFile(${f.id})">XÓA</button>
+    </div>
+  `).join('');
+}
+async function delFile(id) { if(confirm('Xóa?')) { await fetch('/api/admin/files/'+id, {method:'DELETE', headers:auth()}); loadFiles(); } }
+
+$('createCodeBtn').onclick = async () => {
+  const r = await fetch('/api/admin/codes', { method:'POST', headers:{...auth(), 'Content-Type':'application/json'}, body: JSON.stringify({ points: parseInt($('codePoints').value), count: parseInt($('codeCount').value) }) });
+  const d = await r.json();
+  if (r.ok) { $('newCodes').innerHTML = d.codes.map(c => `<span class="code-tag">${c}</span>`).join(''); loadCodes(); }
+};
+
+async function loadCodes(){
+  const r = await fetch('/api/admin/codes', { headers: auth() }); const codes = await r.json();
+  $('codeList').innerHTML = codes.map(c => `
+    <div style="display:flex; justify-content:space-between; background:#2a1010; padding:8px; border-radius:6px; margin-bottom:6px;">
+      <span class="code-tag">${c.code}</span>
+      <span style="font-size:0.8rem; color:#e0a0a0;">${c.points} điểm ${c.used ? '(Đã dùng)' : ''}</span>
+    </div>
+  `).join('');
+}
+
+async function loadUsers(){
+  const r = await fetch('/api/admin/users', { headers: auth() }); const users = await r.json();
+  $('userList').innerHTML = users.map(u => `
+    <div style="display:flex; justify-content:space-between; background:#2a1010; padding:8px; border-radius:6px; margin-bottom:6px; align-items:center;">
+      <span>${u.username}</span>
+      <span style="color:#ff8080; font-weight:bold;">${u.points} điểm</span>
+    </div>
+  `).join('');
+}
+
+if (adToken) enterAdmin();
+</script>
+</body>
+</html>
