@@ -16,7 +16,7 @@
   .btn { background: linear-gradient(135deg,#d87cff,#9b30d9); color:#fff; border:none; border-radius:8px; padding:12px; font-weight:bold; cursor:pointer; width:100%; transition:.2s; }
   .btn:hover { filter: brightness(1.1); }
   .file-card { background:#2a1035; border-radius:8px; padding:10px; margin-bottom:8px; display:flex; align-items:center; gap:10px; border:1px solid #4a1a5a; }
-  .file-card img { width:60px; height:60px; border-radius:6px; object-fit:cover; }
+  .file-card img { width:80px; height:80px; border-radius:6px; object-fit:contain; background:#0d0214;}
   .btn-del { background:#4a1010; color:#ff8080; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; font-weight:bold;}
   .btn-del:hover { background:#6a2020; }
   .code-tag { background:#2a1035; border:1px solid #d87cff; color:#e0b0ff; padding:4px 8px; border-radius:4px; font-family:monospace; margin:2px; display:inline-block; }
@@ -91,24 +91,33 @@ function enterAdmin(){
 }
 
 $('uploadBtn').onclick = async () => {
+  if(!$('upFile').files[0]) return alert('Vui lòng chọn file để tải lên!');
+  
   const fd = new FormData();
-  fd.append('name', $('upName').value);
-  fd.append('points', $('upPoints').value);
-  if ($('upFile').files[0]) fd.append('file', $('upFile').files[0]);
+  // Nếu Admin có nhập tên thì lấy tên đó, nếu không thì lấy tên gốc của file
+  if($('upName').value.trim() !== '') {
+    fd.append('name', $('upName').value.trim());
+  } else {
+    fd.append('name', $('upFile').files[0].name);
+  }
+  
+  fd.append('points', $('upPoints').value || 0);
+  fd.append('file', $('upFile').files[0]);
   if ($('upImage').files[0]) fd.append('image', $('upImage').files[0]);
+  
   const r = await fetch('/api/admin/upload', { method:'POST', headers: auth(), body: fd });
-  if (r.ok) { alert('Đăng file OK!'); $('upName').value=''; $('upPoints').value=''; loadFiles(); }
-  else alert('Lỗi upload');
+  if (r.ok) { alert('Đăng file OK!'); $('upName').value=''; $('upPoints').value=''; $('upFile').value=''; $('upImage').value=''; loadFiles(); }
+  else alert('Lỗi upload!');
 };
 
 async function loadFiles(){
   const r = await fetch('/api/files'); const files = await r.json();
   $('fileList').innerHTML = files.map(f => `
     <div class="file-card">
-      ${f.image_path ? `<img src="${f.image_path}">` : `<div style="width:60px;text-align:center;font-size:2rem;">📄</div>`}
+      ${f.image_path ? `<img src="${f.image_path}">` : `<div style="width:80px;text-align:center;font-size:2rem;">📄</div>`}
       <div style="flex:1; overflow:hidden;">
-        <div style="font-weight:bold; font-size:0.9rem;">${f.name}</div>
-        <div style="font-size:0.7rem; color:#d0a0e0;">${(f.size/1024).toFixed(1)} KB • Giá: <b>${f.points} điểm</b></div>
+        <div style="font-weight:bold; font-size:0.9rem; word-break:break-word;">${f.name}</div>
+        <div style="font-size:0.7rem; color:#d0a0e0; margin-top:4px;">${(f.size/1024).toFixed(1)} KB • Giá: <b>${f.points} điểm</b></div>
       </div>
       <button class="btn-del" onclick="delFile(${f.id})">XÓA</button>
     </div>
