@@ -84,7 +84,6 @@
 </head>
 <body>
 
-<!-- NHẠC NỀN TỰ ĐỘNG PHÁT -->
 <audio id="bgMusic" loop>
   <source src="https://files.catbox.moe/ylpmoe.mp3" type="audio/mpeg">
 </audio>
@@ -92,7 +91,6 @@
 <div class="app-container">
   <h1 class="app-title">SAMM X MODZ VIP</h1>
 
-  <!-- MÀN HÌNH XÁC THỰC THIẾT BỊ -->
   <div id="verifyScreen" class="screen">
     <div class="verify-icon">🛡️</div>
     <div class="verify-text" id="verifyStatus">Đang kết nối máy chủ...</div>
@@ -156,18 +154,17 @@ let token = localStorage.getItem('sammx_token') || '';
 let currentPoints = 0;
 const $ = id => document.getElementById(id);
 
-// XỬ LÝ NHẠC NỀN
+// NHẠC NỀN
 function playMusic() {
   const music = $('bgMusic');
-  music.volume = 0.5; // Âm lượng 50%
+  music.volume = 0.5;
   music.play().catch(e => {
-    // Trình duyệt chặn autoplay nếu chưa tương tác, phát nhạc khi user click
     document.body.addEventListener('click', () => { music.play(); }, { once: true });
   });
 }
 playMusic();
 
-// XỬ LÝ XÁC THỰC THIẾT BỊ
+// XÁC THỰC THIẾT BỊ
 function startVerification(callback) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   $('verifyScreen').classList.add('active');
@@ -178,7 +175,7 @@ function startVerification(callback) {
   const statusText = $('verifyStatus');
 
   const interval = setInterval(() => {
-    progress += Math.floor(Math.random() * 5) + 1; // Tăng từ 1-5% mỗi 50ms
+    progress += Math.floor(Math.random() * 5) + 1;
     if (progress > 100) progress = 100;
     
     bar.style.width = progress + '%';
@@ -196,10 +193,9 @@ function startVerification(callback) {
         callback();
       }, 500);
     }
-  }, 40); // Tốc độ chạy (40ms)
+  }, 40);
 }
 
-// CHUYỂN MÀN HÌNH
 function showScreen(name){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   $(name + 'Screen').classList.add('active');
@@ -217,12 +213,10 @@ function updatePointsUI(pts) {
 
 async function loadMe(){
   if (!token) {
-    // Nếu chưa có token, chạy xác thực rồi hiện login
     startVerification(() => showScreen('login'));
     return;
   }
   
-  // Nếu có token, chạy xác thực rồi tự động vào home
   try {
     const r = await fetch('/api/me', { headers: { 'Authorization': 'Bearer ' + token } });
     if (!r.ok) throw 0;
@@ -285,13 +279,19 @@ async function loadFiles(){
   
   files.forEach(f => {
     const img = f.image_path 
-      ? `<img src="${f.image_path}" class="file-cover">` 
+      ? `<img src="${f.image_path}" class="file-cover" onerror="this.style.display='none'">` 
       : `<div class="file-cover-placeholder">📄</div>`;
     
+    // SỬA LỖI TÊN FILE: Xóa ký tự lạ, ưu tiên tên Admin nhập
     let displayName = f.name;
+    // Xóa các ký tự lạ do lỗi font (chỉ giữ chữ, số, khoảng trắng, và các dấu tiếng Việt)
+    displayName = displayName.replace(/[^\w\sÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴÝỶỸửữựỳỵỷỹ]/g, '');
+    // Xóa đuôi file (.zip, .apk...)
     if (displayName.includes('.')) {
       displayName = displayName.substring(0, displayName.lastIndexOf('.'));
     }
+    // Nếu sau khi lọc mà tên rỗng thì để mặc định
+    if(displayName.trim() === '') displayName = 'File VIP';
 
     list.innerHTML += `<div class="file-card">${img}
       <div class="file-body">
@@ -305,21 +305,32 @@ async function loadFiles(){
   });
 }
 
+// TẢI FILE TRỰC TIẾP
 async function buyFile(fileId, fileName) {
   if (!confirm(`Bạn có chắc muốn dùng điểm để mua file: ${fileName}?`)) return;
+  
   const r = await fetch('/api/files/buy', {
     method:'POST',
     headers: { 'Authorization': 'Bearer ' + token, 'Content-Type':'application/json' },
     body: JSON.stringify({ fileId })
   });
   const d = await r.json();
-  if (!r.ok) return alert(d.error);
+  
+  if (!r.ok) {
+    return alert(d.error); // Báo lỗi nếu thiếu điểm
+  }
+  
+  // Cập nhật lại số điểm trên giao diện
   updatePointsUI(d.new_points);
-  alert('Mua file thành công! Nhấn OK để tải xuống.');
-  window.open(d.file_path, '_blank');
+  
+  // TỰ ĐỘNG TẢI FILE XUỐNG NGAY LẬP TỨC
+  const a = document.createElement('a');
+  a.href = d.file_path;
+  a.download = fileName; // Ép trình duyệt tải xuống thay vì mở
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 }
-
-// BẮT ĐẦU CHẠY
 loadMe();
 </script>
 </body>
