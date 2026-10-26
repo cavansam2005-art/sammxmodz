@@ -3,73 +3,179 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ADMIN — SAMM X MODZ</title>
+<title>ADMIN — SAMM X MODZ VIP</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
-  body { background: radial-gradient(circle at 80% 10%, #1c0524 0%, #0d020d 60%, #050005 100%); color:#f5e8ff; padding:20px 12px; min-height:100vh; }
-  .wrap { max-width:800px; margin:0 auto; }
-  .panel { background: #1a081f; border:1px solid #4a1a5a; border-radius:16px; padding:20px; margin-bottom:16px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.8); }
-  h1, h2 { color: #d87cff; text-align:center; margin-bottom:15px; font-size: 1.2rem; letter-spacing:1px; text-transform:uppercase;}
-  .input-group { margin-bottom:12px; display:flex; flex-direction:column; gap:6px;}
-  input, select { background:#2a1035; border:1px solid #6a2a7a; border-radius:8px; padding:10px; color:#fff; outline:none; }
-  input:focus { border-color:#d87cff; }
-  .btn { background: linear-gradient(135deg,#d87cff,#9b30d9); color:#fff; border:none; border-radius:8px; padding:12px; font-weight:bold; cursor:pointer; width:100%; transition:.2s; }
-  .btn:hover { filter: brightness(1.1); }
-  .file-card { background:#2a1035; border-radius:8px; padding:10px; margin-bottom:8px; display:flex; align-items:center; gap:10px; border:1px solid #4a1a5a; }
-  .file-card img { width:80px; height:80px; border-radius:6px; object-fit:contain; background:#0d0214;}
-  .btn-del { background:#4a1010; color:#ff8080; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; font-weight:bold;}
-  .btn-del:hover { background:#6a2020; }
-  .code-tag { background:#2a1035; border:1px solid #d87cff; color:#e0b0ff; padding:4px 8px; border-radius:4px; font-family:monospace; margin:2px; display:inline-block; }
-  .hidden { display:none !important; }
+  
+  /* NỀN TỐI HUYỀN BÍ VỚI ÁNH SÁNG TÍM */
+  body { 
+    background: radial-gradient(circle at 10% 20%, #1e0a2e 0%, #0a0212 60%, #030005 100%); 
+    color:#f5e8ff; padding:20px 12px; min-height:100vh; overflow-x: hidden;
+  }
+  body::before {
+    content:''; position:fixed; top:-10%; right:-10%; width:50vmax; height:50vmax;
+    background: radial-gradient(circle, rgba(216,124,255,0.12) 0%, transparent 60%);
+    pointer-events:none; z-index:0; border-radius:50%;
+  }
+
+  .wrap { max-width: 600px; margin: 0 auto; position: relative; z-index: 1; }
+
+  /* TIÊU ĐỀ */
+  .app-title {
+    text-align: center; font-size: 1.6rem; font-weight: 800; letter-spacing: 1.5px;
+    background: linear-gradient(120deg,#f0a8ff 0%,#d87cff 50%,#9b30d9 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    text-shadow: 0 0 20px rgba(216,124,255,0.4); margin-bottom: 24px;
+  }
+
+  /* KHUNG KÍNH MỜ (GLASSMORPHISM) */
+  .panel {
+    background: rgba(30, 15, 45, 0.6);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(216,124,255,0.2);
+    border-radius: 20px; padding: 20px; margin-bottom: 20px;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.6);
+    transition: all 0.3s;
+  }
+
+  h2 {
+    color: #d87cff; font-size: 1.05rem; text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  h2::after {
+    content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(216,124,255,0.5), transparent);
+  }
+
+  /* Ô NHẬP LIỆU */
+  .input-group { margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px; }
+  label { font-size: 0.75rem; font-weight: 600; color: #b090c0; text-transform: uppercase; letter-spacing: 0.5px; }
+  
+  input[type="text"], input[type="password"], input[type="number"], input[type="file"] {
+    width: 100%; background: rgba(15, 5, 25, 0.6); border: 1.5px solid rgba(216,124,255,0.25);
+    border-radius: 12px; padding: 12px 16px; color: #fff; font-size: 0.95rem; outline: none; transition: 0.2s;
+  }
+  input:focus { border-color: #d87cff; background: rgba(30, 15, 45, 0.8); box-shadow: 0 0 0 3px rgba(216,124,255,0.15); }
+  input::file-selector-button {
+    background: rgba(216,124,255,0.2); border: none; color: #d87cff; padding: 8px 16px;
+    border-radius: 8px; cursor: pointer; font-weight: bold; margin-right: 10px; transition: 0.2s;
+  }
+  input::file-selector-button:hover { background: rgba(216,124,255,0.4); }
+
+  /* NÚT BẤM */
+  .btn {
+    background: linear-gradient(135deg, #d87cff, #9b30d9); color: #fff; border: none;
+    border-radius: 12px; padding: 14px; font-weight: 700; font-size: 0.95rem;
+    cursor: pointer; width: 100%; transition: all 0.3s; box-shadow: 0 8px 20px -6px rgba(216,124,255,0.4);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 25px -6px rgba(216,124,255,0.6); filter: brightness(1.1); }
+  .btn:active { transform: translateY(0); }
+  
+  .btn-small { padding: 8px 12px; font-size: 0.8rem; border-radius: 8px; width: auto; }
+  .btn-edit { background: linear-gradient(135deg, #6a2a9a, #4a1a6a); }
+  .btn-edit:hover { box-shadow: 0 8px 20px -6px rgba(106,42,154,0.6); }
+  .btn-del { background: linear-gradient(135deg, #ff4d4d, #b30000); }
+  .btn-del:hover { box-shadow: 0 8px 20px -6px rgba(255,77,77,0.6); }
+
+  /* DANH SÁCH FILE */
+  .file-card {
+    background: rgba(20, 8, 30, 0.8); border: 1px solid rgba(216,124,255,0.15);
+    border-radius: 14px; padding: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 14px;
+    transition: 0.2s;
+  }
+  .file-card:hover { border-color: rgba(216,124,255,0.4); background: rgba(30, 12, 45, 0.9); }
+  .file-card img { width: 70px; height: 70px; border-radius: 10px; object-fit: contain; background: #05000a; border: 1px solid rgba(216,124,255,0.1); }
+  .file-info { flex: 1; overflow: hidden; }
+  .file-name { font-weight: 700; font-size: 0.95rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .file-meta { font-size: 0.75rem; color: #b090c0; margin-top: 4px; display: flex; gap: 8px; align-items: center;}
+  .sale-badge { background: #ff4d4d; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; }
+  
+  /* TAG CODE */
+  .code-tag { background: rgba(216,124,255,0.1); border: 1px solid rgba(216,124,255,0.5); color: #e0b0ff; padding: 6px 12px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; margin: 4px; display: inline-block; letter-spacing: 1px; }
+
+  /* MODAL SỬA FILE */
+  .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 100; padding: 20px; }
+  .modal-content { background: #150a20; padding: 24px; border-radius: 20px; width: 100%; max-width: 400px; border: 1px solid rgba(216,124,255,0.3); box-shadow: 0 20px 50px rgba(0,0,0,0.8); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  @keyframes popIn { from{transform: scale(0.9); opacity:0;} to{transform: scale(1); opacity:1;} }
+
+  .hidden { display: none !important; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>⚙ ADMIN SAMM X MODZ</h1>
+  <h1 class="app-title">⚙ SAMM X MODZ ADMIN</h1>
 
+  <!-- ĐĂNG NHẬP -->
   <div id="loginPanel" class="panel">
-    <h2>Đăng nhập Admin</h2>
-    <div class="input-group"><input type="text" id="adUser" placeholder="admin"></div>
-    <div class="input-group"><input type="password" id="adPass" placeholder="admin123"></div>
-    <button class="btn" id="loginAdminBtn">ĐĂNG NHẬP</button>
+    <h2>🔐 Đăng nhập</h2>
+    <div class="input-group"><label>Tài khoản</label><input type="text" id="adUser" placeholder="admin"></div>
+    <div class="input-group"><label>Mật khẩu</label><input type="password" id="adPass" placeholder="admin123"></div>
+    <button class="btn" id="loginAdminBtn" style="margin-top: 10px;">ĐĂNG NHẬP</button>
   </div>
 
+  <!-- NỘI DUNG ADMIN -->
   <div id="adminContent" class="hidden">
+    
+    <!-- UPLOAD FILE -->
     <div class="panel">
       <h2>📤 Đăng file mới</h2>
-      <div class="input-group"><input type="text" id="upName" placeholder="Tên file hiển thị..."></div>
-      <div class="input-group"><input type="number" id="upPoints" placeholder="Giá điểm (VD: 10)..." min="0"></div>
-      <div class="input-group" style="margin-top:10px;"><label style="font-size:0.8rem; color:#d0a0e0;">Chọn file:</label><input type="file" id="upFile"></div>
-      <div class="input-group"><label style="font-size:0.8rem; color:#d0a0e0;">Chọn ảnh bìa:</label><input type="file" id="upImage" accept="image/*"></div>
-      <button class="btn" id="uploadBtn" style="margin-top:10px;">TẢI LÊN</button>
+      <div class="input-group"><label>Tên file hiển thị</label><input type="text" id="upName" placeholder="VD: SAMM X MODZ ALOK iOS..."></div>
+      <div style="display:flex; gap:10px;">
+        <div class="input-group" style="flex:1;"><label>Giá gốc (điểm)</label><input type="number" id="upPoints" value="10" min="0"></div>
+        <div class="input-group" style="flex:1;"><label>Giá Sale (0 = Không)</label><input type="number" id="upSalePoints" value="0" min="0"></div>
+      </div>
+      <div class="input-group" style="margin-top:10px;"><label>File tải lên (ZIP, APK...)</label><input type="file" id="upFile"></div>
+      <div class="input-group"><label>Ảnh bìa (Thư viện ảnh)</label><input type="file" id="upImage" accept="image/*"></div>
+      <button class="btn" id="uploadBtn" style="margin-top: 10px;">TẢI LÊN</button>
     </div>
 
+    <!-- DANH SÁCH FILE -->
     <div class="panel">
       <h2>📁 File đã đăng</h2>
       <div id="fileList"></div>
     </div>
 
+    <!-- TẠO CODE -->
     <div class="panel">
       <h2>🎟 Tạo Code</h2>
       <div style="display:flex; gap:10px; margin-bottom:10px;">
-        <input type="number" id="codePoints" value="5" placeholder="Điểm" style="flex:1;">
-        <input type="number" id="codeCount" value="1" placeholder="SL" style="flex:1;">
+        <div class="input-group" style="flex:1; margin:0;"><label>Số điểm</label><input type="number" id="codePoints" value="5" min="1"></div>
+        <div class="input-group" style="flex:1; margin:0;"><label>Số lượng</label><input type="number" id="codeCount" value="1" min="1" max="50"></div>
       </div>
       <button class="btn" id="createCodeBtn">TẠO CODE</button>
-      <div id="newCodes" style="margin-top:10px; text-align:center;"></div>
+      <div id="newCodes" style="margin-top:15px; text-align:center; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 10px; display: none;"></div>
     </div>
 
+    <!-- QUẢN LÝ CODE -->
     <div class="panel">
       <h2>📋 Danh sách Code</h2>
-      <div id="codeList"></div>
+      <div id="codeList" style="max-height: 250px; overflow-y: auto;"></div>
     </div>
 
+    <!-- QUẢN LÝ USER -->
     <div class="panel">
       <h2>👥 Quản lý User</h2>
-      <div id="userList"></div>
+      <div id="userList" style="max-height: 250px; overflow-y: auto;"></div>
     </div>
     
-    <button class="btn" style="background:#4a1a5a; margin-bottom:30px;" onclick="localStorage.removeItem('sammx_admintoken'); location.reload();">ĐĂNG XUẤT ADMIN</button>
+    <button class="btn btn-del" style="margin-bottom: 30px;" onclick="localStorage.removeItem('sammx_admintoken'); location.reload();">ĐĂNG XUẤT ADMIN</button>
+  </div>
+</div>
+
+<!-- MODAL SỬA FILE -->
+<div id="editModal" class="modal hidden">
+  <div class="modal-content">
+    <h2 style="margin-bottom: 15px;">✏️ Sửa File</h2>
+    <input type="hidden" id="editId">
+    <div class="input-group"><label>Tên file</label><input type="text" id="editName"></div>
+    <div style="display:flex; gap:10px;">
+      <div class="input-group" style="flex:1;"><label>Giá gốc</label><input type="number" id="editPoints" min="0"></div>
+      <div class="input-group" style="flex:1;"><label>Giá Sale</label><input type="number" id="editSalePoints" min="0"></div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:20px;">
+      <button class="btn btn-edit" onclick="saveEdit()">LƯU LẠI</button>
+      <button class="btn btn-del" onclick="closeModal()">HỦY</button>
+    </div>
   </div>
 </div>
 
@@ -78,6 +184,7 @@ let adToken = localStorage.getItem('sammx_admintoken') || '';
 const $ = id => document.getElementById(id);
 const auth = () => ({ 'Authorization': 'Bearer ' + adToken });
 
+// --- AUTH ---
 $('loginAdminBtn').onclick = async () => {
   const r = await fetch('/api/admin/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username: $('adUser').value, password: $('adPass').value }) });
   const d = await r.json();
@@ -90,63 +197,118 @@ function enterAdmin(){
   loadFiles(); loadCodes(); loadUsers();
 }
 
+// --- UPLOAD FILE ---
 $('uploadBtn').onclick = async () => {
-  if(!$('upFile').files[0]) return alert('Vui lòng chọn file để tải lên!');
+  if(!$('upFile').files[0]) return alert('Vui lòng chọn file!');
+  if(!$('upName').value.trim()) return alert('Vui lòng nhập tên file!');
   
   const fd = new FormData();
-  // Nếu Admin có nhập tên thì lấy tên đó, nếu không thì lấy tên gốc của file
-  if($('upName').value.trim() !== '') {
-    fd.append('name', $('upName').value.trim());
-  } else {
-    fd.append('name', $('upFile').files[0].name);
-  }
-  
+  fd.append('name', $('upName').value.trim());
   fd.append('points', $('upPoints').value || 0);
+  fd.append('sale_points', $('upSalePoints').value || 0);
   fd.append('file', $('upFile').files[0]);
   if ($('upImage').files[0]) fd.append('image', $('upImage').files[0]);
   
   const r = await fetch('/api/admin/upload', { method:'POST', headers: auth(), body: fd });
-  if (r.ok) { alert('Đăng file OK!'); $('upName').value=''; $('upPoints').value=''; $('upFile').value=''; $('upImage').value=''; loadFiles(); }
-  else alert('Lỗi upload!');
+  if (r.ok) { 
+    alert('Đăng file thành công!'); 
+    $('upName').value=''; $('upPoints').value='10'; $('upSalePoints').value='0'; $('upFile').value=''; $('upImage').value=''; 
+    loadFiles(); 
+  } else {
+    const d = await r.json(); alert(d.error || 'Lỗi upload!');
+  }
 };
 
+// --- LOAD FILES ---
 async function loadFiles(){
   const r = await fetch('/api/files'); const files = await r.json();
-  $('fileList').innerHTML = files.map(f => `
+  $('fileList').innerHTML = files.map(f => {
+    let priceHtml = `<span>${f.points} điểm</span>`;
+    if (f.sale_points > 0 && f.sale_points < f.points) {
+      priceHtml = `<span style="text-decoration:line-through; color:#888;">${f.points}</span> <span class="sale-badge">SALE ${f.sale_points}đ</span>`;
+    }
+    return `
     <div class="file-card">
-      ${f.image_path ? `<img src="${f.image_path}">` : `<div style="width:80px;text-align:center;font-size:2rem;">📄</div>`}
-      <div style="flex:1; overflow:hidden;">
-        <div style="font-weight:bold; font-size:0.9rem; word-break:break-word;">${f.name}</div>
-        <div style="font-size:0.7rem; color:#d0a0e0; margin-top:4px;">${(f.size/1024).toFixed(1)} KB • Giá: <b>${f.points} điểm</b></div>
+      ${f.image_path ? `<img src="${f.image_path}">` : `<div style="width:70px;height:70px;display:flex;align-items:center;justify-content:center;font-size:2rem;background:#05000a;border-radius:10px;">📄</div>`}
+      <div class="file-info">
+        <div class="file-name">${f.name}</div>
+        <div class="file-meta">${(f.size/1024).toFixed(1)} KB • ${priceHtml}</div>
       </div>
-      <button class="btn-del" onclick="delFile(${f.id})">XÓA</button>
-    </div>
-  `).join('');
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <button class="btn btn-small btn-edit" onclick="openEdit(${f.id}, '${f.name.replace(/'/g, "\\'")}', ${f.points}, ${f.sale_points || 0})">SỬA</button>
+        <button class="btn btn-small btn-del" onclick="delFile(${f.id})">XÓA</button>
+      </div>
+    </div>`;
+  }).join('');
 }
-async function delFile(id) { if(confirm('Xóa file này?')) { await fetch('/api/admin/files/'+id, {method:'DELETE', headers:auth()}); loadFiles(); } }
 
+async function delFile(id) { 
+  if(confirm('Bạn có chắc muốn xóa file này?')) { 
+    await fetch('/api/admin/files/'+id, {method:'DELETE', headers:auth()}); 
+    loadFiles(); 
+  } 
+}
+
+// --- SỬA FILE ---
+function openEdit(id, name, points, sale_points) {
+  $('editId').value = id;
+  $('editName').value = name;
+  $('editPoints').value = points;
+  $('editSalePoints').value = sale_points || 0;
+  $('editModal').classList.remove('hidden');
+}
+function closeModal() { $('editModal').classList.add('hidden'); }
+
+async function saveEdit() {
+  const id = $('editId').value;
+  const name = $('editName').value.trim();
+  const points = $('editPoints').value;
+  const sale_points = $('editSalePoints').value;
+  if(!name) return alert('Tên không được để trống!');
+
+  const r = await fetch('/api/admin/files/' + id, {
+    method: 'PUT',
+    headers: { ...auth(), 'Content-Type':'application/json' },
+    body: JSON.stringify({ name, points: parseInt(points), sale_points: parseInt(sale_points) })
+  });
+  
+  if (r.ok) {
+    alert('Cập nhật thành công!');
+    closeModal();
+    loadFiles();
+  } else {
+    alert('Lỗi cập nhật!');
+  }
+}
+
+// --- TẠO CODE ---
 $('createCodeBtn').onclick = async () => {
   const r = await fetch('/api/admin/codes', { method:'POST', headers:{...auth(), 'Content-Type':'application/json'}, body: JSON.stringify({ points: parseInt($('codePoints').value), count: parseInt($('codeCount').value) }) });
   const d = await r.json();
-  if (r.ok) { $('newCodes').innerHTML = d.codes.map(c => `<span class="code-tag">${c}</span>`).join(''); loadCodes(); }
+  if (r.ok) { 
+    $('newCodes').style.display = 'block';
+    $('newCodes').innerHTML = d.codes.map(c => `<span class="code-tag">${c}</span>`).join(''); 
+    loadCodes(); 
+  }
 };
 
 async function loadCodes(){
   const r = await fetch('/api/admin/codes', { headers: auth() }); const codes = await r.json();
   $('codeList').innerHTML = codes.map(c => `
-    <div style="display:flex; justify-content:space-between; background:#2a1035; padding:8px; border-radius:6px; margin-bottom:6px; border:1px solid #4a1a5a;">
-      <span class="code-tag">${c.code}</span>
-      <span style="font-size:0.8rem; color:#d0a0e0;">${c.points} điểm ${c.used ? '(Đã dùng)' : ''}</span>
+    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(20,8,30,0.6); padding:10px 14px; border-radius:10px; margin-bottom:8px; border:1px solid rgba(216,124,255,0.1);">
+      <span class="code-tag" style="margin:0;">${c.code}</span>
+      <span style="font-size:0.8rem; color:#b090c0;">${c.points} điểm ${c.used ? '<span style="color:#ff4d4d;">(Đã dùng)</span>' : '<span style="color:#4dff88;">(Chưa dùng)</span>'}</span>
     </div>
   `).join('');
 }
 
+// --- QUẢN LÝ USER ---
 async function loadUsers(){
   const r = await fetch('/api/admin/users', { headers: auth() }); const users = await r.json();
   $('userList').innerHTML = users.map(u => `
-    <div style="display:flex; justify-content:space-between; background:#2a1035; padding:8px; border-radius:6px; margin-bottom:6px; align-items:center; border:1px solid #4a1a5a;">
-      <span>${u.username}</span>
-      <span style="color:#d87cff; font-weight:bold;">${u.points} điểm</span>
+    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(20,8,30,0.6); padding:10px 14px; border-radius:10px; margin-bottom:8px; border:1px solid rgba(216,124,255,0.1);">
+      <span style="font-weight:600;">${u.username}</span>
+      <span style="color:#d87cff; font-weight:bold; background:rgba(216,124,255,0.1); padding:4px 10px; border-radius:6px;">${u.points} điểm</span>
     </div>
   `).join('');
 }
