@@ -16,9 +16,12 @@ const ADMIN_PASS = 'admin123';
 const db = new Database('database.db');
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, points INTEGER DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP);
-  CREATE TABLE IF NOT EXISTS files (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, size INTEGER, file_path TEXT, image_path TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP);
+  CREATE TABLE IF NOT EXISTS files (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, size INTEGER, file_path TEXT, image_path TEXT, points INTEGER DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP);
   CREATE TABLE IF NOT EXISTS codes (id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT UNIQUE, points INTEGER, used INTEGER DEFAULT 0, used_by TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP);
 `);
+
+// Thêm cột points vào bảng files nếu database cũ chưa có
+try { db.exec("ALTER TABLE files ADD COLUMN points INTEGER DEFAULT 0"); } catch(e) {}
 
 const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
@@ -80,7 +83,22 @@ app.post('/api/redeem', authUser, (req, res) => {
 });
 
 app.get('/api/files', (req, res) => {
-  res.json(db.prepare('SELECT id, name, size, file_path, image_path FROM files ORDER BY id DESC').all());
+  res.json(db.prepare('SELECT id, name, size, file_path, image_path, points FROM files ORDER BY id DESC').all());
+});
+
+// Mua file bằng điểm
+app.post('/api/files/buy', authUser, (req, res) => {
+  const { fileId } = req.body;
+  const file = db.prepare('SELECT * FROM files WHERE id = ?').get(fileId);
+  if (!file) return res.status(404).json({ error: 'File không tồn tại' });
+  
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
+  if (user.points < file.points) return res.status(400).json({ error: `Bạn cần ${file.points} điểm để tải file này. Số dư hiện tại: ${user.points} điểm` });
+  
+  if (file.points > 0) {
+    db.prepare('UPDATE users SET points = points - ? WHERE id = ?').run(file.points, req.user.id);
+  }
+  res.json({ success: true, file_path: file.file_path, new_points: user.points - file.points });
 });
 
 app.post('/api/admin/login', (req, res) => {
@@ -93,13 +111,12 @@ app.post('/api/admin/upload', authAdmin, upload.fields([{ name: 'file', maxCount
   if (!req.files?.file) return res.status(400).json({ error: 'Chưa chọn file' });
   const f = req.files.file[0];
   const img = req.files.image?.[0];
-  db.prepare('INSERT INTO files (name, size, file_path, image_path) VALUES (?, ?, ?, ?)').run(f.originalname, f.size, '/uploads/' + f.filename, img ? '/uploads/' + img.filename : null);
+  const points = parseInt(req.body.points) || 0;
+  db.prepare('INSERT INTO files (name, size, file_path, image_path, points) VALUES (?, ?, ?, ?, ?)').run(f.originalname, f.size, '/uploads/' + f.filename, img ? '/uploads/' + img.filename : null, points);
   res.json({ success: true });
 });
 
 app.delete('/api/admin/files/:id', authAdmin, (req, res) => {
-  const f = db.prepare('SELECT * FROM files WHERE id = ?').get(req.params.id);
-  if (!f) return res.status(404).json({ error: 'Không tìm thấy' });
   db.prepare('DELETE FROM files WHERE id = ?').run(req.params.id);
   res.json({ success: true });
 });
