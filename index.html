@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAMM X MODZ VIP</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
+  body { background: radial-gradient(circle at 20% 10%, #2a0a0a 0%, #120404 60%, #050101 100%); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:16px; }
+  .app-container { width:100%; max-width:430px; background: linear-gradient(160deg, rgba(30,10,10,0.97), rgba(15,4,4,0.98)); backdrop-filter: blur(14px); border-radius:32px; box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,50,50,0.25); padding:26px 22px 30px; color:#ffe8e8; max-height:95vh; overflow-y:auto; }
+  .app-title { text-align:center; font-size:1.8rem; font-weight:800; background: linear-gradient(120deg,#ffb0b0 0%,#ff3030 40%,#ff7070 60%,#c00 100%); -webkit-background-clip:text; color:transparent; }
+  .screen { display:none; flex-direction:column; gap:14px; }
+  .screen.active { display:flex; }
+  .input-group input, .redeem-row input { width:100%; background:#1e0c0c; border:1.5px solid #4a1a1a; border-radius:16px; padding:14px 18px; color:#fff; outline:none; }
+  .btn { border:none; border-radius:16px; padding:15px; font-weight:700; cursor:pointer; }
+  .btn-primary { background: linear-gradient(135deg,#ff6060,#ff2020 55%,#b00000); color:#fff; }
+  .btn-outline { background:transparent; border:1.5px solid #6a2a2a; color:#e0a0a0; }
+  .user-box { background: linear-gradient(160deg,#2a1010,#1a0808); border-radius:24px; padding:20px; text-align:center; border:1px solid #4a1a1a; }
+  .avatar { width:70px; height:70px; margin:0 auto 10px; background: linear-gradient(145deg,#ff7070,#b00000); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:800; color:#fff; }
+  .points-value { font-size:1.8rem; font-weight:800; color:#ff5050; }
+  .section-title { font-size:0.95rem; font-weight:700; color:#ff5050; text-transform:uppercase; margin-top:8px; border-bottom:1px solid #4a1a1a; padding-bottom:5px; }
+  .redeem-row { display:flex; gap:8px; }
+  .redeem-row button { background: #b00000; color:#fff; border:none; border-radius:14px; padding:0 20px; font-weight:700; }
+  .topup-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  .topup-item { background:#1e0c0c; border:1px solid #4a1a1a; border-radius:14px; padding:12px 6px; text-align:center; cursor:pointer; }
+  .topup-points { font-size:1.1rem; font-weight:800; color:#ff5050; }
+  .file-card { background:#1a0808; border:1px solid #3a1515; border-radius:16px; overflow:hidden; margin-bottom:10px; }
+  .file-cover { width:100%; height:110px; object-fit:cover; background:#2a1010; display:flex; align-items:center; justify-content:center; font-size:2.4rem; color:#ff5050; }
+  .file-body { padding:10px; display:flex; align-items:center; gap:10px; }
+  .fi-btn { background: #b00000; color:#fff; border-radius:10px; padding:8px 14px; text-decoration:none; font-size:0.8rem; font-weight:bold; }
+  .contact-btn { background: #0088ff; color:#fff; border:none; border-radius:16px; padding:14px; font-weight:700; width:100%; margin-top:10px; }
+  .hidden { display:none !important; }
+</style>
+</head>
+<body>
+<div class="app-container">
+  <h1 class="app-title">SAMM X MODZ VIP</h1>
+
+  <div id="loginScreen" class="screen active">
+    <div class="input-group"><input type="text" id="loginUsername" placeholder="Tên đăng nhập..."></div>
+    <div class="input-group"><input type="password" id="loginPassword" placeholder="Mật khẩu..."></div>
+    <button class="btn btn-primary" id="loginBtn">ĐĂNG NHẬP</button>
+    <div style="text-align:center; color:#c08a8a; font-size:0.85rem;">Chưa có tài khoản? <span id="goToRegister" style="color:#ff6060; cursor:pointer; text-decoration:underline;">Đăng ký</span></div>
+    <div id="loginError" style="color:red; text-align:center; font-size:0.8rem;"></div>
+  </div>
+
+  <div id="registerScreen" class="screen">
+    <div class="input-group"><input type="text" id="regUsername" placeholder="Tạo tên đăng nhập..."></div>
+    <div class="input-group"><input type="password" id="regPassword" placeholder="Tạo mật khẩu..."></div>
+    <button class="btn btn-primary" id="registerBtn">TẠO TÀI KHOẢN</button>
+    <div style="text-align:center; color:#c08a8a; font-size:0.85rem;">Đã có tài khoản? <span id="goToLogin" style="color:#ff6060; cursor:pointer; text-decoration:underline;">Đăng nhập</span></div>
+    <div id="regError" style="color:red; text-align:center; font-size:0.8rem;"></div>
+  </div>
+
+  <div id="homeScreen" class="screen">
+    <div class="user-box">
+      <div class="avatar" id="userAvatar">👑</div>
+      <div id="welcomeUsername" style="font-size:1.2rem; font-weight:bold; margin-bottom:10px;">User</div>
+      <div style="background:rgba(255,32,32,0.1); padding:10px; border-radius:14px;">
+        <div style="font-size:0.7rem; color:#e0a0a0;">SỐ DƯ ĐIỂM</div>
+        <div class="points-value" id="pointsValue">0 <span style="font-size:1rem;">điểm</span></div>
+      </div>
+    </div>
+
+    <div class="section-title">🎟 Nhập Code nhận điểm</div>
+    <div class="redeem-row">
+      <input type="text" id="codeInput" placeholder="Nhập code...">
+      <button id="redeemBtn">NHẬN</button>
+    </div>
+    <div id="redeemMsg" style="color:#7ee08a; text-align:center; font-size:0.85rem; min-height:18px;"></div>
+
+    <div class="section-title">💰 Nạp điểm (Liên hệ Zalo)</div>
+    <div class="topup-grid">
+      <div class="topup-item" onclick="contactZalo('5.000đ', 5)"><div style="font-size:0.75rem; color:#e0a0a0;">5.000đ</div><div class="topup-points">+5</div></div>
+      <div class="topup-item" onclick="contactZalo('10.000đ', 10)"><div style="font-size:0.75rem; color:#e0a0a0;">10.000đ</div><div class="topup-points">+10</div></div>
+      <div class="topup-item" onclick="contactZalo('20.000đ', 20)"><div style="font-size:0.75rem; color:#e0a0a0;">20.000đ</div><div class="topup-points">+20</div></div>
+    </div>
+
+    <div class="section-title">📁 File từ Admin</div>
+    <div id="fileList"></div>
+    <div id="emptyNote" style="text-align:center; color:#a07070; font-size:0.85rem; padding:10px;">Chưa có file nào.</div>
+
+    <button class="contact-btn" onclick="window.open('https://zalo.me/0355757211', '_blank')">📞 Liên hệ SAMM X MODZ (0355757211)</button>
+    <button class="btn btn-outline" id="logoutBtn" style="margin-top:10px;">ĐĂNG XUẤT</button>
+  </div>
+</div>
+
+<script>
+let token = localStorage.getItem('sammx_token') || '';
+const $ = id => document.getElementById(id);
+
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(name + 'Screen').classList.add('active');
+}
+function contactZalo(price, points) {
+  alert(`Bạn chọn nạp ${points} điểm (${price}).\nVui lòng nhấn OK để mở Zalo thanh toán và nhận code từ Admin.`);
+  window.open('https://zalo.me/0355757211', '_blank');
+}
+
+async function loadMe(){
+  if (!token) return showScreen('login');
+  try {
+    const r = await fetch('/api/me', { headers: { 'Authorization': 'Bearer ' + token } });
+    if (!r.ok) throw 0;
+    const user = await r.json();
+    $('welcomeUsername').textContent = user.username;
+    $('userAvatar').textContent = user.username.charAt(0).toUpperCase();
+    $('pointsValue').innerHTML = user.points + ' <span style="font-size:1rem;">điểm</span>';
+    showScreen('home');
+    loadFiles();
+  } catch {
+    token = ''; localStorage.removeItem('sammx_token'); showScreen('login');
+  }
+}
+
+$('loginBtn').onclick = async () => {
+  const r = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username: $('loginUsername').value, password: $('loginPassword').value }) });
+  const d = await r.json();
+  if (!r.ok) return $('loginError').textContent = d.error;
+  token = d.token; localStorage.setItem('sammx_token', token); loadMe();
+};
+
+$('registerBtn').onclick = async () => {
+  const r = await fetch('/api/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username: $('regUsername').value, password: $('regPassword').value }) });
+  const d = await r.json();
+  if (!r.ok) return $('regError').textContent = d.error;
+  alert('Tạo tài khoản thành công!'); showScreen('login');
+};
+
+$('goToRegister').onclick = () => showScreen('register');
+$('goToLogin').onclick = () => showScreen('login');
+$('logoutBtn').onclick = () => { token=''; localStorage.removeItem('sammx_token'); showScreen('login'); };
+
+$('redeemBtn').onclick = async () => {
+  const r = await fetch('/api/redeem', { method:'POST', headers:{ 'Authorization': 'Bearer ' + token, 'Content-Type':'application/json' }, body: JSON.stringify({ code: $('codeInput').value }) });
+  const d = await r.json();
+  if (!r.ok) return $('redeemMsg').style.color = 'red', $('redeemMsg').textContent = d.error;
+  $('redeemMsg').style.color = '#7ee08a';
+  $('redeemMsg').textContent = `+${d.added} điểm! Tổng: ${d.points} điểm`;
+  $('pointsValue').innerHTML = d.points + ' <span style="font-size:1rem;">điểm</span>';
+  $('codeInput').value = '';
+};
+
+async function loadFiles(){
+  const r = await fetch('/api/files');
+  const files = await r.json();
+  const list = $('fileList'); list.innerHTML = '';
+  if (!files.length) return $('emptyNote').style.display = 'block';
+  $('emptyNote').style.display = 'none';
+  files.forEach(f => {
+    const img = f.image_path ? `<img src="${f.image_path}" class="file-cover">` : `<div class="file-cover">📄</div>`;
+    list.innerHTML += `<div class="file-card">${img}<div class="file-body"><div style="flex:1; overflow:hidden;"><div style="font-weight:bold; font-size:0.85rem; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${f.name}</div><div style="font-size:0.7rem; color:#a07070;">${(f.size/1024).toFixed(1)} KB</div></div><a href="${f.file_path}" download class="fi-btn">TẢI</a></div></div>`;
+  });
+}
+loadMe();
+</script>
+</body>
+</html>
