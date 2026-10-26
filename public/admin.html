@@ -4,110 +4,139 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ADMIN — SAMM X MODZ VIP</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+  
+  /* NỀN TỐI HUYỀN BÍ VỚI ÁNH SÁNG TÍM */
   body { 
-    background: radial-gradient(circle at 10% 20%, #1e0a2e 0%, #0a0212 60%, #030005 100%); 
+    background: radial-gradient(circle at 10% 20%, #1a0826 0%, #0a0212 50%, #030005 100%); 
     color:#f5e8ff; padding:20px 12px; min-height:100vh; overflow-x: hidden;
   }
   body::before {
     content:''; position:fixed; top:-10%; right:-10%; width:50vmax; height:50vmax;
-    background: radial-gradient(circle, rgba(216,124,255,0.12) 0%, transparent 60%);
+    background: radial-gradient(circle, rgba(216,124,255,0.1) 0%, transparent 60%);
     pointer-events:none; z-index:0; border-radius:50%;
   }
-  .wrap { max-width: 600px; margin: 0 auto; position: relative; z-index: 1; }
 
+  .wrap { max-width: 650px; margin: 0 auto; position: relative; z-index: 1; }
+
+  /* TIÊU ĐỀ */
   .app-title {
-    text-align: center; font-size: 1.6rem; font-weight: 800; letter-spacing: 1.5px;
+    text-align: center; font-size: 1.7rem; font-weight: 800; letter-spacing: 1.5px;
     background: linear-gradient(120deg,#f0a8ff 0%,#d87cff 50%,#9b30d9 100%);
     -webkit-background-clip: text; background-clip: text; color: transparent;
-    text-shadow: 0 0 20px rgba(216,124,255,0.4); margin-bottom: 24px;
+    text-shadow: 0 0 25px rgba(216,124,255,0.5); margin-bottom: 24px;
   }
 
+  /* KHUNG KÍNH MỜ (GLASSMORPHISM) */
   .panel {
-    background: rgba(30, 15, 45, 0.6);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    background: rgba(25, 10, 40, 0.6);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(216,124,255,0.2);
-    border-radius: 20px; padding: 20px; margin-bottom: 20px;
-    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.6);
+    border-radius: 24px; padding: 24px; margin-bottom: 20px;
+    box-shadow: 0 15px 35px -10px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05);
   }
 
   h2 {
-    color: #d87cff; font-size: 1.05rem; text-transform: uppercase;
-    letter-spacing: 1px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+    color: #e0b0ff; font-size: 1.05rem; text-transform: uppercase;
+    letter-spacing: 1.5px; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px; font-weight: 700;
   }
-  h2::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(216,124,255,0.5), transparent); }
+  h2::after {
+    content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(216,124,255,0.4), transparent);
+  }
 
-  .input-group { margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px; }
-  label { font-size: 0.75rem; font-weight: 600; color: #b090c0; text-transform: uppercase; letter-spacing: 0.5px; }
+  /* Ô NHẬP LIỆU */
+  .input-group { margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
+  label { font-size: 0.75rem; font-weight: 700; color: #b090c0; text-transform: uppercase; letter-spacing: 0.5px; }
   
   input[type="text"], input[type="password"], input[type="number"], input[type="file"] {
-    width: 100%; background: rgba(15, 5, 25, 0.6); border: 1.5px solid rgba(216,124,255,0.25);
-    border-radius: 12px; padding: 12px 16px; color: #fff; font-size: 0.95rem; outline: none; transition: 0.2s;
+    width: 100%; background: rgba(10, 2, 20, 0.5); border: 1.5px solid rgba(216,124,255,0.2);
+    border-radius: 14px; padding: 14px 16px; color: #fff; font-size: 0.95rem; outline: none; transition: 0.3s;
   }
-  input:focus { border-color: #d87cff; background: rgba(30, 15, 45, 0.8); box-shadow: 0 0 0 3px rgba(216,124,255,0.15); }
+  input:focus { border-color: #d87cff; background: rgba(20, 5, 30, 0.7); box-shadow: 0 0 0 4px rgba(216,124,255,0.15); }
+  input::placeholder { color: #664a7a; }
   input::file-selector-button {
-    background: rgba(216,124,255,0.2); border: none; color: #d87cff; padding: 8px 16px;
-    border-radius: 8px; cursor: pointer; font-weight: bold; margin-right: 10px; transition: 0.2s;
+    background: rgba(216,124,255,0.15); border: none; color: #d87cff; padding: 8px 16px;
+    border-radius: 8px; cursor: pointer; font-weight: 700; margin-right: 12px; transition: 0.2s;
   }
-  input::file-selector-button:hover { background: rgba(216,124,255,0.4); }
+  input::file-selector-button:hover { background: rgba(216,124,255,0.3); }
 
+  /* NÚT BẤM */
   .btn {
     background: linear-gradient(135deg, #d87cff, #9b30d9); color: #fff; border: none;
-    border-radius: 12px; padding: 14px; font-weight: 700; font-size: 0.95rem;
-    cursor: pointer; width: 100%; transition: all 0.3s; box-shadow: 0 8px 20px -6px rgba(216,124,255,0.4);
+    border-radius: 14px; padding: 16px; font-weight: 800; font-size: 0.95rem; letter-spacing: 0.5px;
+    cursor: pointer; width: 100%; transition: all 0.3s; box-shadow: 0 10px 25px -8px rgba(216,124,255,0.5);
   }
-  .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 25px -6px rgba(216,124,255,0.6); filter: brightness(1.1); }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 15px 30px -8px rgba(216,124,255,0.7); filter: brightness(1.1); }
   .btn:active { transform: translateY(0); }
   
-  .btn-small { padding: 8px 12px; font-size: 0.8rem; border-radius: 8px; width: auto; }
-  .btn-edit { background: linear-gradient(135deg, #6a2a9a, #4a1a6a); }
-  .btn-edit:hover { box-shadow: 0 8px 20px -6px rgba(106,42,154,0.6); }
-  .btn-del { background: linear-gradient(135deg, #ff4d4d, #b30000); }
-  .btn-del:hover { box-shadow: 0 8px 20px -6px rgba(255,77,77,0.6); }
+  .btn-small { padding: 8px 16px; font-size: 0.8rem; border-radius: 10px; width: auto; }
+  .btn-edit { background: linear-gradient(135deg, #6a2a9a, #4a1a6a); box-shadow: none; }
+  .btn-edit:hover { box-shadow: 0 10px 20px -8px rgba(106,42,154,0.8); }
+  .btn-del { background: linear-gradient(135deg, #ff4d4d, #b30000); box-shadow: none; }
+  .btn-del:hover { box-shadow: 0 10px 20px -8px rgba(255,77,77,0.8); }
 
+  /* CARD FILE */
   .file-card {
-    background: rgba(20, 8, 30, 0.8); border: 1px solid rgba(216,124,255,0.15);
-    border-radius: 14px; padding: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 14px;
+    background: rgba(15, 5, 25, 0.6); border: 1px solid rgba(216,124,255,0.15);
+    border-radius: 16px; padding: 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 16px;
+    transition: 0.3s;
   }
-  .file-card img { width: 60px; height: 60px; border-radius: 10px; object-fit: contain; background: #05000a; border: 1px solid rgba(216,124,255,0.1); }
+  .file-card:hover { border-color: rgba(216,124,255,0.4); background: rgba(25, 10, 40, 0.8); transform: translateY(-2px); }
+  .file-cover { width: 75px; height: 75px; border-radius: 12px; object-fit: cover; background: #05000a; border: 1px solid rgba(216,124,255,0.2); flex-shrink: 0; }
   .file-info { flex: 1; overflow: hidden; }
   .file-name { font-weight: 700; font-size: 0.95rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .file-meta { font-size: 0.75rem; color: #b090c0; margin-top: 4px; display: flex; gap: 8px; align-items: center;}
-  .sale-badge { background: #ff4d4d; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; }
+  .file-meta { font-size: 0.75rem; color: #b090c0; margin-top: 6px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;}
+  .sale-badge { background: rgba(255,77,77,0.2); color: #ff4d4d; border: 1px solid #ff4d4d; padding: 2px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; }
+  .stock-badge { background: rgba(77,255,136,0.1); color: #4dff88; border: 1px solid rgba(77,255,136,0.3); padding: 2px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; }
   
-  .code-tag { background: rgba(216,124,255,0.1); border: 1px solid rgba(216,124,255,0.5); color: #e0b0ff; padding: 6px 12px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; margin: 4px; display: inline-block; letter-spacing: 1px; }
+  /* CODE TAG */
+  .code-tag { background: rgba(216,124,255,0.1); border: 1px dashed rgba(216,124,255,0.5); color: #e0b0ff; padding: 8px 14px; border-radius: 8px; font-family: monospace; font-size: 0.95rem; margin: 4px; display: inline-block; letter-spacing: 1px; }
 
-  .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 100; padding: 20px; }
-  .modal-content { background: #150a20; padding: 24px; border-radius: 20px; width: 100%; max-width: 400px; border: 1px solid rgba(216,124,255,0.3); box-shadow: 0 20px 50px rgba(0,0,0,0.8); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  /* MODAL */
+  .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 100; padding: 20px; }
+  .modal-content { background: #11051c; padding: 28px; border-radius: 24px; width: 100%; max-width: 420px; border: 1px solid rgba(216,124,255,0.3); box-shadow: 0 25px 60px rgba(0,0,0,0.9); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   @keyframes popIn { from{transform: scale(0.9); opacity:0;} to{transform: scale(1); opacity:1;} }
 
   .hidden { display: none !important; }
+  
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(216,124,255,0.3); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(216,124,255,0.6); }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1 class="app-title">⚙ SAMM X MODZ ADMIN</h1>
 
+  <!-- ĐĂNG NHẬP -->
   <div id="loginPanel" class="panel">
     <h2>🔐 Đăng nhập</h2>
-    <div class="input-group"><label>Tài khoản</label><input type="text" id="adUser" placeholder="admin"></div>
-    <div class="input-group"><label>Mật khẩu</label><input type="password" id="adPass" placeholder="admin123"></div>
-    <button class="btn" id="loginAdminBtn" style="margin-top: 10px;">ĐĂNG NHẬP</button>
+    <div class="input-group"><label>Tài khoản</label><input type="text" id="adUser" placeholder="Nhập admin..."></div>
+    <div class="input-group"><label>Mật khẩu</label><input type="password" id="adPass" placeholder="Nhập mật khẩu..."></div>
+    <button class="btn" id="loginAdminBtn" style="margin-top: 10px;">ĐĂNG NHẬP NGAY</button>
   </div>
 
+  <!-- NỘI DUNG CHÍNH -->
   <div id="adminContent" class="hidden">
     
+    <!-- FORM ĐĂNG BÀI -->
     <div class="panel">
       <h2>📤 Đăng file mới</h2>
       <div class="input-group"><label>Tên file hiển thị (Bắt buộc)</label><input type="text" id="upName" placeholder="VD: SAMM X MODZ ALOK iOS..."></div>
-      <div style="display:flex; gap:10px;">
-        <div class="input-group" style="flex:1;"><label>Giá gốc (điểm)</label><input type="number" id="upPoints" value="10" min="0"></div>
-        <div class="input-group" style="flex:1;"><label>Giá Sale (0 = Không)</label><input type="number" id="upSalePoints" value="0" min="0"></div>
+      
+      <div style="display:flex; gap:12px;">
+        <div class="input-group" style="flex:1;"><label>Giá gốc</label><input type="number" id="upPoints" value="10" min="0"></div>
+        <div class="input-group" style="flex:1;"><label>Giá Sale</label><input type="number" id="upSalePoints" value="0" min="0" title="Nhập 0 nếu không giảm giá"></div>
+        <div class="input-group" style="flex:1;"><label>Kho (SL)</label><input type="number" id="upStock" value="100" min="0"></div>
       </div>
       
-      <div style="border: 1px dashed rgba(216,124,255,0.3); padding: 12px; border-radius: 12px; margin-bottom: 14px;">
-        <div class="input-group" style="margin-bottom: 10px;">
+      <div style="border: 1px dashed rgba(216,124,255,0.3); padding: 16px; border-radius: 16px; margin-bottom: 16px; background: rgba(0,0,0,0.2);">
+        <div class="input-group" style="margin-bottom: 12px;">
           <label style="color: #ffcc00;">Cách 1: Nhập Link URL (Khuyên dùng)</label>
           <input type="text" id="upFileUrl" placeholder="https://... (Link tải trực tiếp)">
         </div>
@@ -121,46 +150,51 @@
       <button class="btn" id="uploadBtn" style="margin-top: 10px;">TẢI LÊN / ĐĂNG BÀI</button>
     </div>
 
+    <!-- DANH SÁCH FILE -->
     <div class="panel">
-      <h2>📁 File đã đăng</h2>
+      <h2>📁 Kho File đã đăng</h2>
       <div id="fileList"></div>
     </div>
 
+    <!-- TẠO CODE -->
     <div class="panel">
       <h2>🎟 Tạo Code</h2>
-      <div style="display:flex; gap:10px; margin-bottom:10px;">
+      <div style="display:flex; gap:12px; margin-bottom:16px;">
         <div class="input-group" style="flex:1; margin:0;"><label>Số điểm</label><input type="number" id="codePoints" value="5" min="1"></div>
         <div class="input-group" style="flex:1; margin:0;"><label>Số lượng</label><input type="number" id="codeCount" value="1" min="1" max="50"></div>
       </div>
-      <button class="btn" id="createCodeBtn">TẠO CODE</button>
-      <div id="newCodes" style="margin-top:15px; text-align:center; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 10px; display: none;"></div>
+      <button class="btn" id="createCodeBtn">TẠO MÃ CODE</button>
+      <div id="newCodes" style="margin-top:16px; text-align:center; padding: 16px; background: rgba(0,0,0,0.3); border-radius: 12px; display: none; border: 1px solid rgba(216,124,255,0.2);"></div>
     </div>
 
+    <!-- DANH SÁCH CODE -->
     <div class="panel">
       <h2>📋 Danh sách Code</h2>
-      <div id="codeList" style="max-height: 250px; overflow-y: auto;"></div>
+      <div id="codeList" style="max-height: 300px; overflow-y: auto;"></div>
     </div>
 
+    <!-- QUẢN LÝ USER -->
     <div class="panel">
       <h2>👥 Quản lý User</h2>
-      <div id="userList" style="max-height: 250px; overflow-y: auto;"></div>
+      <div id="userList" style="max-height: 300px; overflow-y: auto;"></div>
     </div>
     
-    <button class="btn btn-del" style="margin-bottom: 30px;" onclick="localStorage.removeItem('sammx_admintoken'); location.reload();">ĐĂNG XUẤT ADMIN</button>
+    <button class="btn btn-del" style="margin-bottom: 40px;" onclick="localStorage.removeItem('sammx_admintoken'); location.reload();">ĐĂNG XUẤT ADMIN</button>
   </div>
 </div>
 
 <!-- MODAL SỬA FILE -->
 <div id="editModal" class="modal hidden">
   <div class="modal-content">
-    <h2 style="margin-bottom: 15px;">✏️ Sửa File</h2>
+    <h2 style="margin-bottom: 20px; justify-content: center;">✏️ CHỈNH SỬA FILE</h2>
     <input type="hidden" id="editId">
     <div class="input-group"><label>Tên file</label><input type="text" id="editName"></div>
-    <div style="display:flex; gap:10px;">
+    <div style="display:flex; gap:12px;">
       <div class="input-group" style="flex:1;"><label>Giá gốc</label><input type="number" id="editPoints" min="0"></div>
-      <div class="input-group" style="flex:1;"><label>Giá Sale (0=Ko)</label><input type="number" id="editSalePoints" min="0"></div>
+      <div class="input-group" style="flex:1;"><label>Giá Sale</label><input type="number" id="editSalePoints" min="0"></div>
+      <div class="input-group" style="flex:1;"><label>Kho (SL)</label><input type="number" id="editStock" min="0"></div>
     </div>
-    <div style="display:flex; gap:10px; margin-top:20px;">
+    <div style="display:flex; gap:12px; margin-top:24px;">
       <button class="btn btn-edit" onclick="saveEdit()">LƯU LẠI</button>
       <button class="btn btn-del" onclick="closeModal()">HỦY</button>
     </div>
@@ -185,27 +219,32 @@ function enterAdmin(){
   loadFiles(); loadCodes(); loadUsers();
 }
 
-// --- UPLOAD FILE HOẶC URL ---
+// --- UPLOAD ---
 $('uploadBtn').onclick = async () => {
   if(!$('upName').value.trim()) return alert('Vui lòng nhập tên file!');
-  if(!$('upFile').files[0] && !$('upFileUrl').value.trim()) return alert('Vui lòng chọn file tải lên hoặc nhập URL!');
+  if(!$('upFile').files[0] && !$('upFileUrl').value.trim()) return alert('Vui lòng chọn file hoặc nhập URL!');
   
   const fd = new FormData();
   fd.append('name', $('upName').value.trim());
   fd.append('points', $('upPoints').value || 0);
   fd.append('sale_points', $('upSalePoints').value || 0);
+  fd.append('stock', $('upStock').value || 0);
   
   if ($('upFileUrl').value.trim()) fd.append('file_url', $('upFileUrl').value.trim());
   if ($('upFile').files[0]) fd.append('file', $('upFile').files[0]);
   if ($('upImage').files[0]) fd.append('image', $('upImage').files[0]);
   
   $('uploadBtn').textContent = 'ĐANG XỬ LÝ...';
+  $('uploadBtn').style.opacity = '0.7';
+  
   const r = await fetch('/api/admin/upload', { method:'POST', headers: auth(), body: fd });
+  
   $('uploadBtn').textContent = 'TẢI LÊN / ĐĂNG BÀI';
+  $('uploadBtn').style.opacity = '1';
   
   if (r.ok) { 
     alert('Đăng file thành công!'); 
-    $('upName').value=''; $('upPoints').value='10'; $('upSalePoints').value='0'; $('upFile').value=''; $('upImage').value=''; $('upFileUrl').value='';
+    $('upName').value=''; $('upPoints').value='10'; $('upSalePoints').value='0'; $('upStock').value='100'; $('upFile').value=''; $('upImage').value=''; $('upFileUrl').value='';
     loadFiles(); 
   } else {
     const d = await r.json(); alert(d.error || 'Lỗi upload!');
@@ -215,6 +254,12 @@ $('uploadBtn').onclick = async () => {
 // --- LOAD FILES ---
 async function loadFiles(){
   const r = await fetch('/api/files'); const files = await r.json();
+  
+  if(files.length === 0) {
+    $('fileList').innerHTML = '<div style="text-align:center; color:#b090c0; padding:20px;">Chưa có file nào.</div>';
+    return;
+  }
+
   $('fileList').innerHTML = files.map(f => {
     let priceHtml = `<span>${f.points} điểm</span>`;
     if (f.sale_points > 0 && f.sale_points < f.points) {
@@ -222,33 +267,37 @@ async function loadFiles(){
     }
     return `
     <div class="file-card">
-      ${f.image_path ? `<img src="${f.image_path}">` : `<div style="width:60px;height:60px;display:flex;align-items:center;justify-content:center;font-size:2rem;background:#05000a;border-radius:10px;">📄</div>`}
+      ${f.image_path ? `<img src="${f.image_path}" class="file-cover">` : `<div class="file-cover" style="display:flex;align-items:center;justify-content:center;font-size:2rem;">📄</div>`}
       <div class="file-info">
         <div class="file-name">${f.name}</div>
-        <div class="file-meta">${(f.size/1024).toFixed(1)} KB • ${priceHtml}</div>
+        <div class="file-meta">
+          <span>${(f.size/1024).toFixed(1)} KB</span> • 
+          <span style="color:#d87cff; font-weight:bold;">${priceHtml}</span> • 
+          <span class="stock-badge">Kho: ${f.stock}</span>
+        </div>
       </div>
-      <div style="display:flex; flex-direction:column; gap:6px;">
-        <button class="btn btn-small btn-edit" onclick="openEdit(${f.id}, '${f.name.replace(/'/g, "\\'")}', ${f.points}, ${f.sale_points || 0})">SỬA</button>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <button class="btn btn-small btn-edit" onclick="openEdit(${f.id}, '${f.name.replace(/'/g, "\\'")}', ${f.points}, ${f.sale_points || 0}, ${f.stock || 0})">SỬA</button>
         <button class="btn btn-small btn-del" onclick="delFile(${f.id})">XÓA</button>
       </div>
     </div>`;
   }).join('');
 }
 
-// --- XÓA FILE (Chỉ xóa khi xác nhận) ---
 async function delFile(id) { 
-  if(confirm('Bạn có chắc chắn muốn xóa file này không?')) { 
+  if(confirm('Bạn có chắc chắn muốn xóa file này không? Không thể hoàn tác!')) { 
     await fetch('/api/admin/files/'+id, {method:'DELETE', headers:auth()}); 
     loadFiles(); 
   } 
 }
 
 // --- SỬA FILE ---
-function openEdit(id, name, points, sale_points) {
+function openEdit(id, name, points, sale_points, stock) {
   $('editId').value = id;
   $('editName').value = name;
   $('editPoints').value = points;
   $('editSalePoints').value = sale_points || 0;
+  $('editStock').value = stock || 0;
   $('editModal').classList.remove('hidden');
 }
 function closeModal() { $('editModal').classList.add('hidden'); }
@@ -258,12 +307,13 @@ async function saveEdit() {
   const name = $('editName').value.trim();
   const points = $('editPoints').value;
   const sale_points = $('editSalePoints').value;
+  const stock = $('editStock').value;
   if(!name) return alert('Tên không được để trống!');
 
   const r = await fetch('/api/admin/files/' + id, {
     method: 'PUT',
     headers: { ...auth(), 'Content-Type':'application/json' },
-    body: JSON.stringify({ name, points: parseInt(points), sale_points: parseInt(sale_points) })
+    body: JSON.stringify({ name, points: parseInt(points), sale_points: parseInt(sale_points), stock: parseInt(stock) })
   });
   
   if (r.ok) {
@@ -289,10 +339,14 @@ $('createCodeBtn').onclick = async () => {
 
 async function loadCodes(){
   const r = await fetch('/api/admin/codes', { headers: auth() }); const codes = await r.json();
+  if(codes.length === 0) {
+    $('codeList').innerHTML = '<div style="text-align:center; color:#b090c0; padding:20px;">Chưa có code nào.</div>';
+    return;
+  }
   $('codeList').innerHTML = codes.map(c => `
-    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(20,8,30,0.6); padding:10px 14px; border-radius:10px; margin-bottom:8px; border:1px solid rgba(216,124,255,0.1);">
+    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(10,2,20,0.5); padding:12px 16px; border-radius:12px; margin-bottom:10px; border:1px solid rgba(216,124,255,0.1);">
       <span class="code-tag" style="margin:0;">${c.code}</span>
-      <span style="font-size:0.8rem; color:#b090c0;">${c.points} điểm ${c.used ? '<span style="color:#ff4d4d;">(Đã dùng)</span>' : '<span style="color:#4dff88;">(Chưa dùng)</span>'}</span>
+      <span style="font-size:0.8rem; color:#b090c0;">${c.points} điểm ${c.used ? '<span style="color:#ff4d4d; font-weight:bold; margin-left:5px;">(Đã dùng)</span>' : '<span style="color:#4dff88; font-weight:bold; margin-left:5px;">(Chưa dùng)</span>'}</span>
     </div>
   `).join('');
 }
@@ -300,10 +354,14 @@ async function loadCodes(){
 // --- QUẢN LÝ USER ---
 async function loadUsers(){
   const r = await fetch('/api/admin/users', { headers: auth() }); const users = await r.json();
+  if(users.length === 0) {
+    $('userList').innerHTML = '<div style="text-align:center; color:#b090c0; padding:20px;">Chưa có user nào.</div>';
+    return;
+  }
   $('userList').innerHTML = users.map(u => `
-    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(20,8,30,0.6); padding:10px 14px; border-radius:10px; margin-bottom:8px; border:1px solid rgba(216,124,255,0.1);">
-      <span style="font-weight:600;">${u.username}</span>
-      <span style="color:#d87cff; font-weight:bold; background:rgba(216,124,255,0.1); padding:4px 10px; border-radius:6px;">${u.points} điểm</span>
+    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(10,2,20,0.5); padding:12px 16px; border-radius:12px; margin-bottom:10px; border:1px solid rgba(216,124,255,0.1);">
+      <span style="font-weight:700; color:#fff;">👤 ${u.username}</span>
+      <span style="color:#d87cff; font-weight:800; background:rgba(216,124,255,0.1); padding:6px 12px; border-radius:8px;">${u.points} điểm</span>
     </div>
   `).join('');
 }
