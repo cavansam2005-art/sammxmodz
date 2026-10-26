@@ -6,42 +6,103 @@
 <title>SAMM X MODZ VIP</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
-  body { background: radial-gradient(circle at 20% 10%, #2b0f3a 0%, #12051c 60%, #05010a 100%); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:16px; overflow-x:hidden; }
-  body::before { content:''; position:fixed; top:-20%; left:-10%; width:60vmax; height:60vmax; background: radial-gradient(circle, rgba(186,85,211,0.15) 0%, transparent 70%); pointer-events:none; z-index:0; }
-  .app-container { position:relative; z-index:1; width:100%; max-width:430px; background: linear-gradient(160deg, rgba(35,15,50,0.95), rgba(20,8,30,0.98)); backdrop-filter: blur(14px); border-radius:32px; box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9), 0 0 0 1px rgba(200,100,255,0.25); padding:26px 22px 30px; color:#f5e8ff; max-height:95vh; overflow-y:auto; }
-  .app-container::-webkit-scrollbar { width:5px; } .app-container::-webkit-scrollbar-thumb { background:#5a2a7a; border-radius:10px; }
+  
+  /* ẢNH NỀN VÀ NHẠC */
+  body { 
+    min-height:100vh; display:flex; justify-content:center; align-items:center; padding:16px; overflow-x:hidden;
+    background: linear-gradient(rgba(20, 5, 30, 0.85), rgba(10, 2, 15, 0.95)), url('https://files.catbox.moe/cemtij.jpeg') no-repeat center center fixed;
+    background-size: cover;
+  }
+
+  /* HIỆU ỨNG ÁNH SÁNG TÍM */
+  body::before { 
+    content:''; position:fixed; top:-20%; left:-10%; width:60vmax; height:60vmax; 
+    background: radial-gradient(circle, rgba(186,85,211,0.15) 0%, transparent 70%); 
+    pointer-events:none; z-index:0; 
+  }
+
+  .app-container { 
+    position:relative; z-index:1; width:100%; max-width:430px; 
+    background: linear-gradient(160deg, rgba(25,10,35,0.85), rgba(15,5,25,0.95)); 
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border-radius:32px; box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9), 0 0 0 1px rgba(200,100,255,0.3); 
+    padding:26px 22px 30px; color:#f5e8ff; max-height:95vh; overflow-y:auto; 
+    animation: floatUp 0.6s ease-out;
+  }
+  @keyframes floatUp { from{opacity:0; transform:translateY(30px);} to{opacity:1; transform:translateY(0);} }
+  
+  .app-container::-webkit-scrollbar { width:5px; } 
+  .app-container::-webkit-scrollbar-thumb { background:#5a2a7a; border-radius:10px; }
+  
   .app-title { text-align:center; font-size:1.8rem; font-weight:800; letter-spacing:1px; background: linear-gradient(120deg,#f0a8ff 0%,#b04de0 50%,#e07bff 100%); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 0 22px rgba(180,80,220,0.5); }
-  .screen { display:none; flex-direction:column; gap:14px; } .screen.active { display:flex; animation: fadeUp .35s ease; }
+  
+  .screen { display:none; flex-direction:column; gap:14px; } 
+  .screen.active { display:flex; animation: fadeUp .35s ease; }
   @keyframes fadeUp { from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:translateY(0);} }
-  .input-group input, .redeem-row input { width:100%; background:#1c0f2b; border:1.5px solid #452a60; border-radius:16px; padding:14px 18px; color:#fff; outline:none; transition:.2s; }
-  .input-group input:focus, .redeem-row input:focus { border-color:#b04de0; box-shadow: 0 0 0 3.5px rgba(176,77,224,0.2); }
+  
+  .input-group input, .redeem-row input { width:100%; background:rgba(28,15,43,0.8); border:1.5px solid #452a60; border-radius:16px; padding:14px 18px; color:#fff; outline:none; transition:.2s; }
+  .input-group input:focus, .redeem-row input:focus { border-color:#b04de0; box-shadow: 0 0 0 3.5px rgba(176,77,224,0.2); background:rgba(35,20,50,0.9); }
+  
   .btn { border:none; border-radius:16px; padding:15px; font-weight:700; cursor:pointer; transition:.2s; }
   .btn-primary { background: linear-gradient(135deg,#d87cff,#9b30d9 55%,#6a1b9a); color:#fff; box-shadow: 0 10px 24px -8px rgba(155,48,217,0.7); }
   .btn-primary:hover { transform:translateY(-2px); box-shadow:0 14px 28px -8px rgba(155,48,217,0.9); }
   .btn-outline { background:transparent; border:1.5px solid #5a2a7a; color:#d0a0e0; }
-  .btn-outline:hover { background:#2a1040; border-color:#9b30d9; color:#fff; }
-  .user-box { background: linear-gradient(160deg,#2a1035,#1a081f); border-radius:24px; padding:20px; text-align:center; border:1px solid #4a1a5a; position:relative; overflow:hidden; }
+  .btn-outline:hover { background:rgba(42,16,64,0.8); border-color:#9b30d9; color:#fff; }
+  
+  .user-box { background: linear-gradient(160deg,rgba(42,16,53,0.8),rgba(26,8,31,0.9)); border-radius:24px; padding:20px; text-align:center; border:1px solid #4a1a5a; position:relative; overflow:hidden; }
   .user-box::after { content:''; position:absolute; top:-60px; right:-60px; width:160px; height:160px; background: radial-gradient(circle, rgba(180,80,220,0.2), transparent 70%); border-radius:50%; }
-  .avatar { width:70px; height:70px; margin:0 auto 10px; background: linear-gradient(145deg,#d87cff,#6a1b9a); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:800; color:#fff; position:relative; z-index:1; }
-  .points-value { font-size:1.8rem; font-weight:800; color:#d87cff; }
+  .avatar { width:70px; height:70px; margin:0 auto 10px; background: linear-gradient(145deg,#d87cff,#6a1b9a); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:800; color:#fff; position:relative; z-index:1; box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
+  .points-value { font-size:1.8rem; font-weight:800; color:#d87cff; text-shadow: 0 0 10px rgba(216,124,255,0.5); }
+  
   .section-title { font-size:0.95rem; font-weight:700; color:#d87cff; text-transform:uppercase; margin-top:8px; border-bottom:1px solid #452a60; padding-bottom:5px; }
-  .redeem-row { display:flex; gap:8px; } .redeem-row button { background: #9b30d9; color:#fff; border:none; border-radius:14px; padding:0 20px; font-weight:700; cursor:pointer; }
+  .redeem-row { display:flex; gap:8px; } 
+  .redeem-row button { background: #9b30d9; color:#fff; border:none; border-radius:14px; padding:0 20px; font-weight:700; cursor:pointer; }
+  
   .topup-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
-  .topup-item { background:#1c0f2b; border:1px solid #452a60; border-radius:14px; padding:12px 6px; text-align:center; cursor:pointer; transition:.2s; }
-  .topup-item:hover { border-color:#d87cff; background:#2a1040; }
+  .topup-item { background:rgba(28,15,43,0.8); border:1px solid #452a60; border-radius:14px; padding:12px 6px; text-align:center; cursor:pointer; transition:.2s; }
+  .topup-item:hover { border-color:#d87cff; background:rgba(42,16,64,0.9); transform: translateY(-2px); }
   .topup-points { font-size:1.1rem; font-weight:800; color:#d87cff; }
-  .file-card { background:#1a081f; border:1px solid #3a1545; border-radius:16px; overflow:hidden; margin-bottom:10px; }
-  .file-cover { width:100%; height:110px; object-fit:cover; background:#2a1035; display:flex; align-items:center; justify-content:center; font-size:2.4rem; color:#d87cff; }
-  .file-body { padding:10px; display:flex; align-items:center; gap:10px; }
-  .fi-btn { background: linear-gradient(135deg,#d87cff,#9b30d9); color:#fff; border-radius:10px; padding:8px 14px; text-decoration:none; font-size:0.8rem; font-weight:bold; border:none; cursor:pointer; }
+  
+  .file-card { background:rgba(26,8,31,0.8); border:1px solid #3a1545; border-radius:16px; overflow:hidden; margin-bottom:10px; display:flex; flex-direction:column; }
+  .file-cover { width:100%; height:auto; max-height:300px; object-fit:contain; background:#0d0214; display:block; border-bottom:1px solid #3a1545; }
+  .file-cover-placeholder { width:100%; height:150px; display:flex; align-items:center; justify-content:center; font-size:3rem; background:#0d0214; border-bottom:1px solid #3a1545; }
+  .file-body { padding:12px; display:flex; align-items:center; gap:10px; }
+  
+  .fi-btn { background: linear-gradient(135deg,#d87cff,#9b30d9); color:#fff; border-radius:10px; padding:8px 14px; text-decoration:none; font-size:0.8rem; font-weight:bold; border:none; cursor:pointer; white-space:nowrap; }
   .contact-btn { background: linear-gradient(135deg,#9b30d9,#6a1b9a); color:#fff; border:none; border-radius:16px; padding:14px; font-weight:700; width:100%; margin-top:10px; cursor:pointer; box-shadow: 0 8px 20px -6px rgba(155,48,217,0.6); }
+
+  /* LOADING XÁC THỰC THIẾT BỊ */
+  #verifyScreen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; text-align: center; }
+  #verifyScreen.active { display: flex; }
+  .verify-icon { font-size: 4rem; color: #d87cff; margin-bottom: 20px; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+  .progress-container { width: 100%; background: #2a1035; border-radius: 10px; overflow: hidden; height: 12px; margin-top: 20px; border: 1px solid #4a1a5a; }
+  .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #9b30d9, #d87cff); transition: width 0.1s linear; box-shadow: 0 0 10px #d87cff; }
+  .verify-text { font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; }
+  .verify-percent { font-size: 0.9rem; color: #d0a0e0; margin-top: 5px; font-family: monospace; }
 </style>
 </head>
 <body>
+
+<!-- NHẠC NỀN TỰ ĐỘNG PHÁT -->
+<audio id="bgMusic" loop>
+  <source src="https://files.catbox.moe/ylpmoe.mp3" type="audio/mpeg">
+</audio>
+
 <div class="app-container">
   <h1 class="app-title">SAMM X MODZ VIP</h1>
 
-  <div id="loginScreen" class="screen active">
+  <!-- MÀN HÌNH XÁC THỰC THIẾT BỊ -->
+  <div id="verifyScreen" class="screen">
+    <div class="verify-icon">🛡️</div>
+    <div class="verify-text" id="verifyStatus">Đang kết nối máy chủ...</div>
+    <div class="progress-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="verify-percent" id="verifyPercent">0%</div>
+  </div>
+
+  <div id="loginScreen" class="screen">
     <div class="input-group"><input type="text" id="loginUsername" placeholder="Tên đăng nhập..."></div>
     <div class="input-group"><input type="password" id="loginPassword" placeholder="Mật khẩu..."></div>
     <button class="btn btn-primary" id="loginBtn">ĐĂNG NHẬP</button>
@@ -95,41 +156,101 @@ let token = localStorage.getItem('sammx_token') || '';
 let currentPoints = 0;
 const $ = id => document.getElementById(id);
 
+// XỬ LÝ NHẠC NỀN
+function playMusic() {
+  const music = $('bgMusic');
+  music.volume = 0.5; // Âm lượng 50%
+  music.play().catch(e => {
+    // Trình duyệt chặn autoplay nếu chưa tương tác, phát nhạc khi user click
+    document.body.addEventListener('click', () => { music.play(); }, { once: true });
+  });
+}
+playMusic();
+
+// XỬ LÝ XÁC THỰC THIẾT BỊ
+function startVerification(callback) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $('verifyScreen').classList.add('active');
+  
+  let progress = 0;
+  const bar = $('progressBar');
+  const percentText = $('verifyPercent');
+  const statusText = $('verifyStatus');
+
+  const interval = setInterval(() => {
+    progress += Math.floor(Math.random() * 5) + 1; // Tăng từ 1-5% mỗi 50ms
+    if (progress > 100) progress = 100;
+    
+    bar.style.width = progress + '%';
+    percentText.textContent = progress + '%';
+
+    if (progress < 30) statusText.textContent = 'Đang kiểm tra kết nối...';
+    else if (progress < 60) statusText.textContent = 'Đang xác thực thiết bị...';
+    else if (progress < 90) statusText.textContent = 'Đang tải dữ liệu...';
+    else statusText.textContent = 'Xác thực thành công!';
+
+    if (progress >= 100) {
+      clearInterval(interval);
+      setTimeout(() => {
+        $('verifyScreen').classList.remove('active');
+        callback();
+      }, 500);
+    }
+  }, 40); // Tốc độ chạy (40ms)
+}
+
+// CHUYỂN MÀN HÌNH
 function showScreen(name){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   $(name + 'Screen').classList.add('active');
 }
+
 function contactZalo(price, points) {
   alert(`Bạn chọn nạp ${points} điểm (${price}).\nVui lòng nhấn OK để mở Zalo thanh toán và nhận code từ Admin.`);
   window.open('https://zalo.me/0355757211', '_blank');
 }
+
 function updatePointsUI(pts) {
   currentPoints = pts;
   $('pointsValue').innerHTML = pts + ' <span style="font-size:1rem;">điểm</span>';
 }
 
 async function loadMe(){
-  if (!token) return showScreen('login');
+  if (!token) {
+    // Nếu chưa có token, chạy xác thực rồi hiện login
+    startVerification(() => showScreen('login'));
+    return;
+  }
+  
+  // Nếu có token, chạy xác thực rồi tự động vào home
   try {
     const r = await fetch('/api/me', { headers: { 'Authorization': 'Bearer ' + token } });
     if (!r.ok) throw 0;
     const user = await r.json();
-    $('welcomeUsername').textContent = user.username;
-    $('userAvatar').textContent = user.username.charAt(0).toUpperCase();
-    updatePointsUI(user.points);
-    showScreen('home');
-    loadFiles();
+    
+    startVerification(() => {
+      $('welcomeUsername').textContent = user.username;
+      $('userAvatar').textContent = user.username.charAt(0).toUpperCase();
+      updatePointsUI(user.points);
+      showScreen('home');
+      loadFiles();
+    });
   } catch {
-    token = ''; localStorage.removeItem('sammx_token'); showScreen('login');
+    token = ''; localStorage.removeItem('sammx_token'); 
+    startVerification(() => showScreen('login'));
   }
 }
 
 $('loginBtn').onclick = async () => {
   $('loginError').textContent = '';
+  $('loginBtn').textContent = 'ĐANG XỬ LÝ...';
   const r = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username: $('loginUsername').value, password: $('loginPassword').value }) });
   const d = await r.json();
+  $('loginBtn').textContent = 'ĐĂNG NHẬP';
+  
   if (!r.ok) return $('loginError').textContent = d.error;
-  token = d.token; localStorage.setItem('sammx_token', token); loadMe();
+  token = d.token; localStorage.setItem('sammx_token', token); 
+  loadMe();
 };
 
 $('registerBtn').onclick = async () => {
@@ -161,15 +282,24 @@ async function loadFiles(){
   const list = $('fileList'); list.innerHTML = '';
   if (!files.length) return $('emptyNote').style.display = 'block';
   $('emptyNote').style.display = 'none';
+  
   files.forEach(f => {
-    const img = f.image_path ? `<img src="${f.image_path}" class="file-cover">` : `<div class="file-cover">📄</div>`;
+    const img = f.image_path 
+      ? `<img src="${f.image_path}" class="file-cover">` 
+      : `<div class="file-cover-placeholder">📄</div>`;
+    
+    let displayName = f.name;
+    if (displayName.includes('.')) {
+      displayName = displayName.substring(0, displayName.lastIndexOf('.'));
+    }
+
     list.innerHTML += `<div class="file-card">${img}
       <div class="file-body">
         <div style="flex:1; overflow:hidden;">
-          <div style="font-weight:bold; font-size:0.85rem; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${f.name}</div>
-          <div style="font-size:0.7rem; color:#d0a0e0;">${(f.size/1024).toFixed(1)} KB • Giá: <b>${f.points} điểm</b></div>
+          <div style="font-weight:bold; font-size:0.9rem; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${displayName}</div>
+          <div style="font-size:0.7rem; color:#d0a0e0; margin-top:2px;">${(f.size/1024).toFixed(1)} KB • Giá: <b>${f.points} điểm</b></div>
         </div>
-        <button class="fi-btn" onclick="buyFile(${f.id}, '${f.name}')">MUA FILE</button>
+        <button class="fi-btn" onclick="buyFile(${f.id}, '${displayName}')">MUA FILE</button>
       </div>
     </div>`;
   });
@@ -188,6 +318,8 @@ async function buyFile(fileId, fileName) {
   alert('Mua file thành công! Nhấn OK để tải xuống.');
   window.open(d.file_path, '_blank');
 }
+
+// BẮT ĐẦU CHẠY
 loadMe();
 </script>
 </body>
