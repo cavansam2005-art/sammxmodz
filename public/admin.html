@@ -6,8 +6,6 @@
 <title>ADMIN — SAMM X MODZ VIP</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
-  
-  /* NỀN TỐI HUYỀN BÍ VỚI ÁNH SÁNG TÍM */
   body { 
     background: radial-gradient(circle at 10% 20%, #1e0a2e 0%, #0a0212 60%, #030005 100%); 
     color:#f5e8ff; padding:20px 12px; min-height:100vh; overflow-x: hidden;
@@ -17,10 +15,8 @@
     background: radial-gradient(circle, rgba(216,124,255,0.12) 0%, transparent 60%);
     pointer-events:none; z-index:0; border-radius:50%;
   }
-
   .wrap { max-width: 600px; margin: 0 auto; position: relative; z-index: 1; }
 
-  /* TIÊU ĐỀ */
   .app-title {
     text-align: center; font-size: 1.6rem; font-weight: 800; letter-spacing: 1.5px;
     background: linear-gradient(120deg,#f0a8ff 0%,#d87cff 50%,#9b30d9 100%);
@@ -28,26 +24,20 @@
     text-shadow: 0 0 20px rgba(216,124,255,0.4); margin-bottom: 24px;
   }
 
-  /* KHUNG KÍNH MỜ (GLASSMORPHISM) */
   .panel {
     background: rgba(30, 15, 45, 0.6);
     backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(216,124,255,0.2);
     border-radius: 20px; padding: 20px; margin-bottom: 20px;
     box-shadow: 0 10px 30px -10px rgba(0,0,0,0.6);
-    transition: all 0.3s;
   }
 
   h2 {
     color: #d87cff; font-size: 1.05rem; text-transform: uppercase;
-    letter-spacing: 1px; margin-bottom: 16px;
-    display: flex; align-items: center; gap: 8px;
+    letter-spacing: 1px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
   }
-  h2::after {
-    content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(216,124,255,0.5), transparent);
-  }
+  h2::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(216,124,255,0.5), transparent); }
 
-  /* Ô NHẬP LIỆU */
   .input-group { margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px; }
   label { font-size: 0.75rem; font-weight: 600; color: #b090c0; text-transform: uppercase; letter-spacing: 0.5px; }
   
@@ -62,7 +52,6 @@
   }
   input::file-selector-button:hover { background: rgba(216,124,255,0.4); }
 
-  /* NÚT BẤM */
   .btn {
     background: linear-gradient(135deg, #d87cff, #9b30d9); color: #fff; border: none;
     border-radius: 12px; padding: 14px; font-weight: 700; font-size: 0.95rem;
@@ -77,23 +66,18 @@
   .btn-del { background: linear-gradient(135deg, #ff4d4d, #b30000); }
   .btn-del:hover { box-shadow: 0 8px 20px -6px rgba(255,77,77,0.6); }
 
-  /* DANH SÁCH FILE */
   .file-card {
     background: rgba(20, 8, 30, 0.8); border: 1px solid rgba(216,124,255,0.15);
     border-radius: 14px; padding: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 14px;
-    transition: 0.2s;
   }
-  .file-card:hover { border-color: rgba(216,124,255,0.4); background: rgba(30, 12, 45, 0.9); }
-  .file-card img { width: 70px; height: 70px; border-radius: 10px; object-fit: contain; background: #05000a; border: 1px solid rgba(216,124,255,0.1); }
+  .file-card img { width: 60px; height: 60px; border-radius: 10px; object-fit: contain; background: #05000a; border: 1px solid rgba(216,124,255,0.1); }
   .file-info { flex: 1; overflow: hidden; }
   .file-name { font-weight: 700; font-size: 0.95rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .file-meta { font-size: 0.75rem; color: #b090c0; margin-top: 4px; display: flex; gap: 8px; align-items: center;}
   .sale-badge { background: #ff4d4d; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; }
   
-  /* TAG CODE */
   .code-tag { background: rgba(216,124,255,0.1); border: 1px solid rgba(216,124,255,0.5); color: #e0b0ff; padding: 6px 12px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; margin: 4px; display: inline-block; letter-spacing: 1px; }
 
-  /* MODAL SỬA FILE */
   .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 100; padding: 20px; }
   .modal-content { background: #150a20; padding: 24px; border-radius: 20px; width: 100%; max-width: 400px; border: 1px solid rgba(216,124,255,0.3); box-shadow: 0 20px 50px rgba(0,0,0,0.8); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   @keyframes popIn { from{transform: scale(0.9); opacity:0;} to{transform: scale(1); opacity:1;} }
@@ -105,7 +89,6 @@
 <div class="wrap">
   <h1 class="app-title">⚙ SAMM X MODZ ADMIN</h1>
 
-  <!-- ĐĂNG NHẬP -->
   <div id="loginPanel" class="panel">
     <h2>🔐 Đăng nhập</h2>
     <div class="input-group"><label>Tài khoản</label><input type="text" id="adUser" placeholder="admin"></div>
@@ -113,29 +96,36 @@
     <button class="btn" id="loginAdminBtn" style="margin-top: 10px;">ĐĂNG NHẬP</button>
   </div>
 
-  <!-- NỘI DUNG ADMIN -->
   <div id="adminContent" class="hidden">
     
-    <!-- UPLOAD FILE -->
     <div class="panel">
       <h2>📤 Đăng file mới</h2>
-      <div class="input-group"><label>Tên file hiển thị</label><input type="text" id="upName" placeholder="VD: SAMM X MODZ ALOK iOS..."></div>
+      <div class="input-group"><label>Tên file hiển thị (Bắt buộc)</label><input type="text" id="upName" placeholder="VD: SAMM X MODZ ALOK iOS..."></div>
       <div style="display:flex; gap:10px;">
         <div class="input-group" style="flex:1;"><label>Giá gốc (điểm)</label><input type="number" id="upPoints" value="10" min="0"></div>
         <div class="input-group" style="flex:1;"><label>Giá Sale (0 = Không)</label><input type="number" id="upSalePoints" value="0" min="0"></div>
       </div>
-      <div class="input-group" style="margin-top:10px;"><label>File tải lên (ZIP, APK...)</label><input type="file" id="upFile"></div>
+      
+      <div style="border: 1px dashed rgba(216,124,255,0.3); padding: 12px; border-radius: 12px; margin-bottom: 14px;">
+        <div class="input-group" style="margin-bottom: 10px;">
+          <label style="color: #ffcc00;">Cách 1: Nhập Link URL (Khuyên dùng)</label>
+          <input type="text" id="upFileUrl" placeholder="https://... (Link tải trực tiếp)">
+        </div>
+        <div class="input-group" style="margin-bottom: 0;">
+          <label style="color: #ffcc00;">Cách 2: Tải file lên (Nếu không có URL)</label>
+          <input type="file" id="upFile">
+        </div>
+      </div>
+
       <div class="input-group"><label>Ảnh bìa (Thư viện ảnh)</label><input type="file" id="upImage" accept="image/*"></div>
-      <button class="btn" id="uploadBtn" style="margin-top: 10px;">TẢI LÊN</button>
+      <button class="btn" id="uploadBtn" style="margin-top: 10px;">TẢI LÊN / ĐĂNG BÀI</button>
     </div>
 
-    <!-- DANH SÁCH FILE -->
     <div class="panel">
       <h2>📁 File đã đăng</h2>
       <div id="fileList"></div>
     </div>
 
-    <!-- TẠO CODE -->
     <div class="panel">
       <h2>🎟 Tạo Code</h2>
       <div style="display:flex; gap:10px; margin-bottom:10px;">
@@ -146,13 +136,11 @@
       <div id="newCodes" style="margin-top:15px; text-align:center; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 10px; display: none;"></div>
     </div>
 
-    <!-- QUẢN LÝ CODE -->
     <div class="panel">
       <h2>📋 Danh sách Code</h2>
       <div id="codeList" style="max-height: 250px; overflow-y: auto;"></div>
     </div>
 
-    <!-- QUẢN LÝ USER -->
     <div class="panel">
       <h2>👥 Quản lý User</h2>
       <div id="userList" style="max-height: 250px; overflow-y: auto;"></div>
@@ -170,7 +158,7 @@
     <div class="input-group"><label>Tên file</label><input type="text" id="editName"></div>
     <div style="display:flex; gap:10px;">
       <div class="input-group" style="flex:1;"><label>Giá gốc</label><input type="number" id="editPoints" min="0"></div>
-      <div class="input-group" style="flex:1;"><label>Giá Sale</label><input type="number" id="editSalePoints" min="0"></div>
+      <div class="input-group" style="flex:1;"><label>Giá Sale (0=Ko)</label><input type="number" id="editSalePoints" min="0"></div>
     </div>
     <div style="display:flex; gap:10px; margin-top:20px;">
       <button class="btn btn-edit" onclick="saveEdit()">LƯU LẠI</button>
@@ -197,22 +185,27 @@ function enterAdmin(){
   loadFiles(); loadCodes(); loadUsers();
 }
 
-// --- UPLOAD FILE ---
+// --- UPLOAD FILE HOẶC URL ---
 $('uploadBtn').onclick = async () => {
-  if(!$('upFile').files[0]) return alert('Vui lòng chọn file!');
   if(!$('upName').value.trim()) return alert('Vui lòng nhập tên file!');
+  if(!$('upFile').files[0] && !$('upFileUrl').value.trim()) return alert('Vui lòng chọn file tải lên hoặc nhập URL!');
   
   const fd = new FormData();
   fd.append('name', $('upName').value.trim());
   fd.append('points', $('upPoints').value || 0);
   fd.append('sale_points', $('upSalePoints').value || 0);
-  fd.append('file', $('upFile').files[0]);
+  
+  if ($('upFileUrl').value.trim()) fd.append('file_url', $('upFileUrl').value.trim());
+  if ($('upFile').files[0]) fd.append('file', $('upFile').files[0]);
   if ($('upImage').files[0]) fd.append('image', $('upImage').files[0]);
   
+  $('uploadBtn').textContent = 'ĐANG XỬ LÝ...';
   const r = await fetch('/api/admin/upload', { method:'POST', headers: auth(), body: fd });
+  $('uploadBtn').textContent = 'TẢI LÊN / ĐĂNG BÀI';
+  
   if (r.ok) { 
     alert('Đăng file thành công!'); 
-    $('upName').value=''; $('upPoints').value='10'; $('upSalePoints').value='0'; $('upFile').value=''; $('upImage').value=''; 
+    $('upName').value=''; $('upPoints').value='10'; $('upSalePoints').value='0'; $('upFile').value=''; $('upImage').value=''; $('upFileUrl').value='';
     loadFiles(); 
   } else {
     const d = await r.json(); alert(d.error || 'Lỗi upload!');
@@ -229,7 +222,7 @@ async function loadFiles(){
     }
     return `
     <div class="file-card">
-      ${f.image_path ? `<img src="${f.image_path}">` : `<div style="width:70px;height:70px;display:flex;align-items:center;justify-content:center;font-size:2rem;background:#05000a;border-radius:10px;">📄</div>`}
+      ${f.image_path ? `<img src="${f.image_path}">` : `<div style="width:60px;height:60px;display:flex;align-items:center;justify-content:center;font-size:2rem;background:#05000a;border-radius:10px;">📄</div>`}
       <div class="file-info">
         <div class="file-name">${f.name}</div>
         <div class="file-meta">${(f.size/1024).toFixed(1)} KB • ${priceHtml}</div>
@@ -242,8 +235,9 @@ async function loadFiles(){
   }).join('');
 }
 
+// --- XÓA FILE (Chỉ xóa khi xác nhận) ---
 async function delFile(id) { 
-  if(confirm('Bạn có chắc muốn xóa file này?')) { 
+  if(confirm('Bạn có chắc chắn muốn xóa file này không?')) { 
     await fetch('/api/admin/files/'+id, {method:'DELETE', headers:auth()}); 
     loadFiles(); 
   } 
@@ -277,7 +271,8 @@ async function saveEdit() {
     closeModal();
     loadFiles();
   } else {
-    alert('Lỗi cập nhật!');
+    const d = await r.json();
+    alert('Lỗi: ' + (d.error || 'Không thể cập nhật'));
   }
 }
 
