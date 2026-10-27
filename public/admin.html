@@ -77,23 +77,28 @@
     <div id="tab-upload" class="panel hidden">
       <h2>📤 Đăng File Mới</h2>
       <div class="input-group"><label>Tên File (Hiển thị)</label><input type="text" id="upName" placeholder="VD: Mod FF Max iOS..."></div>
+      
       <div style="display:flex; gap:15px;">
         <div class="input-group" style="flex:1;"><label>Hệ Điều Hành</label><select id="upOS"><option value="ios">iOS</option><option value="android">Android</option></select></div>
         <div class="input-group" style="flex:1;"><label>Game</label><select id="upGame"><option value="ff_max">Free Fire MAX</option><option value="ff_thuong">Free Fire Thường</option></select></div>
       </div>
+      
       <div style="display:flex; gap:15px;">
-        <div class="input-group" style="flex:1;"><label>Giá gốc (Điểm)</label><input type="number" id="upPoints" value="10" min="0"></div>
+        <div class="input-group" style="flex:1;"><label>Giá gốc (0 = FREE)</label><input type="number" id="upPoints" value="10" min="0"></div>
         <div class="input-group" style="flex:1;"><label>Giá Sale (0=Ko)</label><input type="number" id="upSalePoints" value="0" min="0"></div>
         <div class="input-group" style="flex:1;"><label>Kho (SL)</label><input type="number" id="upStock" value="100" min="0"></div>
       </div>
+
       <div style="border: 1px dashed rgba(255,50,50,0.3); padding: 15px; border-radius: 16px; margin-bottom: 15px; background: rgba(0,0,0,0.2);">
         <div class="input-group"><label>Chọn ảnh từ thư viện</label><input type="file" id="upImage" accept="image/*"></div>
         <div class="input-group"><label style="color:#ffcc00;">Hoặc dán Link Ảnh (Nên dùng)</label><input type="text" id="upImageUrl" placeholder="https://..."></div>
       </div>
+
       <div style="border: 1px dashed rgba(255,50,50,0.3); padding: 15px; border-radius: 16px; margin-bottom: 15px; background: rgba(0,0,0,0.2);">
         <div class="input-group"><label>Chọn file từ máy (Nếu < 100MB)</label><input type="file" id="upFile"></div>
         <div class="input-group"><label style="color:#ffcc00;">Hoặc dán Link File (Nên dùng)</label><input type="text" id="upFileUrl" placeholder="https://..."></div>
       </div>
+      
       <button class="btn" id="uploadBtn">ĐĂNG BÀI NGAY</button>
     </div>
 
@@ -131,7 +136,7 @@
   </div>
 </div>
 
-<!-- MODAL SỬA FILE -->
+<!-- MODAL SỬA FILE (CÓ THÊM CHỖ SỬA ẢNH) -->
 <div id="editFileModal" class="modal hidden">
   <div class="modal-content">
     <h2 style="text-align:center; color:#ff6060;">✏️ SỬA FILE</h2>
@@ -142,6 +147,19 @@
       <div class="input-group" style="flex:1;"><label>Giá Sale</label><input type="number" id="editFileSalePoints" min="0"></div>
       <div class="input-group" style="flex:1;"><label>Kho</label><input type="number" id="editFileStock" min="0"></div>
     </div>
+
+    <!-- Ô CHỌN ẢNH MỚI -->
+    <div style="border-top: 1px dashed rgba(255,50,50,0.3); margin-top: 15px; padding-top: 15px;">
+      <div class="input-group">
+        <label style="color: #ffcc00;">Thay ảnh bìa mới (Bỏ trống nếu giữ nguyên)</label>
+        <input type="file" id="editFileImage" accept="image/*">
+      </div>
+      <div class="input-group">
+        <label style="color: #ffcc00;">Hoặc dán Link Ảnh mới</label>
+        <input type="text" id="editFileImageUrl" placeholder="https://...">
+      </div>
+    </div>
+
     <div style="display:flex; gap:10px; margin-top:20px;">
       <button class="btn btn-edit" onclick="saveFileEdit()">LƯU LẠI</button>
       <button class="btn btn-del" onclick="closeFileModal()">HỦY</button>
@@ -187,12 +205,10 @@ function switchTab(tabId, el) {
   $(tabId).classList.remove('hidden');
 }
 
-// HÀM TẢI FILE (ĐÃ ĐƯỢC SỬA LỖI CHỐNG CRASH)
 async function loadFiles(){
   try {
     const r = await fetch('/api/files'); 
     if(!r.ok) throw new Error('Mạng lỗi');
-    
     const files = await r.json();
     
     if(!Array.isArray(files) || files.length === 0) { 
@@ -202,9 +218,10 @@ async function loadFiles(){
     
     $('fileList').innerHTML = files.map(f => {
       let gameName = f.game === 'ff_max' ? 'FF MAX' : (f.game === 'ff_thuong' ? 'FF THƯỜNG' : 'FREE');
+      let isFree = f.points === 0 ? ' (FREE)' : '';
       return `<div class="item-row">
         <div class="item-info">
-          <div class="item-title">${f.name || 'Không tên'}</div>
+          <div class="item-title">${f.name || 'Không tên'}${isFree}</div>
           <div class="item-sub">${(f.os || '').toUpperCase()} • ${gameName}<br>Giá: <span style="color:#ff6060; font-weight:bold;">${f.points || 0} đ</span> • Kho: ${f.stock || 0}</div>
         </div>
         <div style="display:flex; flex-direction:column; gap:8px;">
@@ -220,14 +237,28 @@ async function loadFiles(){
 }
 
 function openFileModal(id, name, points, sale, stock) {
-  $('editFileId').value = id; $('editFileName').value = name; $('editFilePoints').value = points; $('editFileSalePoints').value = sale; $('editFileStock').value = stock; $('editFileModal').classList.remove('hidden');
+  $('editFileId').value = id; 
+  $('editFileName').value = name; 
+  $('editFilePoints').value = points; 
+  $('editFileSalePoints').value = sale; 
+  $('editFileStock').value = stock; 
+  $('editFileImage').value = '';
+  $('editFileImageUrl').value = '';
+  $('editFileModal').classList.remove('hidden');
 }
 function closeFileModal() { $('editFileModal').classList.add('hidden'); }
 
 async function saveFileEdit() {
   const id = $('editFileId').value;
   const fd = new FormData();
-  fd.append('name', $('editFileName').value); fd.append('points', $('editFilePoints').value); fd.append('sale_points', $('editFileSalePoints').value); fd.append('stock', $('editFileStock').value);
+  fd.append('name', $('editFileName').value); 
+  fd.append('points', $('editFilePoints').value); 
+  fd.append('sale_points', $('editFileSalePoints').value); 
+  fd.append('stock', $('editFileStock').value);
+  
+  if($('editFileImage').files[0]) fd.append('image', $('editFileImage').files[0]);
+  if($('editFileImageUrl').value.trim()) fd.append('image_url', $('editFileImageUrl').value.trim());
+
   const r = await fetch('/api/admin/files/' + id, { method: 'PUT', headers: auth(), body: fd });
   if (r.ok) { alert('Đã cập nhật file!'); closeFileModal(); loadFiles(); } else { alert('Lỗi cập nhật!'); }
 }
@@ -252,7 +283,7 @@ $('uploadBtn').onclick = async () => {
   
   if (r.ok) { 
     alert('Đăng file thành công!'); 
-    $('upName').value=''; $('upImageUrl').value=''; $('upFileUrl').value=''; $('upFile').value=''; $('upImage').value='';
+    $('upName').value=''; $('upImageUrl').value=''; $('upFileUrl').value=''; $('upFile').value=''; $('upImage').value=''; $('upPoints').value='10';
     loadFiles(); switchTab('tab-files', document.querySelectorAll('.tab')[0]);
   } else { alert('Lỗi upload!'); }
 };
