@@ -69,8 +69,11 @@
 
     <!-- TAB KHO FILE -->
     <div id="tab-files" class="panel">
-      <h2>📁 Kho File Đã Đăng</h2>
-      <div id="fileList"><div style="text-align:center; color:#d09090; padding:20px;">Đang tải dữ liệu...</div></div>
+      <h2>💰 File Bán (Có Giá)</h2>
+      <div id="paidFileList" style="margin-bottom: 30px;"><div style="text-align:center; color:#d09090; padding:20px;">Đang tải dữ liệu...</div></div>
+
+      <h2 style="color: #4dff88; border-bottom-color: rgba(77,255,136,0.3);">🎁 Kho File Free (0 Điểm)</h2>
+      <div id="freeFileList"><div style="text-align:center; color:#d09090; padding:20px;">Đang tải dữ liệu...</div></div>
     </div>
 
     <!-- TAB ĐĂNG BÀI -->
@@ -84,7 +87,7 @@
       </div>
       
       <div style="display:flex; gap:15px;">
-        <div class="input-group" style="flex:1;"><label>Giá gốc (0 = FREE)</label><input type="number" id="upPoints" value="10" min="0"></div>
+        <div class="input-group" style="flex:1;"><label style="color: #4dff88;">Giá gốc (Nhập 0 = File FREE)</label><input type="number" id="upPoints" value="10" min="0"></div>
         <div class="input-group" style="flex:1;"><label>Giá Sale (0=Ko)</label><input type="number" id="upSalePoints" value="0" min="0"></div>
         <div class="input-group" style="flex:1;"><label>Kho (SL)</label><input type="number" id="upStock" value="100" min="0"></div>
       </div>
@@ -136,7 +139,7 @@
   </div>
 </div>
 
-<!-- MODAL SỬA FILE (CÓ THÊM CHỖ SỬA ẢNH) -->
+<!-- MODAL SỬA FILE (ĐÃ THÊM CHỖ SỬA FILE) -->
 <div id="editFileModal" class="modal hidden">
   <div class="modal-content">
     <h2 style="text-align:center; color:#ff6060;">✏️ SỬA FILE</h2>
@@ -148,16 +151,18 @@
       <div class="input-group" style="flex:1;"><label>Kho</label><input type="number" id="editFileStock" min="0"></div>
     </div>
 
-    <!-- Ô CHỌN ẢNH MỚI -->
+    <!-- SỬA ẢNH -->
     <div style="border-top: 1px dashed rgba(255,50,50,0.3); margin-top: 15px; padding-top: 15px;">
-      <div class="input-group">
-        <label style="color: #ffcc00;">Thay ảnh bìa mới (Bỏ trống nếu giữ nguyên)</label>
-        <input type="file" id="editFileImage" accept="image/*">
-      </div>
-      <div class="input-group">
-        <label style="color: #ffcc00;">Hoặc dán Link Ảnh mới</label>
-        <input type="text" id="editFileImageUrl" placeholder="https://...">
-      </div>
+      <p style="color: #ffcc00; font-weight: bold; margin-bottom: 10px; font-size: 0.9rem;">Thay Ảnh Bìa Mới (Bỏ trống nếu giữ nguyên)</p>
+      <div class="input-group"><input type="file" id="editFileImage" accept="image/*"></div>
+      <div class="input-group"><input type="text" id="editFileImageUrl" placeholder="Hoặc dán Link Ảnh mới https://..."></div>
+    </div>
+
+    <!-- SỬA FILE TẢI XUỐNG -->
+    <div style="border-top: 1px dashed rgba(255,50,50,0.3); margin-top: 15px; padding-top: 15px;">
+      <p style="color: #4dff88; font-weight: bold; margin-bottom: 10px; font-size: 0.9rem;">Thay File Tải Xuống Mới (Bỏ trống nếu giữ nguyên)</p>
+      <div class="input-group"><input type="file" id="editFileDownload"></div>
+      <div class="input-group"><input type="text" id="editFileUrl" placeholder="Hoặc dán Link File mới https://..."></div>
     </div>
 
     <div style="display:flex; gap:10px; margin-top:20px;">
@@ -205,6 +210,7 @@ function switchTab(tabId, el) {
   $(tabId).classList.remove('hidden');
 }
 
+// HÀM TẢI FILE (CHIA LÀM 2 MỤC)
 async function loadFiles(){
   try {
     const r = await fetch('/api/files'); 
@@ -212,27 +218,53 @@ async function loadFiles(){
     const files = await r.json();
     
     if(!Array.isArray(files) || files.length === 0) { 
-      $('fileList').innerHTML = '<div style="text-align:center; color:#d09090; padding:20px;">Chưa có file nào được đăng.</div>'; 
+      $('paidFileList').innerHTML = '<div style="text-align:center; color:#d09090; padding:20px;">Chưa có file bán.</div>'; 
+      $('freeFileList').innerHTML = '<div style="text-align:center; color:#d09090; padding:20px;">Chưa có file free.</div>'; 
       return; 
     }
-    
-    $('fileList').innerHTML = files.map(f => {
-      let gameName = f.game === 'ff_max' ? 'FF MAX' : (f.game === 'ff_thuong' ? 'FF THƯỜNG' : 'FREE');
-      let isFree = f.points === 0 ? ' (FREE)' : '';
-      return `<div class="item-row">
-        <div class="item-info">
-          <div class="item-title">${f.name || 'Không tên'}${isFree}</div>
-          <div class="item-sub">${(f.os || '').toUpperCase()} • ${gameName}<br>Giá: <span style="color:#ff6060; font-weight:bold;">${f.points || 0} đ</span> • Kho: ${f.stock || 0}</div>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:8px;">
-          <button class="btn btn-small btn-edit" onclick="openFileModal(${f.id}, '${(f.name || '').replace(/'/g, "\\'")}', ${f.points || 0}, ${f.sale_points||0}, ${f.stock || 0})">SỬA</button>
-          <button class="btn btn-small btn-del" onclick="delFile(${f.id})">XÓA</button>
-        </div>
-      </div>`;
-    }).join('');
+
+    const paidFiles = files.filter(f => f.points > 0 || f.sale_points > 0);
+    const freeFiles = files.filter(f => f.points === 0 && f.sale_points === 0);
+
+    if(paidFiles.length === 0) {
+      $('paidFileList').innerHTML = '<div style="text-align:center; color:#d09090; padding:10px;">Chưa có file bán.</div>';
+    } else {
+      $('paidFileList').innerHTML = paidFiles.map(f => {
+        let gameName = f.game === 'ff_max' ? 'FF MAX' : (f.game === 'ff_thuong' ? 'FF THƯỜNG' : '');
+        return `<div class="item-row">
+          <div class="item-info">
+            <div class="item-title">${f.name || 'Không tên'}</div>
+            <div class="item-sub">${(f.os || '').toUpperCase()} • ${gameName}<br>Giá: <span style="color:#ff6060; font-weight:bold;">${f.points || 0} đ</span> • Kho: ${f.stock || 0}</div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <button class="btn btn-small btn-edit" onclick="openFileModal(${f.id}, '${(f.name || '').replace(/'/g, "\\'")}', ${f.points || 0}, ${f.sale_points||0}, ${f.stock || 0})">SỬA</button>
+            <button class="btn btn-small btn-del" onclick="delFile(${f.id})">XÓA</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    if(freeFiles.length === 0) {
+      $('freeFileList').innerHTML = '<div style="text-align:center; color:#d09090; padding:10px;">Chưa có file free.</div>';
+    } else {
+      $('freeFileList').innerHTML = freeFiles.map(f => {
+        let gameName = f.game === 'ff_max' ? 'FF MAX' : (f.game === 'ff_thuong' ? 'FF THƯỜNG' : '');
+        return `<div class="item-row" style="border-color: rgba(77,255,136,0.3);">
+          <div class="item-info">
+            <div class="item-title" style="color: #4dff88;">${f.name || 'Không tên'}</div>
+            <div class="item-sub">${(f.os || '').toUpperCase()} • ${gameName}<br>Giá: <span style="color:#4dff88; font-weight:bold;">FREE (0 đ)</span> • Kho: ${f.stock || 0}</div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <button class="btn btn-small btn-edit" onclick="openFileModal(${f.id}, '${(f.name || '').replace(/'/g, "\\'")}', ${f.points || 0}, ${f.sale_points||0}, ${f.stock || 0})">SỬA</button>
+            <button class="btn btn-small btn-del" onclick="delFile(${f.id})">XÓA</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
   } catch (err) {
     console.error(err);
-    $('fileList').innerHTML = '<div style="text-align:center; color:#ff4d4d; padding:20px;">Lỗi tải dữ liệu file. Vui lòng thử lại sau!</div>';
+    $('paidFileList').innerHTML = '<div style="text-align:center; color:#ff4d4d; padding:10px;">Lỗi tải dữ liệu file.</div>';
+    $('freeFileList').innerHTML = '<div style="text-align:center; color:#ff4d4d; padding:10px;">Lỗi tải dữ liệu file.</div>';
   }
 }
 
@@ -244,6 +276,8 @@ function openFileModal(id, name, points, sale, stock) {
   $('editFileStock').value = stock; 
   $('editFileImage').value = '';
   $('editFileImageUrl').value = '';
+  $('editFileDownload').value = '';
+  $('editFileUrl').value = '';
   $('editFileModal').classList.remove('hidden');
 }
 function closeFileModal() { $('editFileModal').classList.add('hidden'); }
@@ -258,6 +292,9 @@ async function saveFileEdit() {
   
   if($('editFileImage').files[0]) fd.append('image', $('editFileImage').files[0]);
   if($('editFileImageUrl').value.trim()) fd.append('image_url', $('editFileImageUrl').value.trim());
+
+  if($('editFileDownload').files[0]) fd.append('file', $('editFileDownload').files[0]);
+  if($('editFileUrl').value.trim()) fd.append('file_url', $('editFileUrl').value.trim());
 
   const r = await fetch('/api/admin/files/' + id, { method: 'PUT', headers: auth(), body: fd });
   if (r.ok) { alert('Đã cập nhật file!'); closeFileModal(); loadFiles(); } else { alert('Lỗi cập nhật!'); }
