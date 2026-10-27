@@ -14,19 +14,24 @@ const ADMIN_USER = 'admin';
 const ADMIN_PASS = 'admin123';
 
 const DATABASE_URL = 'postgresql://postgres.sfzamacyheooutadwjlj:SamKwjff123@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres';
-
 const pool = new Pool({ connectionString: DATABASE_URL, ssl: { rejectUnauthorized: false } });
 
 async function initDB() {
   try {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, username TEXT UNIQUE, password TEXT, points INTEGER DEFAULT 0, device TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
-      CREATE TABLE IF NOT EXISTS files (id SERIAL PRIMARY KEY, name TEXT, size INTEGER, file_path TEXT, image_path TEXT, image_url TEXT, points INTEGER DEFAULT 0, sale_points INTEGER DEFAULT 0, stock INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+      CREATE TABLE IF NOT EXISTS files (id SERIAL PRIMARY KEY, name TEXT, size INTEGER, file_path TEXT, image_path TEXT, image_url TEXT, os TEXT, game TEXT, points INTEGER DEFAULT 0, sale_points INTEGER DEFAULT 0, stock INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
       CREATE TABLE IF NOT EXISTS codes (id SERIAL PRIMARY KEY, code TEXT UNIQUE, points INTEGER, max_devices INTEGER DEFAULT 1, used_count INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+      CREATE TABLE IF NOT EXISTS topups (id SERIAL PRIMARY KEY, username TEXT, amount INTEGER, points INTEGER, status TEXT DEFAULT 'pending', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+      CREATE TABLE IF NOT EXISTS purchases (id SERIAL PRIMARY KEY, username TEXT, file_name TEXT, price INTEGER, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
     `);
+    // Tự động nâng cấp DB cũ
+    try { await pool.query("ALTER TABLE files ADD COLUMN os TEXT"); } catch(e) {}
+    try { await pool.query("ALTER TABLE files ADD COLUMN game TEXT"); } catch(e) {}
     try { await pool.query("ALTER TABLE files ADD COLUMN image_url TEXT"); } catch(e) {}
     try { await pool.query("ALTER TABLE codes ADD COLUMN max_devices INTEGER DEFAULT 1"); } catch(e) {}
     try { await pool.query("ALTER TABLE codes ADD COLUMN used_count INTEGER DEFAULT 0"); } catch(e) {}
+    
     console.log('✅ Kết nối Database Supabase thành công!');
   } catch (err) { console.error('❌ Lỗi khởi tạo DB:', err); }
 }
@@ -57,6 +62,7 @@ function authAdmin(req, res, next) {
   } catch { res.status(401).json({ error: 'Token lỗi' }); }
 }
 
+// === API USER ===
 app.post('/api/register', async (req, res) => {
   const { username, password, device } = req.body;
   if (!username || !password) return res.status(400).json({ error: 'Thiếu thông tin' });
@@ -82,30 +88,30 @@ app.post('/api/login', async (req, res) => {
 });
 
 app.get('/api/me', authUser, async (req, res) => {
+  try { const result = await pool.query('SELECT id, username, points FROM users WHERE id = $1', [req.user.id]); res.json(result.rows[0]); } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
+});
+
+// === API NẠP TIỀN ===
+app.post('/api/topup/request', authUser, async (req, res) => {
+  const { amount, points } = req.body;
   try {
-    const result = await pool.query('SELECT id, username, points FROM users WHERE id = $1', [req.user.id]);
-    res.json(result.rows[0]);
+    await pool.query('INSERT INTO topups (username, amount, points, status) VALUES ($1, $2, $3, $4)', [req.user.username, amount, points, 'pending']);
+    res.json({ success: true });
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
-app.post('/api/redeem', authUser, async (req, res) => {
-  const { code } = req.body;
-  if (!code) return res.status(400).json({ error: 'Chưa nhập code' });
+app.get('/api/history', authUser, async (req, res) => {
   try {
-    const cResult = await pool.query('SELECT * FROM codes WHERE code = $1', [code.trim().toUpperCase()]);
-    const c = cResult.rows[0];
-    if (!c) return res.status(400).json({ error: 'Code không tồn tại' });
-    if (c.used_count >= c.max_devices) return res.status(400).json({ error: 'Code này đã hết lượt sử dụng!' });
-    await pool.query('UPDATE codes SET used_count = used_count + 1 WHERE id = $1', [c.id]);
-    await pool.query('UPDATE users SET points = points + $1 WHERE id = $2', [c.points, req.user.id]);
-    const updated = await pool.query('SELECT points FROM users WHERE id = $1', [req.user.id]);
-    res.json({ success: true, points: updated.rows[0].points, added: c.points });
+    const topups = await pool.query('SELECT * FROM topups WHERE username = $1 ORDER BY id DESC', [req.user.username]);
+    const purchases = await pool.query('SELECT * FROM purchases WHERE username = $1 ORDER BY id DESC', [req.user.username]);
+    res.json({ topups: topups.rows, purchases: purchases.rows });
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
+// === API FILE ===
 app.get('/api/files', async (req, res) => {
   try {
-    const result = await pool.query('SELECT id, name, size, file_path, image_path, image_url, points, sale_points, stock FROM files ORDER BY id DESC');
+    const result = await pool.query('SELECT id, name, size, file_path, image_path, image_url, os, game, points, sale_points, stock FROM files ORDER BY id DESC');
     res.json(result.rows);
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
@@ -117,16 +123,22 @@ app.post('/api/files/buy', authUser, async (req, res) => {
     const file = fResult.rows[0];
     if (!file) return res.status(404).json({ error: 'File không tồn tại' });
     if (file.stock <= 0) return res.status(400).json({ error: 'File này đã hết hàng!' });
+    
     const uResult = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
     const user = uResult.rows[0];
     const finalPrice = (file.sale_points > 0 && file.sale_points < file.points) ? file.sale_points : file.points;
+
     if (user.points < finalPrice) return res.status(400).json({ error: `Bạn cần ${finalPrice} điểm. Số dư: ${user.points} điểm` });
+    
     if (finalPrice > 0) await pool.query('UPDATE users SET points = points - $1 WHERE id = $2', [finalPrice, req.user.id]);
     await pool.query('UPDATE files SET stock = stock - 1 WHERE id = $1', [file.id]);
+    await pool.query('INSERT INTO purchases (username, file_name, price) VALUES ($1, $2, $3)', [req.user.username, file.name, finalPrice]);
+    
     res.json({ success: true, file_path: file.file_path, new_points: user.points - finalPrice });
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
+// === API ADMIN ===
 app.post('/api/admin/login', (req, res) => {
   const { username, password } = req.body;
   if (username !== ADMIN_USER || password !== ADMIN_PASS) return res.status(400).json({ error: 'Sai tài khoản admin' });
@@ -134,86 +146,37 @@ app.post('/api/admin/login', (req, res) => {
 });
 
 app.post('/api/admin/upload', authAdmin, upload.fields([{ name: 'file', maxCount: 1 }, { name: 'image', maxCount: 1 }]), async (req, res) => {
-  const name = req.body.name;
-  const points = parseInt(req.body.points) || 0;
-  const sale_points = parseInt(req.body.sale_points) || 0;
-  const stock = parseInt(req.body.stock) || 0;
-  const fileUrl = req.body.file_url;
-  const imageUrl = req.body.image_url;
+  const { name, points, sale_points, stock, file_url, image_url, os, game } = req.body;
   let final_file_path = '', final_size = 0;
-  if (fileUrl && fileUrl.trim() !== '') {
-    final_file_path = fileUrl.trim();
-  } else if (req.files?.file) {
-    const f = req.files.file[0];
-    final_file_path = '/uploads/' + f.filename;
-    final_size = f.size;
-  } else { return res.status(400).json({ error: 'Vui lòng chọn file hoặc nhập URL' }); }
+  if (file_url && file_url.trim() !== '') { final_file_path = file_url.trim(); }
+  else if (req.files?.file) { const f = req.files.file[0]; final_file_path = '/uploads/' + f.filename; final_size = f.size; }
+  else { return res.status(400).json({ error: 'Vui lòng chọn file hoặc nhập URL' }); }
   const img = req.files?.image?.[0];
   const image_path = img ? '/uploads/' + img.filename : null;
   try {
     await pool.query(
-      'INSERT INTO files (name, size, file_path, image_path, image_url, points, sale_points, stock) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-      [name, final_size, final_file_path, image_path, imageUrl || null, points, sale_points, stock]
+      'INSERT INTO files (name, size, file_path, image_path, image_url, os, game, points, sale_points, stock) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+      [name, final_size, final_file_path, image_path, image_url || null, os, game, parseInt(points) || 0, parseInt(sale_points) || 0, parseInt(stock) || 0]
     );
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: 'Lỗi lưu file' }); }
-});
-
-app.put('/api/admin/files/:id', authAdmin, upload.single('image'), async (req, res) => {
-  const { name, points, sale_points, stock } = req.body;
-  const id = req.params.id;
-  try {
-    if (req.file) {
-      const image_path = '/uploads/' + req.file.filename;
-      await pool.query('UPDATE files SET name = $1, points = $2, sale_points = $3, stock = $4, image_path = $5 WHERE id = $6', [name, points, sale_points, stock, image_path, id]);
-    } else {
-      await pool.query('UPDATE files SET name = $1, points = $2, sale_points = $3, stock = $4 WHERE id = $5', [name, points, sale_points, stock, id]);
-    }
-    res.json({ success: true });
-  } catch (err) { res.status(500).json({ error: 'Lỗi cập nhật' }); }
 });
 
 app.delete('/api/admin/files/:id', authAdmin, async (req, res) => {
   try { await pool.query('DELETE FROM files WHERE id = $1', [req.params.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: 'Lỗi xóa' }); }
 });
 
-app.post('/api/admin/codes', authAdmin, async (req, res) => {
-  const { points, count, max_devices } = req.body;
-  const n = Math.min(count || 1, 50);
-  const created = [];
+app.get('/api/admin/topups', authAdmin, async (req, res) => {
+  try { const result = await pool.query('SELECT * FROM topups ORDER BY id DESC'); res.json(result.rows); } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
+});
+
+app.post('/api/admin/topups/:id/approve', authAdmin, async (req, res) => {
   try {
-    for (let i = 0; i < n; i++) {
-      let code = 'VIP-' + crypto.randomBytes(4).toString('hex').toUpperCase();
-      await pool.query('INSERT INTO codes (code, points, max_devices) VALUES ($1, $2, $3)', [code, points, max_devices || 1]);
-      created.push(code);
-    }
-    res.json({ success: true, codes: created });
-  } catch (err) { res.status(500).json({ error: 'Lỗi tạo code' }); }
-});
-
-app.get('/api/admin/codes', authAdmin, async (req, res) => {
-  try { const result = await pool.query('SELECT * FROM codes ORDER BY id DESC'); res.json(result.rows); } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
-});
-
-app.delete('/api/admin/codes/:id', authAdmin, async (req, res) => {
-  try { await pool.query('DELETE FROM codes WHERE id = $1', [req.params.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: 'Lỗi xóa' }); }
-});
-
-app.get('/api/admin/users', authAdmin, async (req, res) => {
-  try { const result = await pool.query('SELECT id, username, points, device FROM users ORDER BY id DESC'); res.json(result.rows); } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
-});
-
-app.put('/api/admin/users/:id/device', authAdmin, async (req, res) => {
-  try { await pool.query('UPDATE users SET device = $1 WHERE id = $2', [req.body.device, req.params.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: 'Lỗi cập nhật' }); }
-});
-
-app.post('/api/admin/device/points', authAdmin, async (req, res) => {
-  const { device, points } = req.body;
-  if (!device || !points) return res.status(400).json({ error: 'Thiếu thông tin' });
-  try {
-    const userResult = await pool.query('SELECT id FROM users WHERE device = $1', [device]);
-    if (userResult.rows.length === 0) return res.status(404).json({ error: 'Không tìm thấy thiết bị này!' });
-    await pool.query('UPDATE users SET points = points + $1 WHERE id = $2', [points, userResult.rows[0].id]);
+    const topup = await pool.query('SELECT * FROM topups WHERE id = $1 AND status = $2', [req.params.id, 'pending']);
+    if (topup.rows.length === 0) return res.status(400).json({ error: 'Không tìm thấy hoặc đã duyệt' });
+    const t = topup.rows[0];
+    await pool.query('UPDATE users SET points = points + $1 WHERE username = $2', [t.points, t.username]);
+    await pool.query('UPDATE topups SET status = $1 WHERE id = $2', ['success', t.id]);
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
