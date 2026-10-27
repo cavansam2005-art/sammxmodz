@@ -164,6 +164,7 @@ app.post('/api/admin/login', (req, res) => {
   res.json({ token: jwt.sign({ role: 'admin', username }, JWT_SECRET, { expiresIn: '1d' }) });
 });
 
+// API ĐĂNG BÀI
 app.post('/api/admin/upload', authAdmin, upload.fields([{ name: 'file', maxCount: 1 }, { name: 'image', maxCount: 1 }]), async (req, res) => {
   const name = req.body.name;
   const points = parseInt(req.body.points) || 0;
@@ -196,14 +197,25 @@ app.post('/api/admin/upload', authAdmin, upload.fields([{ name: 'file', maxCount
   } catch (err) { res.status(500).json({ error: 'Lỗi lưu file' }); }
 });
 
-app.put('/api/admin/files/:id', authAdmin, async (req, res) => {
+// API SỬA FILE (Có hỗ trợ thay ảnh bìa)
+app.put('/api/admin/files/:id', authAdmin, upload.single('image'), async (req, res) => {
   const { name, points, sale_points, stock } = req.body;
+  const id = req.params.id;
+  
   try {
-    await pool.query('UPDATE files SET name = $1, points = $2, sale_points = $3, stock = $4 WHERE id = $5', [name, points, sale_points, stock, req.params.id]);
+    if (req.file) {
+      // Nếu có ảnh mới được tải lên, cập nhật cả ảnh
+      const image_path = '/uploads/' + req.file.filename;
+      await pool.query('UPDATE files SET name = $1, points = $2, sale_points = $3, stock = $4, image_path = $5 WHERE id = $6', [name, points, sale_points, stock, image_path, id]);
+    } else {
+      // Nếu không có ảnh mới, chỉ cập nhật thông tin
+      await pool.query('UPDATE files SET name = $1, points = $2, sale_points = $3, stock = $4 WHERE id = $5', [name, points, sale_points, stock, id]);
+    }
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: 'Lỗi cập nhật' }); }
 });
 
+// API XÓA FILE
 app.delete('/api/admin/files/:id', authAdmin, async (req, res) => {
   try {
     await pool.query('DELETE FROM files WHERE id = $1', [req.params.id]);
@@ -232,7 +244,6 @@ app.get('/api/admin/codes', authAdmin, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
-// SỬA LẠI ĐỂ TRẢ VỀ CẢ CỘT DEVICE
 app.get('/api/admin/users', authAdmin, async (req, res) => {
   try {
     const result = await pool.query('SELECT id, username, points, device FROM users ORDER BY id DESC');
