@@ -47,11 +47,16 @@
   .game-title { font-weight: 800; font-size: 1.1rem; color: #fff; }
   .game-desc { font-size: 0.8rem; color: #b090c0; margin-top: 4px; }
 
-  .file-card { background:rgba(20, 8, 30, 0.7); border:1px solid rgba(216,124,255,0.15); border-radius:20px; overflow:hidden; margin-bottom:15px; }
+  .file-card { background:rgba(20, 8, 30, 0.7); border:1px solid rgba(216,124,255,0.15); border-radius:20px; overflow:hidden; margin-bottom:15px; position: relative;}
   .file-cover { width:100%; height:auto; max-height:220px; object-fit:contain; background:#0d0214; display:block; }
   .file-body { padding:15px; display:flex; align-items:center; gap:15px; }
   .fi-btn { background: linear-gradient(135deg,#d87cff,#9b30d9); color:#fff; border-radius:12px; padding:10px 16px; font-weight:800; border:none; cursor:pointer; box-shadow: 0 5px 15px rgba(216,124,255,0.3); font-size: 0.9rem;}
   .fi-btn-free { background: linear-gradient(135deg,#4dff88,#00b359); color:#000; box-shadow: 0 5px 15px rgba(77,255,136,0.3);}
+
+  /* NHÃN HOT VÀ CẬP NHẬP */
+  .badge-hot { position: absolute; top:10px; left:10px; background: #ff4d4d; color: #fff; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; z-index: 10; box-shadow: 0 4px 10px rgba(255,77,77,0.5); animation: pulse 1.5s infinite; }
+  .badge-update { position: absolute; top:10px; left:10px; background: #ffcc00; color: #000; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; z-index: 10; box-shadow: 0 4px 10px rgba(255,204,0,0.5); }
+  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
   .topup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
   .topup-item { background: rgba(20,8,30,0.8); border: 1.5px solid rgba(216,124,255,0.2); border-radius: 16px; padding: 15px; text-align: center; cursor: pointer; transition: .2s; font-size: 1rem; font-weight: bold; }
@@ -80,7 +85,6 @@
   .history-content.active { display: block; animation: fadeUp 0.2s; }
   .history-item { background: rgba(20,8,30,0.6); padding: 12px; border-radius: 12px; margin-bottom: 8px; border-left: 3px solid #d87cff; font-size: 0.85rem; }
 
-  /* GIAO DIỆN TÀI KHOẢN MỚI */
   .profile-card { background: linear-gradient(145deg, rgba(40,15,60,0.9), rgba(20,8,30,0.9)); border-radius: 24px; padding: 30px 20px; text-align: center; border: 1px solid rgba(216,124,255,0.3); box-shadow: 0 15px 35px rgba(0,0,0,0.5); position: relative; overflow: hidden; margin-bottom: 25px;}
   .profile-card::before { content:''; position: absolute; top:-50px; right:-50px; width:150px; height:150px; background: radial-gradient(circle, rgba(216,124,255,0.3), transparent 70%); border-radius: 50%; }
   .avatar-big { width: 80px; height: 80px; margin: 0 auto 15px; background: linear-gradient(145deg, #d87cff, #6a1b9a); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; color: #fff; box-shadow: 0 10px 20px rgba(0,0,0,0.4); position: relative; z-index: 1;}
@@ -178,7 +182,6 @@
         <div class="topup-item" onclick="selectTopup(this, 100000, 100)">100.000đ <br><span style="color:#d87cff;">+100 Điểm</span></div>
       </div>
 
-      <!-- TÙY CHỈNH NẠP THỦ CÔNG -->
       <div style="background: rgba(216,124,255,0.05); padding: 15px; border-radius: 16px; border: 1px solid rgba(216,124,255,0.2); margin-bottom: 15px;">
         <p style="font-size: 0.9rem; font-weight: bold; color: #d87cff; margin-bottom: 10px;">Hoặc nhập số tiền tùy chỉnh (Tỷ lệ 1.000đ = 1 Điểm):</p>
         <div style="display:flex; gap: 10px;">
@@ -231,7 +234,7 @@
       </div>
     </div>
 
-    <!-- TÀI KHOẢN (GIAO DIỆN MỚI) -->
+    <!-- TÀI KHOẢN -->
     <div id="taiKhoanScreen" class="screen">
       <div class="shop-header">
         <h2 style="font-size:1.3rem; color: #fff;">👤 Tài Khoản</h2>
@@ -378,7 +381,6 @@ async function loadMe() {
     if (!r.ok) throw 0;
     const u = await r.json();
     
-    // Cập nhật thông tin vào trang Tài Khoản mới
     $('profileName').textContent = u.username;
     $('profileAvatar').textContent = u.username.charAt(0).toUpperCase();
     $('profileId').textContent = 'ID: ' + (deviceName || 'Chưa rõ');
@@ -457,8 +459,25 @@ async function loadFilesByGame(game) {
   $('fileListContent').innerHTML = filtered.map(f => {
     const fPoints = f.points || 0, fSale = f.sale_points || 0, fStock = f.stock || 0, fName = f.name || 'File', fSize = f.size || 0;
     let img = `<div style="height:150px; display:flex; align-items:center; justify-content:center; font-size:3rem; background:#0d0214;">📄</div>`;
-    if (f.image_url) img = `<img src="${f.image_url}" class="file-cover">`;
-    else if (f.image_path) img = `<img src="${f.image_path}" class="file-cover">`;
+    
+    // TÍNH TOÁN THỜI GIAN HOT / CẬP NHẬP
+    let badgeHtml = '';
+    if (f.created_at) {
+      const createdDate = new Date(f.created_at);
+      const now = new Date();
+      const diffTime = Math.abs(now - createdDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+      
+      if (diffDays <= 2) {
+        badgeHtml = `<div class="badge-hot">🔥 HOT</div>`;
+      } else if (diffDays <= 10) {
+        badgeHtml = `<div class="badge-update">CẬP NHẬP ${diffDays} NGÀY TRƯỚC</div>`;
+      }
+    }
+    
+    if (f.image_url) img = `<div style="position:relative;"><img src="${f.image_url}" class="file-cover">${badgeHtml}</div>`;
+    else if (f.image_path) img = `<div style="position:relative;"><img src="${f.image_path}" class="file-cover">${badgeHtml}</div>`;
+    else img = `<div style="position:relative;">${img}${badgeHtml}</div>`;
     
     let priceHtml = `<b>${fPoints} điểm</b>`;
     let btnClass = 'fi-btn';
