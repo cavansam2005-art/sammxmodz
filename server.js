@@ -20,12 +20,17 @@ async function initDB() {
   try {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, username TEXT UNIQUE, password TEXT, points INTEGER DEFAULT 0, device TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
-      CREATE TABLE IF NOT EXISTS files (id SERIAL PRIMARY KEY, name TEXT, size INTEGER, file_path TEXT, image_path TEXT, image_url TEXT, os TEXT, game TEXT, points INTEGER DEFAULT 0, sale_points INTEGER DEFAULT 0, stock INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+      CREATE TABLE IF NOT EXISTS files (id SERIAL PRIMARY KEY, name TEXT, size INTEGER, file_path TEXT, image_path TEXT, image_url TEXT, os TEXT, game TEXT, points INTEGER DEFAULT 0, sale_points INTEGER DEFAULT 0, stock INTEGER DEFAULT 0, acc_user TEXT, acc_pass TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
       CREATE TABLE IF NOT EXISTS codes (id SERIAL PRIMARY KEY, code TEXT UNIQUE, points INTEGER, max_devices INTEGER DEFAULT 1, used_count INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
       CREATE TABLE IF NOT EXISTS code_uses (id SERIAL PRIMARY KEY, code_id INTEGER, device TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
       CREATE TABLE IF NOT EXISTS topups (id SERIAL PRIMARY KEY, username TEXT, amount INTEGER, points INTEGER, status TEXT DEFAULT 'pending', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
       CREATE TABLE IF NOT EXISTS purchases (id SERIAL PRIMARY KEY, username TEXT, file_name TEXT, price INTEGER, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
     `);
+    
+    // Tự động nâng cấp cột nếu database cũ chưa có
+    try { await pool.query("ALTER TABLE files ADD COLUMN acc_user TEXT"); } catch(e) {}
+    try { await pool.query("ALTER TABLE files ADD COLUMN acc_pass TEXT"); } catch(e) {}
+    
     console.log('✅ Kết nối Database Supabase thành công!');
   } catch (err) { console.error('❌ Lỗi khởi tạo DB:', err); }
 }
@@ -111,10 +116,10 @@ app.get('/api/history', authUser, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
-// API FILE
+// API FILE (Trả về cả acc_user và acc_pass)
 app.get('/api/files', async (req, res) => {
   try {
-    const result = await pool.query('SELECT id, name, size, file_path, image_path, image_url, os, game, points, sale_points, stock, created_at FROM files ORDER BY id DESC');
+    const result = await pool.query('SELECT id, name, size, file_path, image_path, image_url, os, game, points, sale_points, stock, acc_user, acc_pass, created_at FROM files ORDER BY id DESC');
     res.json(result.rows || []);
   } catch (err) { 
     console.error('Lỗi API files:', err);
@@ -140,7 +145,7 @@ app.post('/api/files/buy', authUser, async (req, res) => {
     await pool.query('UPDATE files SET stock = stock - 1 WHERE id = $1', [file.id]);
     await pool.query('INSERT INTO purchases (username, file_name, price) VALUES ($1, $2, $3)', [req.user.username, file.name, finalPrice]);
     
-    res.json({ success: true, file_path: file.file_path, new_points: user.points - finalPrice });
+    res.json({ success: true, file_path: file.file_path, acc_user: file.acc_user, acc_pass: file.acc_pass, new_points: user.points - finalPrice });
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
@@ -176,7 +181,7 @@ app.post('/api/admin/login', (req, res) => {
 });
 
 app.post('/api/admin/upload', authAdmin, upload.fields([{ name: 'file', maxCount: 1 }, { name: 'image', maxCount: 1 }]), async (req, res) => {
-  const { name, points, sale_points, stock, file_url, image_url, os, game } = req.body;
+  const { name, points, sale_points, stock, file_url, image_url, os, game, acc_user, acc_pass } = req.body;
   let final_file_path = '', final_size = 0;
   if (file_url && file_url.trim() !== '') { final_file_path = file_url.trim(); }
   else if (req.files?.file) { const f = req.files.file[0]; final_file_path = '/uploads/' + f.filename; final_size = f.size; }
@@ -187,22 +192,22 @@ app.post('/api/admin/upload', authAdmin, upload.fields([{ name: 'file', maxCount
 
   try {
     await pool.query(
-      'INSERT INTO files (name, size, file_path, image_path, image_url, os, game, points, sale_points, stock, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP)',
-      [name, final_size, final_file_path, image_path, image_url || null, os, game, parseInt(points) || 0, parseInt(sale_points) || 0, parseInt(stock) || 0]
+      'INSERT INTO files (name, size, file_path, image_path, image_url, os, game, points, sale_points, stock, acc_user, acc_pass, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, CURRENT_TIMESTAMP)',
+      [name, final_size, final_file_path, image_path, image_url || null, os, game, parseInt(points) || 0, parseInt(sale_points) || 0, parseInt(stock) || 0, acc_user || null, acc_pass || null]
     );
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: 'Lỗi lưu file' }); }
 });
 
-// SỬA FILE (HỖ TRỢ THAY CẢ FILE TẢI XUỐNG VÀ ẢNH MỚI)
+// SỬA FILE (HỖ TRỢ CẢ SỬA TÀI KHOẢN/MẬT KHẨU)
 app.put('/api/admin/files/:id', authAdmin, upload.fields([{ name: 'file', maxCount: 1 }, { name: 'image', maxCount: 1 }]), async (req, res) => {
-  const { name, points, sale_points, stock, image_url, file_url } = req.body;
+  const { name, points, sale_points, stock, image_url, file_url, acc_user, acc_pass } = req.body;
   const id = req.params.id;
   
   try {
-    let updateQuery = 'UPDATE files SET name = $1, points = $2, sale_points = $3, stock = $4, created_at = CURRENT_TIMESTAMP';
-    let queryParams = [name, points, sale_points, stock];
-    let paramIndex = 5;
+    let updateQuery = 'UPDATE files SET name = $1, points = $2, sale_points = $3, stock = $4, acc_user = $5, acc_pass = $6, created_at = CURRENT_TIMESTAMP';
+    let queryParams = [name, points, sale_points, stock, acc_user || null, acc_pass || null];
+    let paramIndex = 7;
 
     if (req.files?.image) {
       updateQuery += `, image_path = $${paramIndex}`;
