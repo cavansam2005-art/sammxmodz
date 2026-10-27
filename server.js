@@ -56,7 +56,7 @@ function authAdmin(req, res, next) {
   } catch { res.status(401).json({ error: 'Token lỗi' }); }
 }
 
-// ===== API USER =====
+// API USER
 app.post('/api/register', async (req, res) => {
   const { username, password, device } = req.body;
   if (!username || !password) return res.status(400).json({ error: 'Thiếu thông tin' });
@@ -85,9 +85,7 @@ app.get('/api/me', authUser, async (req, res) => {
   try { const result = await pool.query('SELECT id, username, points FROM users WHERE id = $1', [req.user.id]); res.json(result.rows[0]); } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
-app.post('/api/admin/notify-login', async (req, res) => { res.json({ success: true }); });
-
-// ===== API TOP =====
+// API TOP
 app.get('/api/top', async (req, res) => {
   try {
     const topNaps = await pool.query(`SELECT username, SUM(amount) as total_amount FROM topups WHERE status = 'success' GROUP BY username ORDER BY total_amount DESC LIMIT 5`);
@@ -96,7 +94,7 @@ app.get('/api/top', async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
-// ===== API NẠP TIỀN =====
+// API NẠP TIỀN
 app.post('/api/topup/request', authUser, async (req, res) => {
   const { amount, points } = req.body;
   try {
@@ -113,13 +111,14 @@ app.get('/api/history', authUser, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
-// ===== API FILE (ĐÃ SỬA LỖI TẢI DỮ LIỆU) =====
+// API FILE (ĐÃ SỬA LỖI KHÔNG TRẢ VỀ DỮ LIỆU)
 app.get('/api/files', async (req, res) => {
   try {
     const result = await pool.query('SELECT id, name, size, file_path, image_path, image_url, os, game, points, sale_points, stock, created_at FROM files ORDER BY id DESC');
+    // Nếu result.rows bị undefined thì trả về mảng rỗng để không báo lỗi
     res.json(result.rows || []);
   } catch (err) { 
-    console.error('Lỗi lấy file:', err);
+    console.error('Lỗi API files:', err);
     res.status(500).json({ error: 'Lỗi server' }); 
   }
 });
@@ -146,7 +145,7 @@ app.post('/api/files/buy', authUser, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
-// ===== API CODE (CHẶN DÙNG LẠI TRÊN CÙNG THIẾT BỊ) =====
+// API CODE
 app.post('/api/redeem', authUser, async (req, res) => {
   const { code, device } = req.body; 
   if (!code) return res.status(400).json({ error: 'Chưa nhập code' });
@@ -170,24 +169,19 @@ app.post('/api/redeem', authUser, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
-// ===== API ADMIN =====
+// API ADMIN
 app.post('/api/admin/login', (req, res) => {
   const { username, password } = req.body;
   if (username !== ADMIN_USER || password !== ADMIN_PASS) return res.status(400).json({ error: 'Sai tài khoản admin' });
   res.json({ token: jwt.sign({ role: 'admin', username }, JWT_SECRET, { expiresIn: '1d' }) });
 });
 
-// ĐĂNG BÀI MỚI
 app.post('/api/admin/upload', authAdmin, upload.fields([{ name: 'file', maxCount: 1 }, { name: 'image', maxCount: 1 }]), async (req, res) => {
   const { name, points, sale_points, stock, file_url, image_url, os, game } = req.body;
   let final_file_path = '', final_size = 0;
-  if (file_url && file_url.trim() !== '') { 
-    final_file_path = file_url.trim(); 
-  } else if (req.files?.file) { 
-    const f = req.files.file[0]; 
-    final_file_path = '/uploads/' + f.filename; 
-    final_size = f.size; 
-  } else { return res.status(400).json({ error: 'Vui lòng chọn file hoặc nhập URL' }); }
+  if (file_url && file_url.trim() !== '') { final_file_path = file_url.trim(); }
+  else if (req.files?.file) { const f = req.files.file[0]; final_file_path = '/uploads/' + f.filename; final_size = f.size; }
+  else { return res.status(400).json({ error: 'Vui lòng chọn file hoặc nhập URL' }); }
   
   let image_path = null;
   if (req.files?.image) image_path = '/uploads/' + req.files.image[0].filename;
@@ -201,11 +195,9 @@ app.post('/api/admin/upload', authAdmin, upload.fields([{ name: 'file', maxCount
   } catch (err) { res.status(500).json({ error: 'Lỗi lưu file' }); }
 });
 
-// SỬA FILE
 app.put('/api/admin/files/:id', authAdmin, upload.fields([{ name: 'file', maxCount: 1 }, { name: 'image', maxCount: 1 }]), async (req, res) => {
   const { name, points, sale_points, stock, image_url } = req.body;
   const id = req.params.id;
-  
   try {
     if (req.files?.image) {
       const image_path = '/uploads/' + req.files.image[0].filename;
@@ -223,7 +215,6 @@ app.delete('/api/admin/files/:id', authAdmin, async (req, res) => {
   try { await pool.query('DELETE FROM files WHERE id = $1', [req.params.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: 'Lỗi xóa' }); }
 });
 
-// === DUYỆT NẠP & USER ===
 app.get('/api/admin/topups', authAdmin, async (req, res) => {
   try { const result = await pool.query('SELECT * FROM topups ORDER BY id DESC'); res.json(result.rows); } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
@@ -231,7 +222,7 @@ app.get('/api/admin/topups', authAdmin, async (req, res) => {
 app.post('/api/admin/topups/:id/approve', authAdmin, async (req, res) => {
   try {
     const topup = await pool.query('SELECT * FROM topups WHERE id = $1 AND status = $2', [req.params.id, 'pending']);
-    if (topup.rows.length === 0) return res.status(400).json({ error: 'Không tìm thấy hoặc đã duyệt' });
+    if (topup.rows.length === 0) return res.status(400).json({ error: 'Không tìm thấy' });
     const t = topup.rows[0];
     await pool.query('UPDATE users SET points = points + $1 WHERE username = $2', [t.points, t.username]);
     await pool.query('UPDATE topups SET status = $1 WHERE id = $2', ['success', t.id]);
@@ -245,11 +236,11 @@ app.get('/api/admin/users', authAdmin, async (req, res) => {
 
 app.put('/api/admin/users/:id/setpoints', authAdmin, async (req, res) => {
   const { points } = req.body;
-  try { await pool.query('UPDATE users SET points = $1 WHERE id = $2', [points, req.params.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: 'Lỗi cập nhật điểm' }); }
+  try { await pool.query('UPDATE users SET points = $1 WHERE id = $2', [points, req.params.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: 'Lỗi' }); }
 });
 
 app.delete('/api/admin/users/:id', authAdmin, async (req, res) => {
-  try { await pool.query('DELETE FROM users WHERE id = $1', [req.params.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: 'Lỗi xóa user' }); }
+  try { await pool.query('DELETE FROM users WHERE id = $1', [req.params.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: 'Lỗi' }); }
 });
 
 app.post('/api/admin/device/points', authAdmin, async (req, res) => {
@@ -257,13 +248,12 @@ app.post('/api/admin/device/points', authAdmin, async (req, res) => {
   if (!device || !points) return res.status(400).json({ error: 'Thiếu thông tin' });
   try {
     const userResult = await pool.query('SELECT id FROM users WHERE device = $1', [device]);
-    if (userResult.rows.length === 0) return res.status(404).json({ error: 'Không tìm thấy thiết bị này!' });
+    if (userResult.rows.length === 0) return res.status(404).json({ error: 'Không tìm thấy thiết bị!' });
     await pool.query('UPDATE users SET points = points + $1 WHERE id = $2', [points, userResult.rows[0].id]);
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
-// === TẠO & QUẢN LÝ CODE ===
 app.post('/api/admin/codes', authAdmin, async (req, res) => {
   const { points, count, max_devices } = req.body;
   const n = Math.min(count || 1, 50);
@@ -279,11 +269,11 @@ app.post('/api/admin/codes', authAdmin, async (req, res) => {
 });
 
 app.get('/api/admin/codes', authAdmin, async (req, res) => {
-  try { const result = await pool.query('SELECT * FROM codes ORDER BY id DESC'); res.json(result.rows); } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
+  try { const result = await pool.query('SELECT * FROM codes ORDER BY id DESC'); res.json(result.rows); } catch (err) { res.status(500).json({ error: 'Lỗi' }); }
 });
 
 app.delete('/api/admin/codes/:id', authAdmin, async (req, res) => {
-  try { await pool.query('DELETE FROM codes WHERE id = $1', [req.params.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: 'Lỗi xóa' }); }
+  try { await pool.query('DELETE FROM codes WHERE id = $1', [req.params.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: 'Lỗi' }); }
 });
 
 app.listen(PORT, () => console.log(`✅ Server đang chạy tại cổng ${PORT}`));
