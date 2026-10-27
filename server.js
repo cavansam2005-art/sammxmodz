@@ -22,7 +22,7 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-// Khởi tạo bảng tự động (an toàn, không xóa dữ liệu cũ)
+// Khởi tạo bảng tự động
 async function initDB() {
   try {
     await pool.query(`
@@ -237,10 +237,41 @@ app.get('/api/admin/codes', authAdmin, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
+// API XÓA KEY/CODE
+app.delete('/api/admin/codes/:id', authAdmin, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM codes WHERE id = $1', [req.params.id]);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: 'Lỗi xóa' }); }
+});
+
+// API QUẢN LÝ USER (Lấy danh sách)
 app.get('/api/admin/users', authAdmin, async (req, res) => {
   try {
     const result = await pool.query('SELECT id, username, points, device FROM users ORDER BY id DESC');
     res.json(result.rows);
+  } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
+});
+
+// API SỬA THIẾT BỊ CỦA USER
+app.put('/api/admin/users/:id/device', authAdmin, async (req, res) => {
+  try {
+    await pool.query('UPDATE users SET device = $1 WHERE id = $2', [req.body.device, req.params.id]);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: 'Lỗi cập nhật' }); }
+});
+
+// API CỘNG ĐIỂM TRỰC TIẾP CHO THIẾT BỊ (Tính năng mới bạn yêu cầu)
+app.post('/api/admin/device/points', authAdmin, async (req, res) => {
+  const { device, points } = req.body;
+  if (!device || !points) return res.status(400).json({ error: 'Thiếu thông tin' });
+  try {
+    const userResult = await pool.query('SELECT id FROM users WHERE device = $1', [device]);
+    if (userResult.rows.length === 0) return res.status(404).json({ error: 'Không tìm thấy thiết bị này!' });
+    
+    const userId = userResult.rows[0].id;
+    await pool.query('UPDATE users SET points = points + $1 WHERE id = $2', [points, userId]);
+    res.json({ success: true });
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
