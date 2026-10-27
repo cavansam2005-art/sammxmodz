@@ -22,7 +22,7 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-// Khởi tạo bảng tự động (đã thêm cột device)
+// Khởi tạo bảng tự động (an toàn, không xóa dữ liệu cũ)
 async function initDB() {
   try {
     await pool.query(`
@@ -30,10 +30,6 @@ async function initDB() {
       CREATE TABLE IF NOT EXISTS files (id SERIAL PRIMARY KEY, name TEXT, size INTEGER, file_path TEXT, image_path TEXT, points INTEGER DEFAULT 0, sale_points INTEGER DEFAULT 0, stock INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
       CREATE TABLE IF NOT EXISTS codes (id SERIAL PRIMARY KEY, code TEXT UNIQUE, points INTEGER, used INTEGER DEFAULT 0, used_by TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
     `);
-    // Tự động thêm cột nếu Database cũ chưa có
-    await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS device TEXT");
-    await pool.query("ALTER TABLE files ADD COLUMN IF NOT EXISTS sale_points INTEGER DEFAULT 0");
-    await pool.query("ALTER TABLE files ADD COLUMN IF NOT EXISTS stock INTEGER DEFAULT 0");
     console.log('✅ Kết nối Database Supabase thành công!');
   } catch (err) {
     console.error('❌ Lỗi khởi tạo DB:', err);
@@ -164,7 +160,6 @@ app.post('/api/admin/login', (req, res) => {
   res.json({ token: jwt.sign({ role: 'admin', username }, JWT_SECRET, { expiresIn: '1d' }) });
 });
 
-// API ĐĂNG BÀI
 app.post('/api/admin/upload', authAdmin, upload.fields([{ name: 'file', maxCount: 1 }, { name: 'image', maxCount: 1 }]), async (req, res) => {
   const name = req.body.name;
   const points = parseInt(req.body.points) || 0;
@@ -204,11 +199,9 @@ app.put('/api/admin/files/:id', authAdmin, upload.single('image'), async (req, r
   
   try {
     if (req.file) {
-      // Nếu có ảnh mới được tải lên, cập nhật cả ảnh
       const image_path = '/uploads/' + req.file.filename;
       await pool.query('UPDATE files SET name = $1, points = $2, sale_points = $3, stock = $4, image_path = $5 WHERE id = $6', [name, points, sale_points, stock, image_path, id]);
     } else {
-      // Nếu không có ảnh mới, chỉ cập nhật thông tin
       await pool.query('UPDATE files SET name = $1, points = $2, sale_points = $3, stock = $4 WHERE id = $5', [name, points, sale_points, stock, id]);
     }
     res.json({ success: true });
