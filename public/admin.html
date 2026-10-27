@@ -50,10 +50,9 @@
 
   <div id="adminContent" class="hidden">
     
-    <!-- TÍNH NĂNG MỚI: CỘNG ĐIỂM TRỰC TIẾP CHO THIẾT BỊ -->
     <div class="panel" style="border-color: #0088ff; box-shadow: 0 0 20px rgba(0,136,255,0.2);">
       <h2 style="color: #4da6ff;">💸 Nạp điểm cho Thiết bị</h2>
-      <p style="font-size: 0.75rem; color: #b090c0; margin-bottom: 12px;">Nhập mã thiết bị (VD: SAMM-XXX-XXX) để cộng điểm trực tiếp cho tài khoản đang dùng máy đó.</p>
+      <p style="font-size: 0.75rem; color: #b090c0; margin-bottom: 12px;">Nhập mã thiết bị (VD: SAMM-XXX-XXX) để cộng điểm trực tiếp cho tài khoản.</p>
       <div style="display:flex; gap:12px;">
         <div class="input-group" style="flex:2; margin:0;"><label>Mã thiết bị</label><input type="text" id="deviceToPoint" placeholder="SAMM-XXX-XXX-XXX"></div>
         <div class="input-group" style="flex:1; margin:0;"><label>Số điểm</label><input type="number" id="pointsToAdd" value="100" min="1"></div>
@@ -85,7 +84,7 @@
     <div class="panel">
       <h2>🎟 Tạo Code</h2>
       <div style="display:flex; gap:12px; margin-bottom:16px;">
-        <div class="input-group" style="flex:1; margin:0;"><label>Số điểm</label><input type="number" id="codePoints" value="5" min="1" placeholder="VD: 1, 100..."></div>
+        <div class="input-group" style="flex:1; margin:0;"><label>Số điểm</label><input type="number" id="codePoints" value="5" min="1"></div>
         <div class="input-group" style="flex:1; margin:0;"><label>Số lượng</label><input type="number" id="codeCount" value="1" min="1" max="50"></div>
       </div>
       <button class="btn" id="createCodeBtn">TẠO MÃ CODE</button>
@@ -159,7 +158,6 @@ function enterAdmin(){
   setInterval(() => { loadUsers(); loadFiles(); }, 5000);
 }
 
-// HÀM CỘNG ĐIỂM THEO THIẾT BỊ
 async function addPointsToDevice() {
   const device = $('deviceToPoint').value.trim();
   const points = parseInt($('pointsToAdd').value);
@@ -203,23 +201,37 @@ $('uploadBtn').onclick = async () => {
   } else { const d = await r.json(); alert(d.error || 'Lỗi upload!'); }
 };
 
-// QUẢN LÝ FILE
+// SỬA LẠI HÀM NÀY ĐỂ KHÔNG BỊ LỖI KHI FILE KHÔNG CÓ ẢNH
 async function loadFiles(){
   const r = await fetch('/api/files'); const files = await r.json();
+  if(files.length === 0) {
+    $('fileList').innerHTML = '<div style="text-align:center; color:#b090c0; padding:10px;">Chưa có file nào.</div>';
+    return;
+  }
+  
   $('fileList').innerHTML = files.map(f => {
     let priceHtml = `<span>${f.points} điểm</span>`;
     if (f.sale_points > 0 && f.sale_points < f.points) {
       priceHtml = `<span style="text-decoration:line-through; color:#888;">${f.points}</span> <span class="badge-sale">SALE ${f.sale_points}</span>`;
     }
+    
+    // XỬ LÝ AN TOÀN: Nếu có ảnh thì hiện ảnh, không có thì hiện icon
+    let imgHtml = '';
+    if (f.image_path && f.image_path !== 'null' && f.image_path !== '') {
+      imgHtml = `<img src="${f.image_path}" class="file-cover" onerror="this.outerHTML='<div class=file-cover style=display:flex;align-items:center;justify-content:center;font-size:2rem;>📄</div>'">`;
+    } else {
+      imgHtml = `<div class="file-cover" style="display:flex;align-items:center;justify-content:center;font-size:2rem;">📄</div>`;
+    }
+
     return `
     <div class="file-card">
-      ${f.image_path ? `<img src="${f.image_path}" class="file-cover">` : `<div class="file-cover" style="display:flex;align-items:center;justify-content:center;font-size:2rem;">📄</div>`}
+      ${imgHtml}
       <div class="file-info">
-        <div class="file-name">${f.name}</div>
+        <div class="file-name">${f.name || 'File chưa có tên'}</div>
         <div class="file-meta"><span>${(f.size/1024).toFixed(1)} KB</span> • <span style="color:#d87cff; font-weight:bold;">${priceHtml}</span> • <span class="badge-stock">Kho: ${f.stock}</span></div>
       </div>
       <div style="display:flex; flex-direction:column; gap:8px;">
-        <button class="btn btn-small btn-edit" onclick="openEdit(${f.id}, '${f.name.replace(/'/g, "\\'")}', ${f.points}, ${f.sale_points || 0}, ${f.stock || 0})">SỬA</button>
+        <button class="btn btn-small btn-edit" onclick="openEdit(${f.id}, '${(f.name || '').replace(/'/g, "\\'")}', ${f.points}, ${f.sale_points || 0}, ${f.stock || 0})">SỬA</button>
         <button class="btn btn-small btn-del" onclick="delFile(${f.id})">XÓA</button>
       </div>
     </div>`;
@@ -243,7 +255,6 @@ async function saveEdit() {
   if (r.ok) { alert('Cập nhật thành công!'); closeModal(); loadFiles(); } else { alert('Lỗi cập nhật!'); }
 }
 
-// QUẢN LÝ CODE (Đã thêm sửa/xóa)
 $('createCodeBtn').onclick = async () => {
   const r = await fetch('/api/admin/codes', { method:'POST', headers:{...auth(), 'Content-Type':'application/json'}, body: JSON.stringify({ points: parseInt($('codePoints').value), count: parseInt($('codeCount').value) }) });
   const d = await r.json();
@@ -252,6 +263,10 @@ $('createCodeBtn').onclick = async () => {
 
 async function loadCodes(){
   const r = await fetch('/api/admin/codes', { headers: auth() }); const codes = await r.json();
+  if(codes.length === 0) {
+    $('codeList').innerHTML = '<div style="text-align:center; color:#b090c0; padding:10px;">Chưa có code.</div>';
+    return;
+  }
   $('codeList').innerHTML = codes.map(c => `
     <div class="code-row">
       <div style="flex:1; overflow:hidden;">
@@ -264,9 +279,12 @@ async function loadCodes(){
 }
 async function delCode(id) { if(confirm('Xóa Key này?')) { await fetch('/api/admin/codes/'+id, {method:'DELETE', headers:auth()}); loadCodes(); } }
 
-// QUẢN LÝ USER & THIẾT BỊ
 async function loadUsers(){
   const r = await fetch('/api/admin/users', { headers: auth() }); const users = await r.json();
+  if(users.length === 0) {
+    $('userList').innerHTML = '<div style="text-align:center; color:#b090c0; padding:10px;">Chưa có user.</div>';
+    return;
+  }
   $('userList').innerHTML = users.map(u => `
     <div class="user-row">
       <div style="flex:1; overflow:hidden;">
