@@ -8,18 +8,8 @@
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
   
-  /* NỀN SÁNG BÓNG (ĐEN TRẮNG) */
-  body { 
-    height:100vh; display:flex; justify-content:center; align-items:center; 
-    background: #000; color: #fff; overflow: hidden; 
-  }
-  
-  .app-container { 
-    position: relative; width:100%; max-width:480px; height: 100vh; max-height: 100dvh; 
-    background: linear-gradient(rgba(20, 20, 20, 0.75), rgba(0, 0, 0, 0.85)), url('https://files.catbox.moe/cemtij.jpeg') no-repeat center center; 
-    background-size: cover;
-    display: flex; flex-direction: column; overflow: hidden; 
-  }
+  body { height:100vh; display:flex; justify-content:center; align-items:center; background: #000; color: #fff; overflow: hidden; }
+  .app-container { position: relative; width:100%; max-width:480px; height: 100vh; max-height: 100dvh; background: linear-gradient(rgba(20, 20, 20, 0.75), rgba(0, 0, 0, 0.85)), url('https://files.catbox.moe/cemtij.jpeg') no-repeat center center; background-size: cover; display: flex; flex-direction: column; overflow: hidden; }
 
   .content-area { flex: 1; overflow-y: auto; padding: 25px 20px 100px 20px; scrollbar-width: none; }
   .content-area::-webkit-scrollbar { display: none; }
@@ -27,27 +17,13 @@
   .screen { display:none; flex-direction:column; gap:18px; } .screen.active { display:flex; animation: fadeUp .3s; }
   @keyframes fadeUp { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
   
-  .app-title { 
-    text-align:center; font-size: 1.8rem; font-weight: 800; 
-    background: linear-gradient(120deg, #ffffff, #a0a0a0, #ffffff); 
-    -webkit-background-clip: text; color: transparent; 
-    margin-bottom: 20px; text-shadow: 0 0 20px rgba(255,255,255,0.4); letter-spacing: 1px;
-  }
+  .app-title { text-align:center; font-size: 1.8rem; font-weight: 800; background: linear-gradient(120deg, #ffffff, #a0a0a0, #ffffff); -webkit-background-clip: text; color: transparent; margin-bottom: 20px; text-shadow: 0 0 20px rgba(255,255,255,0.4); letter-spacing: 1px; }
   
-  .btn { 
-    background: linear-gradient(135deg, #ffffff, #999999); color: #000; 
-    border: none; border-radius: 16px; padding: 16px; font-weight: 800; 
-    font-size: 1rem; cursor: pointer; width: 100%; transition: .3s; 
-    box-shadow: 0 8px 20px -6px rgba(255,255,255,0.4); 
-  }
+  .btn { background: linear-gradient(135deg, #ffffff, #999999); color: #000; border: none; border-radius: 16px; padding: 16px; font-weight: 800; font-size: 1rem; cursor: pointer; width: 100%; transition: .3s; box-shadow: 0 8px 20px -6px rgba(255,255,255,0.4); }
   .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 25px -6px rgba(255,255,255,0.6); }
   .btn:active { transform: scale(0.96); }
   
-  .input-group input { 
-    width:100%; background:rgba(255,255,255,0.1); border:1.5px solid rgba(255,255,255,0.4); 
-    border-radius:16px; padding:15px; color:#fff; outline:none; margin-bottom:10px; 
-    font-size: 0.95rem; backdrop-filter: blur(10px); transition: 0.3s;
-  }
+  .input-group input { width:100%; background:rgba(255,255,255,0.1); border:1.5px solid rgba(255,255,255,0.4); border-radius:16px; padding:15px; color:#fff; outline:none; margin-bottom:10px; font-size: 0.95rem; backdrop-filter: blur(10px); transition: 0.3s; }
   .input-group input:focus { border-color: #fff; background:rgba(255,255,255,0.2); box-shadow: 0 0 0 4px rgba(255,255,255,0.15); }
   .input-group input::placeholder { color: #aaa; }
 
@@ -55,20 +31,10 @@
   .auth-tab { flex: 1; text-align: center; padding: 12px; border-radius: 12px; font-weight: 800; color: #ccc; cursor: pointer; transition: 0.3s; font-size: 0.95rem;}
   .auth-tab.active { background: #fff; color: #000; box-shadow: 0 5px 15px rgba(255,255,255,0.3); }
 
-  .header-user { 
-    display: flex; justify-content: space-between; align-items: center; 
-    background: rgba(255,255,255,0.1); padding: 18px 20px; border-radius: 20px; 
-    margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.3); 
-    box-shadow: 0 8px 30px rgba(0,0,0,0.5); backdrop-filter: blur(15px);
-  }
+  .header-user { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.1); padding: 18px 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 8px 30px rgba(0,0,0,0.5); backdrop-filter: blur(15px); }
   .points-value { font-size: 1.5rem; font-weight: 800; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.6); }
 
-  .bottom-nav { 
-    position: absolute; bottom: 0; left: 0; width: 100%; 
-    background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(15px); 
-    display: flex; justify-content: space-around; align-items: center; 
-    padding: 12px 5px 20px 5px; border-top: 1px solid rgba(255,255,255,0.3); z-index: 100; 
-  }
+  .bottom-nav { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(15px); display: flex; justify-content: space-around; align-items: center; padding: 12px 5px 20px 5px; border-top: 1px solid rgba(255,255,255,0.3); z-index: 100; }
   .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #888; cursor: pointer; transition: 0.2s; flex: 1; opacity: 0.6; }
   .nav-item.active { opacity: 1; transform: translateY(-3px); color: #fff; }
   .nav-icon { font-size: 1.6rem; margin-bottom: 6px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.4)); }
@@ -78,11 +44,7 @@
   .back-btn { background: rgba(255,255,255,0.2); border: none; color: #fff; width: 40px; height: 40px; border-radius: 12px; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);}
   .back-btn:hover { background: rgba(255,255,255,0.4); }
 
-  .game-card { 
-    background: rgba(20, 20, 20, 0.8); border: 1px solid rgba(255,255,255,0.3); 
-    border-radius: 20px; padding: 15px; margin-bottom: 15px; display: flex; 
-    align-items: center; gap: 15px; cursor: pointer; transition: .3s; backdrop-filter: blur(10px);
-  }
+  .game-card { background: rgba(20, 20, 20, 0.8); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: .3s; backdrop-filter: blur(10px); }
   .game-card:hover { border-color: #fff; background: rgba(40, 40, 40, 0.9); transform: scale(1.02); }
   .game-logo { width: 70px; height: 70px; border-radius: 16px; object-fit: contain; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.4); padding: 5px;}
   .game-title { font-weight: 800; font-size: 1.1rem; color: #fff; }
@@ -101,6 +63,7 @@
   .topup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
   .topup-item { background: rgba(20,20,20,0.85); border: 1.5px solid rgba(255,255,255,0.3); border-radius: 16px; padding: 15px; text-align: center; cursor: pointer; transition: .2s; font-size: 1rem; font-weight: bold; backdrop-filter: blur(10px);}
   .topup-item.active { border-color: #fff; background: rgba(255,255,255,0.2); box-shadow: 0 0 20px rgba(255,255,255,0.4); }
+  
   .qr-section { display:none; text-align:center; background: rgba(20,20,20,0.9); padding: 20px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.4); margin-top: 20px; backdrop-filter: blur(10px);}
   .qr-image { width: 100%; max-width: 280px; border-radius: 20px; margin: 15px auto; display: block; border: 3px solid #fff; background: #fff; padding: 8px; }
   .qr-amount { font-size: 1.5rem; font-weight: 800; color: #fff; margin: 10px 0; text-shadow: 0 0 15px rgba(255,255,255,0.6);}
@@ -146,20 +109,9 @@
   .zalo-float img { width: 100%; height: 100%; object-fit: cover; }
   @keyframes pulse-zalo { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255, 0.6); } 70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(255,255,255, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255, 0); } }
 
-  /* POPUP THÔNG BÁO (TOAST MODAL) */
-  .notification-modal {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-    background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
-    display: flex; justify-content: center; align-items: center; 
-    z-index: 9999; opacity: 0; pointer-events: none; transition: 0.3s;
-  }
+  .notification-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 0; pointer-events: none; transition: 0.3s; }
   .notification-modal.show { opacity: 1; pointer-events: auto; }
-  .notif-content {
-    background: #111; border: 2px solid #fff; border-radius: 24px;
-    padding: 30px 20px; text-align: center; max-width: 320px; width: 90%;
-    box-shadow: 0 0 50px rgba(255,255,255,0.4);
-    transform: scale(0.8); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
+  .notif-content { background: #111; border: 2px solid #fff; border-radius: 24px; padding: 30px 20px; text-align: center; max-width: 320px; width: 90%; box-shadow: 0 0 50px rgba(255,255,255,0.4); transform: scale(0.8); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .notification-modal.show .notif-content { transform: scale(1); }
   .notif-icon { font-size: 4rem; margin-bottom: 15px; display: block; }
   .notif-title { font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 10px; text-transform: uppercase; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
@@ -170,7 +122,6 @@
 <body>
 <audio id="bgMusic" loop><source src="https://files.catbox.moe/ylpmoe.mp3" type="audio/mpeg"></audio>
 
-<!-- POPUP THÔNG BÁO NẠP TIỀN THÀNH CÔNG -->
 <div id="notifModal" class="notification-modal">
   <div class="notif-content">
     <span class="notif-icon">✅</span>
@@ -383,6 +334,10 @@
 
 <script>
 const $ = id => document.getElementById(id);
+const BANK_ID = 'mbbank'; 
+const ACCOUNT_NO = '2333612345555'; 
+const ACCOUNT_NAME = 'SAMM X MODZ'; 
+
 let token = localStorage.getItem('sammx_token') || '';
 let currentPoints = 0;
 let selectedAmount = 0;
@@ -409,15 +364,12 @@ function startCheckTopup() {
       if(!r.ok) return;
       const d = await r.json();
       
-      // Tìm xem có yêu cầu nạp nào vừa được duyệt (success) mà id lớn hơn lần check trước không
       if(d.topups && d.topups.length > 0) {
-        const latestTopup = d.topups[0]; // Lấy cái mới nhất
+        const latestTopup = d.topups[0];
         if(latestTopup.status === 'success' && latestTopup.id > lastCheckedTopupId) {
-          // Hiển thị thông báo
-          $('notifMessage').innerHTML = `Xác thực thành công!<br>Bạn đã nhận được <b>${latestTopup.points} điểm</b> từ Admin.`;
+          $('notifMessage').innerHTML = `Xác thực thành công!<br>Bạn đã nhận được <b>${latestTopup.points} điểm</b>.`;
           $('notifModal').classList.add('show');
           
-          // Cập nhật lại điểm
           const me = await fetch('/api/me', { headers: { 'Authorization': 'Bearer ' + token } });
           if(me.ok) { const u = await me.json(); updatePointsUI(u.points); }
           
@@ -425,13 +377,12 @@ function startCheckTopup() {
         }
       }
     } catch(e) {}
-  }, 5000); // Cứ 5 giây check 1 lần
+  }, 5000);
 }
 
 function closeNotif() { $('notifModal').classList.remove('show'); }
 function closeWelcome() { $('welcomeModal').classList.remove('show'); }
 
-// HIỂN THỊ POPUP CHÀO MỪNG SAU KHI LOAD
 setTimeout(() => { if(!token) $('welcomeModal').classList.add('show'); }, 1000);
 
 function switchAuthTab(type) {
@@ -467,7 +418,6 @@ async function loadMe() {
     updatePointsUI(u.points);
     $('bottomNav').style.display = 'flex'; switchTab('muaKeyScreen');
     
-    // Lấy ID nạp tiền mới nhất lúc đăng nhập để không bị hiện thông báo cũ
     const h = await fetch('/api/history', { headers: { 'Authorization': 'Bearer ' + token } });
     if(h.ok) { const d = await h.json(); if(d.topups && d.topups.length > 0) lastCheckedTopupId = d.topups[0].id; }
     
@@ -570,13 +520,16 @@ function selectTopup(element, amount, points) {
 }
 
 function submitCustomTopup() {
-  const amount = parseInt($('customAmount').value);
+  const rawValue = $('customAmount').value;
+  // XÓA DẤU CHẤM VÀ DẤU PHẨY (VD: 10.000 thành 10000)
+  const cleanValue = rawValue.replace(/[.,\s]/g, '');
+  const amount = parseInt(cleanValue);
+  
   if(!amount || amount < 1000) return alert('Số tiền tối thiểu là 1.000đ');
   const points = Math.floor(amount / 1000);
   const fakeBtn = document.createElement('div');
   selectTopup(fakeBtn, amount, points);
-  alert(`Đã tạo mã QR cho số tiền ${amount.toLocaleString()}đ (${points} điểm). Vui lòng quét mã bên dưới!`);
-  $('customAmount').value = '';
+  $('customAmount').value = amount; // Trả lại số đã xóa dấu chấm cho đẹp
 }
 
 async function submitTopup() {
