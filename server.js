@@ -25,11 +25,15 @@ async function initDB() {
       CREATE TABLE IF NOT EXISTS code_uses (id SERIAL PRIMARY KEY, code_id INTEGER, device TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
       CREATE TABLE IF NOT EXISTS topups (id SERIAL PRIMARY KEY, username TEXT, amount INTEGER, points INTEGER, status TEXT DEFAULT 'pending', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
       CREATE TABLE IF NOT EXISTS purchases (id SERIAL PRIMARY KEY, username TEXT, file_name TEXT, price INTEGER, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+      CREATE TABLE IF NOT EXISTS reviews (id SERIAL PRIMARY KEY, username TEXT, stars INTEGER, comment TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
     `);
     
     // Tự động nâng cấp cột nếu database cũ chưa có
     try { await pool.query("ALTER TABLE files ADD COLUMN acc_user TEXT"); } catch(e) {}
     try { await pool.query("ALTER TABLE files ADD COLUMN acc_pass TEXT"); } catch(e) {}
+    try { await pool.query("ALTER TABLE files ADD COLUMN os TEXT"); } catch(e) {}
+    try { await pool.query("ALTER TABLE files ADD COLUMN game TEXT"); } catch(e) {}
+    try { await pool.query("ALTER TABLE files ADD COLUMN image_url TEXT"); } catch(e) {}
     
     console.log('✅ Kết nối Database Supabase thành công!');
   } catch (err) { console.error('❌ Lỗi khởi tạo DB:', err); }
@@ -173,6 +177,23 @@ app.post('/api/redeem', authUser, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
+// API ĐÁNH GIÁ (REVIEWS)
+app.get('/api/reviews', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM reviews ORDER BY id DESC LIMIT 10');
+    res.json(result.rows);
+  } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
+});
+
+app.post('/api/reviews', authUser, async (req, res) => {
+  const { stars, comment } = req.body;
+  if (!stars || !comment) return res.status(400).json({ error: 'Thiếu thông tin' });
+  try {
+    await pool.query('INSERT INTO reviews (username, stars, comment) VALUES ($1, $2, $3)', [req.user.username, stars, comment]);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
+});
+
 // API ADMIN
 app.post('/api/admin/login', (req, res) => {
   const { username, password } = req.body;
@@ -180,12 +201,19 @@ app.post('/api/admin/login', (req, res) => {
   res.json({ token: jwt.sign({ role: 'admin', username }, JWT_SECRET, { expiresIn: '1d' }) });
 });
 
+// ĐĂNG BÀI (HỖ TRỢ ACC)
 app.post('/api/admin/upload', authAdmin, upload.fields([{ name: 'file', maxCount: 1 }, { name: 'image', maxCount: 1 }]), async (req, res) => {
   const { name, points, sale_points, stock, file_url, image_url, os, game, acc_user, acc_pass } = req.body;
   let final_file_path = '', final_size = 0;
-  if (file_url && file_url.trim() !== '') { final_file_path = file_url.trim(); }
-  else if (req.files?.file) { const f = req.files.file[0]; final_file_path = '/uploads/' + f.filename; final_size = f.size; }
-  else { return res.status(400).json({ error: 'Vui lòng chọn file hoặc nhập URL' }); }
+  
+  // Nếu là Acc thì không cần file
+  if (game === 'acc_ff' || game === 'acc_gg') {
+    final_file_path = 'ACC_ACCOUNT';
+  } else {
+    if (file_url && file_url.trim() !== '') { final_file_path = file_url.trim(); }
+    else if (req.files?.file) { const f = req.files.file[0]; final_file_path = '/uploads/' + f.filename; final_size = f.size; }
+    else { return res.status(400).json({ error: 'Vui lòng chọn file hoặc nhập URL' }); }
+  }
   
   let image_path = null;
   if (req.files?.image) image_path = '/uploads/' + req.files.image[0].filename;
@@ -199,7 +227,7 @@ app.post('/api/admin/upload', authAdmin, upload.fields([{ name: 'file', maxCount
   } catch (err) { res.status(500).json({ error: 'Lỗi lưu file' }); }
 });
 
-// SỬA FILE (HỖ TRỢ CẢ SỬA TÀI KHOẢN/MẬT KHẨU)
+// SỬA FILE
 app.put('/api/admin/files/:id', authAdmin, upload.fields([{ name: 'file', maxCount: 1 }, { name: 'image', maxCount: 1 }]), async (req, res) => {
   const { name, points, sale_points, stock, image_url, file_url, acc_user, acc_pass } = req.body;
   const id = req.params.id;
