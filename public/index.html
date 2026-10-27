@@ -104,7 +104,7 @@
     font-size: 0.7rem; color: #886b9a;
   }
 
-  /* TRANG CHỦ (HOME) - GIỮ NGUYÊN CHỨC NĂNG CŨ */
+  /* TRANG CHỦ (HOME) */
   .user-box { background: rgba(20, 8, 30, 0.8); border-radius:24px; padding:20px; text-align:center; border:1px solid rgba(216,124,255,0.2); margin-bottom: 20px; }
   .user-avatar { width:70px; height:70px; margin:0 auto 10px; background: linear-gradient(145deg,#d87cff,#6a1b9a); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:800; color:#fff; }
   .points-value { font-size:1.8rem; font-weight:800; color:#d87cff; text-shadow: 0 0 10px rgba(216,124,255,0.5); }
@@ -234,8 +234,8 @@ playMusic();
 // XÁC THỰC THIẾT BỊ
 function startVerification(callback) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  $('brandHeader').style.display = 'flex'; // Giữ avatar
-  $('welcomeFooter').style.display = 'block'; // Giữ footer
+  $('brandHeader').style.display = 'flex'; 
+  $('welcomeFooter').style.display = 'block'; 
   $('verifyScreen').classList.add('active');
   
   let progress = 0;
@@ -270,8 +270,8 @@ function showScreen(name){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   
   if (name === 'home') {
-    $('brandHeader').style.display = 'none'; // Ẩn avatar to khi vào trong
-    $('welcomeFooter').style.display = 'none'; // Ẩn footer
+    $('brandHeader').style.display = 'none'; 
+    $('welcomeFooter').style.display = 'none'; 
   } else {
     $('brandHeader').style.display = 'flex';
     $('welcomeFooter').style.display = 'block';
@@ -408,6 +408,14 @@ async function buyFile(fileId, fileName) {
   alert('Mua thành công! File đang được tải xuống...');
 }
 loadMe();
+
+// TỰ ĐỘNG CẬP NHẬT FILE MỖI 5 GIÂY
+setInterval(() => {
+  if (document.getElementById('homeScreen').classList.contains('active')) {
+    loadFiles();
+  }
+}, 5000);
+
 </script>
 </body>
 </html>
