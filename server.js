@@ -113,12 +113,15 @@ app.get('/api/history', authUser, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
-// ===== API FILE =====
+// ===== API FILE (ĐÃ SỬA LỖI TẢI DỮ LIỆU) =====
 app.get('/api/files', async (req, res) => {
   try {
     const result = await pool.query('SELECT id, name, size, file_path, image_path, image_url, os, game, points, sale_points, stock, created_at FROM files ORDER BY id DESC');
-    res.json(result.rows);
-  } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
+    res.json(result.rows || []);
+  } catch (err) { 
+    console.error('Lỗi lấy file:', err);
+    res.status(500).json({ error: 'Lỗi server' }); 
+  }
 });
 
 app.post('/api/files/buy', authUser, async (req, res) => {
@@ -152,11 +155,9 @@ app.post('/api/redeem', authUser, async (req, res) => {
     const c = cResult.rows[0];
     if (!c) return res.status(400).json({ error: 'Code không tồn tại' });
     
-    // Kiểm tra xem thiết bị này đã dùng code này chưa
     const usedResult = await pool.query('SELECT * FROM code_uses WHERE code_id = $1 AND device = $2', [c.id, device]);
     if (usedResult.rows.length > 0) return res.status(400).json({ error: 'Thiết bị này đã sử dụng code này rồi!' });
     
-    // Đếm tổng số lần dùng
     const countResult = await pool.query('SELECT COUNT(*) FROM code_uses WHERE code_id = $1', [c.id]);
     if (parseInt(countResult.rows[0].count) >= c.max_devices) return res.status(400).json({ error: 'Code này đã hết lượt sử dụng!' });
     
@@ -200,7 +201,7 @@ app.post('/api/admin/upload', authAdmin, upload.fields([{ name: 'file', maxCount
   } catch (err) { res.status(500).json({ error: 'Lỗi lưu file' }); }
 });
 
-// SỬA FILE (Ghi đè created_at để tính thời gian "Cập nhập")
+// SỬA FILE
 app.put('/api/admin/files/:id', authAdmin, upload.fields([{ name: 'file', maxCount: 1 }, { name: 'image', maxCount: 1 }]), async (req, res) => {
   const { name, points, sale_points, stock, image_url } = req.body;
   const id = req.params.id;
