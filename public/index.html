@@ -7,332 +7,147 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
-  
-  /* NỀN TỐI BÓNG BẨY VỚI ẢNH NỀN */
-  body { 
-    min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; overflow-x:hidden;
-    background: linear-gradient(rgba(15, 5, 25, 0.85), rgba(5, 0, 10, 0.95)), url('https://files.catbox.moe/cemtij.jpeg') no-repeat center center fixed;
-    background-size: cover;
-    color: #f5e8ff;
-  }
-
-  /* Hiệu ứng ánh sáng tím tỏa ra */
-  body::before {
-    content:''; position:fixed; top:-20%; left:-20%; width:70vmax; height:70vmax;
-    background: radial-gradient(circle, rgba(216,124,255,0.15) 0%, transparent 60%);
-    pointer-events:none; z-index:0;
-  }
-
-  /* KHUNG KÍNH MỜ (GLASSMORPHISM) */
-  .app-container { 
-    position:relative; z-index:1; width:100%; max-width:420px; 
-    background: linear-gradient(160deg, rgba(30, 10, 45, 0.6), rgba(15, 5, 25, 0.8)); 
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border-radius: 32px; 
-    box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 0 1px rgba(216,124,255,0.2); 
-    padding: 40px 24px 30px; 
-    max-height: 95vh; overflow-y: auto; 
-    animation: floatUp 0.6s ease-out;
-  }
-  @keyframes floatUp { from{opacity:0; transform:translateY(30px);} to{opacity:1; transform:translateY(0);} }
-  
-  .app-container::-webkit-scrollbar { width:5px; } 
-  .app-container::-webkit-scrollbar-thumb { background:#5a2a7a; border-radius:10px; }
-
-  /* PHẦN ĐẦU (AVATAR & TÊN) */
-  .header-brand {
-    display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 30px;
-  }
-  .avatar-logo {
-    width: 90px; height: 90px; border-radius: 50%; object-fit: cover;
-    border: 3px solid rgba(216,124,255,0.5); box-shadow: 0 0 20px rgba(216,124,255,0.4);
-    margin-bottom: 15px; background: #000;
-    animation: pulseGlow 3s infinite alternate;
-  }
-  @keyframes pulseGlow {
-    from { box-shadow: 0 0 15px rgba(216,124,255,0.3); }
-    to { box-shadow: 0 0 30px rgba(216,124,255,0.8); }
-  }
-  .app-title {
-    font-size: 1.7rem; font-weight: 800; letter-spacing: 1.5px;
-    background: linear-gradient(120deg,#f0a8ff 0%,#d87cff 50%,#9b30d9 100%);
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-    text-shadow: 0 0 20px rgba(216,124,255,0.3);
-  }
-
-  /* CÁC MÀN HÌNH */
-  .screen { display:none; flex-direction:column; gap:16px; } 
-  .screen.active { display:flex; animation: fadeUp .35s ease; }
-  @keyframes fadeUp { from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:translateY(0);} }
-  
-  /* Ô NHẬP LIỆU */
-  .input-group { display:flex; flex-direction:column; gap:8px; }
-  .input-group input { 
-    width:100%; background:rgba(0,0,0,0.4); border:1.5px solid rgba(216,124,255,0.3); 
-    border-radius:16px; padding:16px 18px; color:#fff; font-size:0.95rem; outline:none; transition:.2s; 
-  }
-  .input-group input:focus { 
-    border-color:#d87cff; background:rgba(30,10,45,0.8); box-shadow: 0 0 0 4px rgba(216,124,255,0.15); 
-  }
-  .input-group input::placeholder { color: #886b9a; }
-
-  /* NÚT BẤM */
-  .btn { border:none; border-radius:16px; padding:16px; font-weight:800; font-size:1rem; letter-spacing:0.5px; cursor:pointer; transition:.3s; }
-  .btn-primary { 
-    background: linear-gradient(135deg,#d87cff,#9b30d9 60%,#6a1b9a); color:#fff; 
-    box-shadow: 0 10px 25px -8px rgba(216,124,255,0.6); 
-  }
-  .btn-primary:hover { transform:translateY(-2px); box-shadow: 0 15px 30px -8px rgba(216,124,255,0.8); filter:brightness(1.1); }
-  .btn-outline { background:transparent; border:1.5px solid rgba(216,124,255,0.4); color:#d87cff; }
-  .btn-outline:hover { background:rgba(216,124,255,0.1); color:#fff; }
-
-  /* CHUYỂN ĐỔI ĐĂNG NHẬP/ĐĂNG KÝ */
-  .switch-text { text-align:center; font-size:0.9rem; color:#b090c0; margin-top:10px; }
-  .switch-text span { color:#d87cff; font-weight:700; cursor:pointer; transition:.2s; }
-  .switch-text span:hover { color:#f0a8ff; text-decoration:underline; }
-
-  .error-msg { font-size:0.85rem; color:#ff4d4d; text-align:center; min-height:20px; font-weight:600; }
-
-  /* THÔNG TIN CHÀO MỪNG (FOOTER) */
-  .welcome-footer {
-    margin-top: 35px; text-align: center; border-top: 1px solid rgba(216,124,255,0.15); padding-top: 20px;
-  }
-  .welcome-footer h3 {
-    font-size: 0.85rem; color: #e0b0ff; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 5px;
-  }
-  .welcome-footer p {
-    font-size: 0.7rem; color: #886b9a;
-  }
-
-  /* TRANG CHỦ (HOME) */
-  .user-box { background: rgba(20, 8, 30, 0.8); border-radius:24px; padding:20px; text-align:center; border:1px solid rgba(216,124,255,0.2); margin-bottom: 20px; }
-  .user-avatar { width:70px; height:70px; margin:0 auto 10px; background: linear-gradient(145deg,#d87cff,#6a1b9a); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:800; color:#fff; }
-  .points-value { font-size:1.8rem; font-weight:800; color:#d87cff; text-shadow: 0 0 10px rgba(216,124,255,0.5); }
-  .section-title { font-size:0.95rem; font-weight:700; color:#d87cff; text-transform:uppercase; margin-top:8px; border-bottom:1px solid rgba(216,124,255,0.2); padding-bottom:5px; }
-  .redeem-row { display:flex; gap:8px; } 
-  .redeem-row input { flex: 1; background:rgba(0,0,0,0.4); border:1.5px solid rgba(216,124,255,0.3); border-radius:14px; padding:12px; color:#fff; outline:none; }
-  .redeem-row button { background: #9b30d9; color:#fff; border:none; border-radius:14px; padding:0 20px; font-weight:700; cursor:pointer; }
+  body { min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; overflow-x:hidden; background: linear-gradient(rgba(15, 5, 25, 0.85), rgba(5, 0, 10, 0.95)), url('https://files.catbox.moe/cemtij.jpeg') no-repeat center center fixed; background-size: cover; color: #f5e8ff; }
+  .app-container { position:relative; z-index:1; width:100%; max-width:420px; background: linear-gradient(160deg, rgba(30, 10, 45, 0.6), rgba(15, 5, 25, 0.8)); backdrop-filter: blur(20px); border-radius: 32px; box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 0 1px rgba(216,124,255,0.2); padding: 40px 24px 30px; max-height: 95vh; overflow-y: auto; }
+  .header-brand { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 30px; }
+  .avatar-logo { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(216,124,255,0.5); margin-bottom: 15px; }
+  .app-title { font-size: 1.7rem; font-weight: 800; background: linear-gradient(120deg,#f0a8ff 0%,#d87cff 50%,#9b30d9 100%); -webkit-background-clip: text; color: transparent; }
+  .screen { display:none; flex-direction:column; gap:16px; } .screen.active { display:flex; }
+  .input-group input, .redeem-row input { width:100%; background:rgba(0,0,0,0.4); border:1.5px solid rgba(216,124,255,0.3); border-radius:16px; padding:16px 18px; color:#fff; outline:none; }
+  .btn { border:none; border-radius:16px; padding:16px; font-weight:800; cursor:pointer; }
+  .btn-primary { background: linear-gradient(135deg,#d87cff,#9b30d9 60%,#6a1b9a); color:#fff; }
+  .switch-text { text-align:center; font-size:0.9rem; color:#b090c0; }
+  .switch-text span { color:#d87cff; font-weight:700; cursor:pointer; }
+  .user-box { background: rgba(20, 8, 30, 0.8); border-radius:24px; padding:20px; text-align:center; margin-bottom: 20px; }
+  .points-value { font-size:1.8rem; font-weight:800; color:#d87cff; }
+  .section-title { font-size:0.95rem; font-weight:700; color:#d87cff; margin-top:8px; border-bottom:1px solid rgba(216,124,255,0.2); padding-bottom:5px; }
+  .redeem-row { display:flex; gap:8px; } .redeem-row button { background: #9b30d9; color:#fff; border:none; border-radius:14px; padding:0 20px; font-weight:700; cursor:pointer; }
   .topup-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
   .topup-item { background:rgba(20,8,30,0.6); border:1px solid rgba(216,124,255,0.2); border-radius:14px; padding:12px 6px; text-align:center; cursor:pointer; }
   .topup-points { font-size:1.1rem; font-weight:800; color:#d87cff; }
-  .file-card { background:rgba(20, 8, 30, 0.7); border:1px solid rgba(216,124,255,0.15); border-radius:16px; overflow:hidden; margin-bottom:10px; }
-  .file-cover { width:100%; height:auto; max-height:300px; object-fit:contain; background:#0d0214; display:block; }
-  .file-cover-placeholder { width:100%; height:150px; display:flex; align-items:center; justify-content:center; font-size:3rem; background:#0d0214; }
+  .file-card { background:rgba(20, 8, 30, 0.7); border-radius:16px; overflow:hidden; margin-bottom:10px; }
+  .file-cover { width:100%; height:auto; max-height:300px; object-fit:contain; background:#0d0214; }
   .file-body { padding:12px; display:flex; align-items:center; gap:10px; }
-  .fi-btn { background: linear-gradient(135deg,#d87cff,#9b30d9); color:#fff; border-radius:10px; padding:8px 14px; text-decoration:none; font-size:0.8rem; font-weight:bold; border:none; cursor:pointer; white-space:nowrap; }
-  .contact-btn { background: linear-gradient(135deg,#9b30d9,#6a1b9a); color:#fff; border:none; border-radius:16px; padding:14px; font-weight:700; width:100%; margin-top:10px; cursor:pointer; }
-
-  /* XÁC THỰC THIẾT BỊ */
-  #verifyScreen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 250px; text-align: center; }
-  #verifyScreen.active { display: flex; }
-  .verify-icon { font-size: 4rem; color: #d87cff; margin-bottom: 20px; animation: pulse 1.5s infinite; }
-  @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
-  .progress-container { width: 100%; background: rgba(0,0,0,0.5); border-radius: 10px; overflow: hidden; height: 12px; margin-top: 20px; border: 1px solid rgba(216,124,255,0.3); }
-  .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #9b30d9, #d87cff); transition: width 0.1s linear; box-shadow: 0 0 10px #d87cff; }
-  .verify-text { font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; }
-  .verify-percent { font-size: 0.9rem; color: #d0a0e0; margin-top: 5px; font-family: monospace; }
+  .fi-btn { background: linear-gradient(135deg,#d87cff,#9b30d9); color:#fff; border-radius:10px; padding:8px 14px; font-weight:bold; border:none; cursor:pointer; }
+  .contact-btn { background: linear-gradient(135deg,#9b30d9,#6a1b9a); color:#fff; border-radius:16px; padding:14px; font-weight:700; width:100%; margin-top:10px; cursor:pointer; }
+  .welcome-footer { margin-top: 35px; text-align: center; border-top: 1px solid rgba(216,124,255,0.15); padding-top: 20px; }
+  .welcome-footer h3 { font-size: 0.85rem; color: #e0b0ff; } .welcome-footer p { font-size: 0.7rem; color: #886b9a; }
+  #verifyScreen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 250px; text-align: center; } #verifyScreen.active { display: flex; }
+  .progress-container { width: 100%; background: rgba(0,0,0,0.5); border-radius: 10px; overflow: hidden; height: 12px; margin-top: 20px; }
+  .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #9b30d9, #d87cff); transition: width 0.1s linear; }
 </style>
 </head>
 <body>
-
-<audio id="bgMusic" loop>
-  <source src="https://files.catbox.moe/ylpmoe.mp3" type="audio/mpeg">
-</audio>
-
+<audio id="bgMusic" loop><source src="https://files.catbox.moe/ylpmoe.mp3" type="audio/mpeg"></audio>
 <div class="app-container">
-  
-  <!-- PHẦN ĐẦU: AVATAR VÀ TÊN APP -->
   <div class="header-brand" id="brandHeader">
-    <img src="https://files.catbox.moe/cemtij.jpeg" class="avatar-logo" alt="SAMM Logo">
+    <img src="https://files.catbox.moe/cemtij.jpeg" class="avatar-logo">
     <h1 class="app-title">SAMM X MODZ VIP</h1>
   </div>
-
-  <!-- MÀN HÌNH XÁC THỰC -->
   <div id="verifyScreen" class="screen">
-    <div class="verify-icon">🛡️</div>
-    <div class="verify-text" id="verifyStatus">Đang kết nối máy chủ...</div>
-    <div class="progress-container">
-      <div class="progress-bar" id="progressBar"></div>
-    </div>
-    <div class="verify-percent" id="verifyPercent">0%</div>
+    <div style="font-size: 4rem; color: #d87cff; margin-bottom: 20px;">🛡️</div>
+    <div id="verifyStatus" style="font-size: 1.2rem; font-weight: bold;">Đang kết nối...</div>
+    <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+    <div id="verifyPercent" style="margin-top: 5px; font-family: monospace;">0%</div>
   </div>
-
-  <!-- MÀN HÌNH ĐĂNG NHẬP -->
   <div id="loginScreen" class="screen">
     <div class="input-group"><input type="text" id="loginUsername" placeholder="Tên đăng nhập..."></div>
     <div class="input-group"><input type="password" id="loginPassword" placeholder="Mật khẩu..."></div>
     <button class="btn btn-primary" id="loginBtn">ĐĂNG NHẬP</button>
-    <div class="switch-text">Chưa có tài khoản? <span id="goToRegister">Đăng ký ngay</span></div>
-    <div id="loginError" class="error-msg"></div>
+    <div class="switch-text">Chưa có tài khoản? <span id="goToRegister">Đăng ký</span></div>
+    <div id="loginError" style="color:#ff4d4d; text-align:center; font-size:0.85rem; min-height:18px;"></div>
   </div>
-
-  <!-- MÀN HÌNH ĐĂNG KÝ -->
   <div id="registerScreen" class="screen">
     <div class="input-group"><input type="text" id="regUsername" placeholder="Tạo tên đăng nhập..."></div>
     <div class="input-group"><input type="password" id="regPassword" placeholder="Tạo mật khẩu..."></div>
     <button class="btn btn-primary" id="registerBtn">TẠO TÀI KHOẢN</button>
     <div class="switch-text">Đã có tài khoản? <span id="goToLogin">Đăng nhập</span></div>
-    <div id="regError" class="error-msg"></div>
+    <div id="regError" style="color:#ff4d4d; text-align:center; font-size:0.85rem; min-height:18px;"></div>
   </div>
-
-  <!-- MÀN HÌNH TRANG CHỦ -->
   <div id="homeScreen" class="screen">
     <div class="user-box">
-      <div class="user-avatar" id="userAvatar">👑</div>
+      <div id="userAvatar" style="width:70px; height:70px; margin:0 auto 10px; background: #9b30d9; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:800;">👑</div>
       <div id="welcomeUsername" style="font-size:1.2rem; font-weight:bold; margin-bottom:10px;">User</div>
       <div style="background:rgba(216,124,255,0.1); padding:10px; border-radius:14px;">
-        <div style="font-size:0.7rem; color:#d0a0e0; letter-spacing:1px;">SỐ DƯ ĐIỂM</div>
+        <div style="font-size:0.7rem; color:#d0a0e0;">SỐ DƯ ĐIỂM</div>
         <div class="points-value" id="pointsValue">0 <span style="font-size:1rem;">điểm</span></div>
       </div>
     </div>
-
     <div class="section-title">🎟 Nhập Code nhận điểm</div>
-    <div class="redeem-row">
-      <input type="text" id="codeInput" placeholder="Nhập code VIP...">
-      <button id="redeemBtn">NHẬN</button>
-    </div>
+    <div class="redeem-row"><input type="text" id="codeInput" placeholder="Nhập code..."><button id="redeemBtn">NHẬN</button></div>
     <div id="redeemMsg" style="color:#4dff88; text-align:center; font-size:0.85rem; min-height:18px;"></div>
-
     <div class="section-title">💰 Nạp điểm (Liên hệ Zalo)</div>
     <div class="topup-grid">
       <div class="topup-item" onclick="contactZalo('5.000đ', 5)"><div style="font-size:0.75rem; color:#d0a0e0;">5.000đ</div><div class="topup-points">+5</div></div>
       <div class="topup-item" onclick="contactZalo('10.000đ', 10)"><div style="font-size:0.75rem; color:#d0a0e0;">10.000đ</div><div class="topup-points">+10</div></div>
       <div class="topup-item" onclick="contactZalo('20.000đ', 20)"><div style="font-size:0.75rem; color:#d0a0e0;">20.000đ</div><div class="topup-points">+20</div></div>
     </div>
-
     <div class="section-title">📁 SAMM ĐANG CẬP NHẬP</div>
     <div id="fileList"></div>
-    <div id="emptyNote" style="text-align:center; color:#a07070; font-size:0.85rem; padding:10px;">Chưa có file nào.</div>
-
+    <div id="emptyNote" style="text-align:center; color:#a07070; font-size:0.85rem; padding:10px;">Chưa có file.</div>
     <button class="contact-btn" onclick="window.open('https://zalo.me/0355757211', '_blank')">📞 SAMM X MODZ</button>
-    <button class="btn btn-outline" id="logoutBtn" style="margin-top:10px;">ĐĂNG XUẤT</button>
+    <button class="btn btn-primary" id="logoutBtn" style="margin-top:10px; background: transparent; border: 1.5px solid rgba(216,124,255,0.4); color:#d87cff;">ĐĂNG XUẤT</button>
   </div>
-
-  <!-- PHẦN FOOTER: THÔNG TIN CHÀO MỪNG -->
-  <div class="welcome-footer" id="welcomeFooter">
-    <h3>Chào mừng bạn đến với SAMM X MODZ VIP</h3>
-    <p>Phiên bản 1.0.0 - Hệ thống bảo mật & chia sẻ tài nguyên</p>
-  </div>
-
+  <div class="welcome-footer" id="welcomeFooter"><h3>Chào mừng bạn đến với SAMM X MODZ VIP</h3><p>Phiên bản 1.0.0</p></div>
 </div>
-
 <script>
 let token = localStorage.getItem('sammx_token') || '';
-let currentPoints = 0;
 const $ = id => document.getElementById(id);
+const deviceName = navigator.userAgent.includes('iPhone') ? 'iPhone (iOS)' : (navigator.userAgent.includes('Android') ? 'Android' : 'Máy tính/Web');
 
-// NHẠC NỀN
-function playMusic() {
-  const music = $('bgMusic');
-  music.volume = 0.5;
-  music.play().catch(e => {
-    document.body.addEventListener('click', () => { music.play(); }, { once: true });
-  });
-}
-playMusic();
+function getMusic() { $('bgMusic').volume = 0.5; $('bgMusic').play().catch(()=>{ document.body.addEventListener('click', ()=>$('bgMusic').play(), {once:true}); }); }
+getMusic();
 
-// XÁC THỰC THIẾT BỊ
-function startVerification(callback) {
+function verify(callback) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  $('brandHeader').style.display = 'flex'; 
-  $('welcomeFooter').style.display = 'block'; 
+  $('brandHeader').style.display = 'flex'; $('welcomeFooter').style.display = 'block';
   $('verifyScreen').classList.add('active');
-  
-  let progress = 0;
-  const bar = $('progressBar');
-  const percentText = $('verifyPercent');
-  const statusText = $('verifyStatus');
-
-  const interval = setInterval(() => {
-    progress += Math.floor(Math.random() * 5) + 1;
-    if (progress > 100) progress = 100;
-    
-    bar.style.width = progress + '%';
-    percentText.textContent = progress + '%';
-
-    if (progress < 30) statusText.textContent = 'Đang kiểm tra kết nối...';
-    else if (progress < 60) statusText.textContent = 'Đang xác thực thiết bị...';
-    else if (progress < 90) statusText.textContent = 'Đang tải dữ liệu...';
-    else statusText.textContent = 'Xác thực thành công!';
-
-    if (progress >= 100) {
-      clearInterval(interval);
-      setTimeout(() => {
-        $('verifyScreen').classList.remove('active');
-        callback();
-      }, 500);
-    }
-  }, 40);
+  let p = 0;
+  const int = setInterval(() => {
+    p += Math.floor(Math.random() * 5) + 1; if (p > 100) p = 100;
+    $('progressBar').style.width = p + '%'; $('verifyPercent').textContent = p + '%';
+    $('verifyStatus').textContent = p < 40 ? 'Đang xác thực thiết bị...' : (p < 80 ? 'Đang tải dữ liệu...' : 'Xác thực thành công!');
+    if (p >= 100) { clearInterval(int); setTimeout(() => { $('verifyScreen').classList.remove('active'); callback(); }, 300); }
+  }, 30);
 }
 
-// CHUYỂN MÀN HÌNH
-function showScreen(name){
+function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  
-  if (name === 'home') {
-    $('brandHeader').style.display = 'none'; 
-    $('welcomeFooter').style.display = 'none'; 
-  } else {
-    $('brandHeader').style.display = 'flex';
-    $('welcomeFooter').style.display = 'block';
-  }
-  
+  if (name === 'home') { $('brandHeader').style.display = 'none'; $('welcomeFooter').style.display = 'none'; }
+  else { $('brandHeader').style.display = 'flex'; $('welcomeFooter').style.display = 'block'; }
   $(name + 'Screen').classList.add('active');
 }
 
-function contactZalo(price, points) {
-  alert(`Bạn chọn nạp ${points} điểm (${price}).\nVui lòng nhấn OK để mở Zalo thanh toán và nhận code từ Admin.`);
-  window.open('https://zalo.me/0355757211', '_blank');
-}
+function contactZalo(price, points) { alert(`Bạn chọn nạp ${points} điểm (${price}).\nVui lòng nhấn OK để mở Zalo thanh toán và nhận code.`); window.open('https://zalo.me/0355757211', '_blank'); }
+function updatePointsUI(p) { $('pointsValue').innerHTML = p + ' <span style="font-size:1rem;">điểm</span>'; }
 
-function updatePointsUI(pts) {
-  currentPoints = pts;
-  $('pointsValue').innerHTML = pts + ' <span style="font-size:1rem;">điểm</span>';
-}
-
-async function loadMe(){
-  if (!token) {
-    startVerification(() => showScreen('login'));
-    return;
-  }
-  
+async function loadMe() {
+  if (!token) return verify(() => showScreen('login'));
   try {
     const r = await fetch('/api/me', { headers: { 'Authorization': 'Bearer ' + token } });
     if (!r.ok) throw 0;
-    const user = await r.json();
-    
-    startVerification(() => {
-      $('welcomeUsername').textContent = user.username;
-      $('userAvatar').textContent = user.username.charAt(0).toUpperCase();
-      updatePointsUI(user.points);
-      showScreen('home');
-      loadFiles();
+    const u = await r.json();
+    verify(() => {
+      $('welcomeUsername').textContent = u.username;
+      $('userAvatar').textContent = u.username.charAt(0).toUpperCase();
+      updatePointsUI(u.points);
+      showScreen('home'); loadFiles();
     });
-  } catch {
-    token = ''; localStorage.removeItem('sammx_token'); 
-    startVerification(() => showScreen('login'));
-  }
+  } catch { token = ''; localStorage.removeItem('sammx_token'); verify(() => showScreen('login')); }
 }
 
 $('loginBtn').onclick = async () => {
-  $('loginError').textContent = '';
-  $('loginBtn').textContent = 'ĐANG XỬ LÝ...';
-  const r = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username: $('loginUsername').value, password: $('loginPassword').value }) });
-  const d = await r.json();
-  $('loginBtn').textContent = 'ĐĂNG NHẬP';
-  
+  $('loginError').textContent = ''; $('loginBtn').textContent = 'ĐANG XỬ LÝ...';
+  const r = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username: $('loginUsername').value, password: $('loginPassword').value, device: deviceName }) });
+  const d = await r.json(); $('loginBtn').textContent = 'ĐĂNG NHẬP';
   if (!r.ok) return $('loginError').textContent = d.error;
-  token = d.token; localStorage.setItem('sammx_token', token); 
-  loadMe();
+  token = d.token; localStorage.setItem('sammx_token', token); loadMe();
 };
 
 $('registerBtn').onclick = async () => {
-  $('regError').textContent = '';
-  $('registerBtn').textContent = 'ĐANG XỬ LÝ...';
-  const r = await fetch('/api/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username: $('regUsername').value, password: $('regPassword').value }) });
-  const d = await r.json();
-  $('registerBtn').textContent = 'TẠO TÀI KHOẢN';
-  
+  $('regError').textContent = ''; $('registerBtn').textContent = 'ĐANG XỬ LÝ...';
+  const r = await fetch('/api/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username: $('regUsername').value, password: $('regPassword').value, device: deviceName }) });
+  const d = await r.json(); $('registerBtn').textContent = 'TẠO TÀI KHOẢN';
   if (!r.ok) return $('regError').textContent = d.error;
   alert('Tạo tài khoản thành công!'); showScreen('login');
 };
@@ -346,27 +161,22 @@ $('redeemBtn').onclick = async () => {
   const r = await fetch('/api/redeem', { method:'POST', headers:{ 'Authorization': 'Bearer ' + token, 'Content-Type':'application/json' }, body: JSON.stringify({ code: $('codeInput').value }) });
   const d = await r.json();
   if (!r.ok) return $('redeemMsg').style.color = 'red', $('redeemMsg').textContent = d.error;
-  $('redeemMsg').style.color = '#4dff88';
-  $('redeemMsg').textContent = `+${d.added} điểm! Tổng: ${d.points} điểm`;
-  updatePointsUI(d.points);
-  $('codeInput').value = '';
+  $('redeemMsg').style.color = '#4dff88'; $('redeemMsg').textContent = `+${d.added} điểm! Tổng: ${d.points} điểm`;
+  updatePointsUI(d.points); $('codeInput').value = '';
 };
 
-async function loadFiles(){
-  const r = await fetch('/api/files');
-  const files = await r.json();
+async function loadFiles() {
+  const r = await fetch('/api/files'); const files = await r.json();
   const list = $('fileList'); list.innerHTML = '';
   if (!files.length) return $('emptyNote').style.display = 'block';
   $('emptyNote').style.display = 'none';
-  
   files.forEach(f => {
-    const img = f.image_path 
-      ? `<img src="${f.image_path}" class="file-cover" onerror="this.style.display='none'">` 
-      : `<div class="file-cover-placeholder">📄</div>`;
+    const img = f.image_path ? `<img src="${f.image_path}" class="file-cover" onerror="this.style.display='none'">` : `<div style="height:150px; display:flex; align-items:center; justify-content:center; font-size:3rem; background:#0d0214;">📄</div>`;
     
+    // XỬ LÝ HIỂN THỊ GIÁ SALE
     let priceHtml = `<b>${f.points} điểm</b>`;
     if (f.sale_points > 0 && f.sale_points < f.points) {
-      priceHtml = `<span style="text-decoration:line-through; color:#888; margin-right:5px;">${f.points}</span> <b style="color:#ff4d4d; text-shadow:0 0 5px #ff4d4d;">${f.sale_points} điểm (SALE)</b>`;
+      priceHtml = `<span style="text-decoration:line-through; color:#888; margin-right:5px;">${f.points} điểm</span> <b style="color:#ff4d4d; text-shadow:0 0 5px #ff4d4d;">${f.sale_points} điểm (SALE)</b>`;
     }
 
     list.innerHTML += `<div class="file-card">${img}
@@ -382,40 +192,17 @@ async function loadFiles(){
 }
 
 async function buyFile(fileId, fileName) {
-  if (!confirm(`Bạn có chắc muốn dùng điểm để mua file: ${fileName}?`)) return;
-  
-  const r = await fetch('/api/files/buy', {
-    method:'POST',
-    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type':'application/json' },
-    body: JSON.stringify({ fileId })
-  });
+  if (!confirm(`Mua file: ${fileName}?`)) return;
+  const r = await fetch('/api/files/buy', { method:'POST', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type':'application/json' }, body: JSON.stringify({ fileId }) });
   const d = await r.json();
-  
-  if (!r.ok) {
-    return alert(d.error);
-  }
-  
+  if (!r.ok) return alert(d.error);
   updatePointsUI(d.new_points);
-  
-  const a = document.createElement('a');
-  a.href = d.file_path;
-  a.download = fileName;
-  a.target = '_blank';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  
+  const a = document.createElement('a'); a.href = d.file_path; a.download = fileName; a.target = '_blank'; document.body.appendChild(a); a.click(); a.remove();
   alert('Mua thành công! File đang được tải xuống...');
 }
+
 loadMe();
-
-// TỰ ĐỘNG CẬP NHẬT FILE MỖI 5 GIÂY
-setInterval(() => {
-  if (document.getElementById('homeScreen').classList.contains('active')) {
-    loadFiles();
-  }
-}, 5000);
-
+setInterval(() => { if ($('homeScreen').classList.contains('active')) loadFiles(); }, 5000);
 </script>
 </body>
 </html>
