@@ -81,11 +81,13 @@
       <div id="fileList"></div>
     </div>
 
+    <!-- PHẦN TẠO CODE ĐÃ THÊM Ô SỐ THIẾT BỊ -->
     <div class="panel">
       <h2>🎟 Tạo Code</h2>
       <div style="display:flex; gap:12px; margin-bottom:16px;">
         <div class="input-group" style="flex:1; margin:0;"><label>Số điểm</label><input type="number" id="codePoints" value="5" min="1"></div>
-        <div class="input-group" style="flex:1; margin:0;"><label>Số lượng</label><input type="number" id="codeCount" value="1" min="1" max="50"></div>
+        <div class="input-group" style="flex:1; margin:0;"><label>Số lượng Key</label><input type="number" id="codeCount" value="1" min="1" max="50"></div>
+        <div class="input-group" style="flex:1; margin:0;"><label>Số thiết bị/Key</label><input type="number" id="codeMaxDevices" value="1" min="1"></div>
       </div>
       <button class="btn" id="createCodeBtn">TẠO MÃ CODE</button>
       <div id="newCodes" style="margin-top:16px; text-align:center; display: none;"></div>
@@ -154,7 +156,6 @@ $('loginAdminBtn').onclick = async () => {
 function enterAdmin(){
   $('loginPanel').classList.add('hidden'); $('adminContent').classList.remove('hidden');
   loadFiles(); loadCodes(); loadUsers();
-  
   setInterval(() => { loadUsers(); loadFiles(); }, 5000);
 }
 
@@ -173,9 +174,7 @@ async function addPointsToDevice() {
     alert(`Đã cộng ${points} điểm cho thiết bị ${device}!`);
     $('deviceToPoint').value = ''; $('pointsToAdd').value = '100';
     loadUsers();
-  } else {
-    alert(d.error);
-  }
+  } else { alert(d.error); }
 }
 
 $('uploadBtn').onclick = async () => {
@@ -201,28 +200,21 @@ $('uploadBtn').onclick = async () => {
   } else { const d = await r.json(); alert(d.error || 'Lỗi upload!'); }
 };
 
-// SỬA LẠI HÀM NÀY ĐỂ KHÔNG BỊ LỖI KHI FILE KHÔNG CÓ ẢNH
 async function loadFiles(){
   const r = await fetch('/api/files'); const files = await r.json();
-  if(files.length === 0) {
-    $('fileList').innerHTML = '<div style="text-align:center; color:#b090c0; padding:10px;">Chưa có file nào.</div>';
-    return;
-  }
+  if(files.length === 0) { $('fileList').innerHTML = '<div style="text-align:center; color:#b090c0; padding:10px;">Chưa có file nào.</div>'; return; }
   
   $('fileList').innerHTML = files.map(f => {
     let priceHtml = `<span>${f.points} điểm</span>`;
     if (f.sale_points > 0 && f.sale_points < f.points) {
       priceHtml = `<span style="text-decoration:line-through; color:#888;">${f.points}</span> <span class="badge-sale">SALE ${f.sale_points}</span>`;
     }
-    
-    // XỬ LÝ AN TOÀN: Nếu có ảnh thì hiện ảnh, không có thì hiện icon
     let imgHtml = '';
     if (f.image_path && f.image_path !== 'null' && f.image_path !== '') {
       imgHtml = `<img src="${f.image_path}" class="file-cover" onerror="this.outerHTML='<div class=file-cover style=display:flex;align-items:center;justify-content:center;font-size:2rem;>📄</div>'">`;
     } else {
       imgHtml = `<div class="file-cover" style="display:flex;align-items:center;justify-content:center;font-size:2rem;">📄</div>`;
     }
-
     return `
     <div class="file-card">
       ${imgHtml}
@@ -255,24 +247,34 @@ async function saveEdit() {
   if (r.ok) { alert('Cập nhật thành công!'); closeModal(); loadFiles(); } else { alert('Lỗi cập nhật!'); }
 }
 
+// TẠO CODE
 $('createCodeBtn').onclick = async () => {
-  const r = await fetch('/api/admin/codes', { method:'POST', headers:{...auth(), 'Content-Type':'application/json'}, body: JSON.stringify({ points: parseInt($('codePoints').value), count: parseInt($('codeCount').value) }) });
+  const r = await fetch('/api/admin/codes', { 
+    method:'POST', 
+    headers:{...auth(), 'Content-Type':'application/json'}, 
+    body: JSON.stringify({ 
+      points: parseInt($('codePoints').value), 
+      count: parseInt($('codeCount').value),
+      max_devices: parseInt($('codeMaxDevices').value)
+    }) 
+  });
   const d = await r.json();
   if (r.ok) { $('newCodes').style.display = 'block'; $('newCodes').innerHTML = d.codes.map(c => `<span class="code-tag">${c}</span>`).join(''); loadCodes(); }
 };
 
 async function loadCodes(){
   const r = await fetch('/api/admin/codes', { headers: auth() }); const codes = await r.json();
-  if(codes.length === 0) {
-    $('codeList').innerHTML = '<div style="text-align:center; color:#b090c0; padding:10px;">Chưa có code.</div>';
-    return;
-  }
+  if(codes.length === 0) { $('codeList').innerHTML = '<div style="text-align:center; color:#b090c0; padding:10px;">Chưa có code.</div>'; return; }
+  
   $('codeList').innerHTML = codes.map(c => `
     <div class="code-row">
       <div style="flex:1; overflow:hidden;">
         <span class="code-tag">${c.code}</span>
       </div>
-      <span style="font-size:0.8rem; color:#b090c0; margin-right:10px; white-space:nowrap;">${c.points} đ ${c.used ? '🔴' : '🟢'}</span>
+      <div style="font-size:0.75rem; color:#b090c0; margin-right:10px; text-align:right;">
+        <div>${c.points} điểm</div>
+        <div style="color:${c.used_count >= c.max_devices ? '#ff4d4d' : '#4dff88'}">Đã dùng: ${c.used_count}/${c.max_devices}</div>
+      </div>
       <button class="btn btn-small btn-del" onclick="delCode(${c.id})">XÓA</button>
     </div>
   `).join('');
@@ -281,10 +283,8 @@ async function delCode(id) { if(confirm('Xóa Key này?')) { await fetch('/api/a
 
 async function loadUsers(){
   const r = await fetch('/api/admin/users', { headers: auth() }); const users = await r.json();
-  if(users.length === 0) {
-    $('userList').innerHTML = '<div style="text-align:center; color:#b090c0; padding:10px;">Chưa có user.</div>';
-    return;
-  }
+  if(users.length === 0) { $('userList').innerHTML = '<div style="text-align:center; color:#b090c0; padding:10px;">Chưa có user.</div>'; return; }
+  
   $('userList').innerHTML = users.map(u => `
     <div class="user-row">
       <div style="flex:1; overflow:hidden;">
@@ -297,11 +297,7 @@ async function loadUsers(){
   `).join('');
 }
 
-function openDevice(id, deviceName) {
-  $('devUserId').value = id;
-  $('devName').value = deviceName;
-  $('deviceModal').classList.remove('hidden');
-}
+function openDevice(id, deviceName) { $('devUserId').value = id; $('devName').value = deviceName; $('deviceModal').classList.remove('hidden'); }
 function closeDeviceModal() { $('deviceModal').classList.add('hidden'); }
 
 async function saveDevice() {
