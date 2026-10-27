@@ -111,13 +111,13 @@ app.get('/api/history', authUser, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
-// API FILE (BẢN SỬA LỖI HOÀN TOÀN)
+// API FILE
 app.get('/api/files', async (req, res) => {
   try {
     const result = await pool.query('SELECT id, name, size, file_path, image_path, image_url, os, game, points, sale_points, stock, created_at FROM files ORDER BY id DESC');
-    res.json(result.rows);
+    res.json(result.rows || []);
   } catch (err) { 
-    console.error('Lỗi lấy danh sách file:', err);
+    console.error('Lỗi API files:', err);
     res.status(500).json({ error: 'Lỗi server' }); 
   }
 });
@@ -194,20 +194,46 @@ app.post('/api/admin/upload', authAdmin, upload.fields([{ name: 'file', maxCount
   } catch (err) { res.status(500).json({ error: 'Lỗi lưu file' }); }
 });
 
+// SỬA FILE (HỖ TRỢ THAY CẢ FILE TẢI XUỐNG VÀ ẢNH MỚI)
 app.put('/api/admin/files/:id', authAdmin, upload.fields([{ name: 'file', maxCount: 1 }, { name: 'image', maxCount: 1 }]), async (req, res) => {
-  const { name, points, sale_points, stock, image_url } = req.body;
+  const { name, points, sale_points, stock, image_url, file_url } = req.body;
   const id = req.params.id;
+  
   try {
+    let updateQuery = 'UPDATE files SET name = $1, points = $2, sale_points = $3, stock = $4, created_at = CURRENT_TIMESTAMP';
+    let queryParams = [name, points, sale_points, stock];
+    let paramIndex = 5;
+
     if (req.files?.image) {
-      const image_path = '/uploads/' + req.files.image[0].filename;
-      await pool.query('UPDATE files SET name = $1, points = $2, sale_points = $3, stock = $4, image_path = $5, created_at = CURRENT_TIMESTAMP WHERE id = $6', [name, points, sale_points, stock, image_path, id]);
+      updateQuery += `, image_path = $${paramIndex}`;
+      queryParams.push('/uploads/' + req.files.image[0].filename);
+      paramIndex++;
     } else if (image_url) {
-      await pool.query('UPDATE files SET name = $1, points = $2, sale_points = $3, stock = $4, image_url = $5, created_at = CURRENT_TIMESTAMP WHERE id = $6', [name, points, sale_points, stock, image_url, id]);
-    } else {
-      await pool.query('UPDATE files SET name = $1, points = $2, sale_points = $3, stock = $4, created_at = CURRENT_TIMESTAMP WHERE id = $5', [name, points, sale_points, stock, id]);
+      updateQuery += `, image_url = $${paramIndex}`;
+      queryParams.push(image_url);
+      paramIndex++;
     }
+
+    if (req.files?.file) {
+      updateQuery += `, file_path = $${paramIndex}, size = $${paramIndex+1}`;
+      queryParams.push('/uploads/' + req.files.file[0].filename);
+      queryParams.push(req.files.file[0].size);
+      paramIndex += 2;
+    } else if (file_url) {
+      updateQuery += `, file_path = $${paramIndex}`;
+      queryParams.push(file_url);
+      paramIndex++;
+    }
+
+    updateQuery += ` WHERE id = $${paramIndex}`;
+    queryParams.push(id);
+
+    await pool.query(updateQuery, queryParams);
     res.json({ success: true });
-  } catch (err) { res.status(500).json({ error: 'Lỗi cập nhật' }); }
+  } catch (err) { 
+    console.error(err);
+    res.status(500).json({ error: 'Lỗi cập nhật' }); 
+  }
 });
 
 app.delete('/api/admin/files/:id', authAdmin, async (req, res) => {
