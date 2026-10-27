@@ -3,177 +3,341 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ADMIN — SAMM X MODZ SHOP</title>
+<title>SAMM X MODZ SHOP</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
-  body { background: #0a0212; color:#f5e8ff; padding:20px 12px; }
-  .wrap { max-width: 700px; margin: 0 auto; }
-  .app-title { text-align: center; font-size: 1.7rem; font-weight: 800; color: #d87cff; margin-bottom: 24px; }
-  .panel { background: rgba(25, 10, 40, 0.6); border: 1px solid rgba(216,124,255,0.2); border-radius: 24px; padding: 24px; margin-bottom: 20px; }
-  h2 { color: #e0b0ff; font-size: 1.05rem; margin-bottom: 20px; border-bottom: 1px solid rgba(216,124,255,0.2); padding-bottom: 10px; }
-  .input-group { margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
-  label { font-size: 0.75rem; font-weight: 700; color: #b090c0; }
-  input[type="text"], input[type="password"], input[type="number"], input[type="file"], select { width: 100%; background: rgba(10, 2, 20, 0.5); border: 1.5px solid rgba(216,124,255,0.2); border-radius: 14px; padding: 14px; color: #fff; outline: none; }
-  .btn { background: linear-gradient(135deg, #d87cff, #9b30d9); color: #fff; border: none; border-radius: 14px; padding: 16px; font-weight: 800; cursor: pointer; width: 100%; }
-  .btn-small { padding: 8px 12px; font-size: 0.8rem; width: auto; border-radius: 10px; }
-  .btn-add { background: #0088ff; } .btn-del { background: #b30000; }
+  body { min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; background: linear-gradient(rgba(10, 5, 20, 0.9), rgba(5, 2, 10, 0.95)), url('https://files.catbox.moe/cemtij.jpeg') no-repeat center center fixed; background-size: cover; color: #f5e8ff; }
+  .app-container { width:100%; max-width:440px; background: linear-gradient(160deg, rgba(30, 10, 45, 0.8), rgba(15, 5, 25, 0.95)); backdrop-filter: blur(20px); border-radius: 32px; box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9), 0 0 0 1px rgba(216,124,255,0.2); padding: 30px 24px; max-height: 95vh; overflow-y: auto; }
+  .screen { display:none; flex-direction:column; gap:16px; } .screen.active { display:flex; animation: fadeUp .3s; }
+  @keyframes fadeUp { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
   
-  /* LIST */
-  .item-row { background: rgba(15, 5, 25, 0.6); padding: 14px; border-radius: 16px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-  .item-info { flex: 1; overflow: hidden; font-size: 0.9rem; }
-  .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; }
-  .bg-yellow { background: rgba(255, 204, 0, 0.2); color: #ffcc00; }
-  .bg-green { background: rgba(77, 255, 136, 0.2); color: #4dff88; }
-  .hidden { display: none !important; }
+  .app-title { text-align:center; font-size: 1.7rem; font-weight: 800; background: linear-gradient(120deg,#f0a8ff,#d87cff); -webkit-background-clip: text; color: transparent; margin-bottom: 20px; }
+  .btn { background: linear-gradient(135deg,#d87cff,#9b30d9); color:#fff; border:none; border-radius:16px; padding:15px; font-weight:800; cursor:pointer; width: 100%; transition:.2s; }
+  .btn:active { transform: scale(0.98); }
+  .btn-outline { background: transparent; border: 1.5px solid rgba(216,124,255,0.5); color: #d87cff; }
+  .input-group input { width:100%; background:rgba(0,0,0,0.4); border:1.5px solid rgba(216,124,255,0.3); border-radius:14px; padding:14px; color:#fff; outline:none; margin-bottom:10px; }
+  
+  .header-user { display: flex; justify-content: space-between; align-items: center; background: rgba(216,124,255,0.1); padding: 10px 15px; border-radius: 16px; margin-bottom: 15px; }
+  .points-value { font-size: 1.2rem; font-weight: 800; color: #d87cff; }
+
+  .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .menu-item { background: rgba(20,8,30,0.8); border: 1px solid rgba(216,124,255,0.2); border-radius: 20px; padding: 20px; text-align: center; cursor: pointer; transition: .2s; }
+  .menu-item:hover { border-color: #d87cff; background: rgba(40, 15, 60, 0.9); }
+  .menu-icon { font-size: 2.5rem; margin-bottom: 10px; display: block; }
+  .menu-text { font-weight: 700; font-size: 0.95rem; }
+
+  .shop-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+  .back-btn { background: rgba(216,124,255,0.2); border: none; color: #fff; width: 36px; height: 36px; border-radius: 10px; cursor: pointer; font-size: 1.2rem; }
+  .game-card { background: rgba(20,8,30,0.8); border: 1px solid rgba(216,124,255,0.2); border-radius: 16px; padding: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; cursor: pointer; }
+  .game-logo { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; background: #000; }
+  .game-info { flex: 1; }
+  .game-title { font-weight: 800; font-size: 1.1rem; }
+  .game-desc { font-size: 0.75rem; color: #b090c0; margin-top: 4px; }
+
+  .file-card { background:rgba(20, 8, 30, 0.7); border:1px solid rgba(216,124,255,0.15); border-radius:16px; overflow:hidden; margin-bottom:10px; }
+  .file-cover { width:100%; height:auto; max-height:200px; object-fit:contain; background:#0d0214; display:block; }
+  .file-body { padding:12px; display:flex; align-items:center; gap:10px; }
+  .fi-btn { background: linear-gradient(135deg,#d87cff,#9b30d9); color:#fff; border-radius:10px; padding:8px 14px; font-weight:bold; border:none; cursor:pointer; white-space:nowrap; }
+
+  .qr-image { width: 100%; max-width: 280px; border-radius: 16px; margin: 10px auto; display: block; border: 3px solid #d87cff; background: #fff; padding: 10px; }
+  .topup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+  .topup-item { background: rgba(20,8,30,0.8); border: 1px solid rgba(216,124,255,0.2); border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; transition: .2s; }
+  .topup-item:hover { border-color: #d87cff; background: rgba(40, 15, 60, 0.9); }
+  .topup-item.active { border-color: #4dff88; box-shadow: 0 0 10px rgba(77,255,136,0.3); }
+  .history-item { background: rgba(20,8,30,0.6); padding: 12px; border-radius: 12px; margin-bottom: 8px; border-left: 3px solid #d87cff; font-size: 0.85rem; }
+  .verifying-text { color: #ffcc00; font-weight: 800; text-align: center; font-size: 1.1rem; margin-top: 10px; animation: blink 1s infinite alternate; }
+  @keyframes blink { from { opacity: 0.6; } to { opacity: 1; } }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1 class="app-title">⚙ SHOP ADMIN</h1>
+<audio id="bgMusic" loop><source src="https://files.catbox.moe/ylpmoe.mp3" type="audio/mpeg"></audio>
+<div class="app-container">
+  
+  <h1 class="app-title">SAMM X MODZ</h1>
 
-  <div id="loginPanel" class="panel">
-    <h2>🔐 Đăng nhập</h2>
-    <div class="input-group"><input type="text" id="adUser" placeholder="admin"></div>
-    <div class="input-group"><input type="password" id="adPass" placeholder="admin123"></div>
-    <button class="btn" id="loginAdminBtn">ĐĂNG NHẬP</button>
+  <!-- ĐĂNG NHẬP / ĐĂNG KÝ -->
+  <div id="authScreen" class="screen active">
+    <div class="input-group"><input type="text" id="loginUsername" placeholder="Tên đăng nhập..."></div>
+    <div class="input-group"><input type="password" id="loginPassword" placeholder="Mật khẩu..."></div>
+    <button class="btn" id="loginBtn">ĐĂNG NHẬP</button>
+    <div style="text-align:center; font-size:0.9rem; margin-top:10px;">Chưa có tài khoản? <span id="goToRegister" style="color:#d87cff; cursor:pointer; font-weight:bold;">Đăng ký</span></div>
+    <div id="loginError" style="color:#ff4d4d; text-align:center; font-size:0.85rem;"></div>
+
+    <div id="registerForm" style="display:none; margin-top:20px; border-top:1px solid rgba(216,124,255,0.2); padding-top:20px;">
+      <div class="input-group"><input type="text" id="regUsername" placeholder="Tạo tên đăng nhập..."></div>
+      <div class="input-group"><input type="password" id="regPassword" placeholder="Tạo mật khẩu..."></div>
+      <button class="btn" id="registerBtn">TẠO TÀI KHOẢN</button>
+      <div style="text-align:center; font-size:0.9rem; margin-top:10px;">Đã có tài khoản? <span id="goToLogin" style="color:#d87cff; cursor:pointer; font-weight:bold;">Đăng nhập</span></div>
+      <div id="regError" style="color:#ff4d4d; text-align:center; font-size:0.85rem;"></div>
+    </div>
   </div>
 
-  <div id="adminContent" class="hidden">
+  <!-- TRANG CHỦ (MENU CHÍNH) -->
+  <div id="homeScreen" class="screen">
+    <div class="header-user">
+      <div>
+        <div style="font-size:0.75rem; color:#b090c0;">Xin chào,</div>
+        <div id="welcomeUsername" style="font-weight:800; font-size:1.1rem;">User</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:0.7rem; color:#b090c0;">Số dư</div>
+        <div class="points-value" id="pointsValue">0 đ</div>
+      </div>
+    </div>
+
+    <div class="menu-grid">
+      <div class="menu-item" onclick="showScreen('shopScreen')">
+        <span class="menu-icon">🛒</span>
+        <div class="menu-text">Cửa Hàng</div>
+      </div>
+      <div class="menu-item" onclick="showScreen('topupScreen')">
+        <span class="menu-icon">💳</span>
+        <div class="menu-text">Nạp Tiền</div>
+      </div>
+      <div class="menu-item" onclick="loadHistory(); showScreen('historyScreen')">
+        <span class="menu-icon">📜</span>
+        <div class="menu-text">Lịch Sử</div>
+      </div>
+      <div class="menu-item" onclick="logout()">
+        <span class="menu-icon">🚪</span>
+        <div class="menu-text">Đăng Xuất</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CỬA HÀNG -->
+  <div id="shopScreen" class="screen">
+    <div class="shop-header">
+      <button class="back-btn" onclick="showScreen('homeScreen')">←</button>
+      <h2 style="font-size:1.2rem;">Cửa Hàng</h2>
+    </div>
     
-    <!-- DUYỆT NẠP TIỀN -->
-    <div class="panel">
-      <h2>💳 Duyệt Nạp Tiền</h2>
-      <div id="topupList"></div>
-    </div>
-
-    <!-- ĐĂNG BÀI -->
-    <div class="panel">
-      <h2>📤 Đăng File Mới</h2>
-      <div class="input-group"><label>Tên File</label><input type="text" id="upName" placeholder="VD: Mod FF Max iOS..."></div>
-      
-      <div style="display:flex; gap:12px;">
-        <div class="input-group" style="flex:1;">
-          <label>Hệ Điều Hành</label>
-          <select id="upOS">
-            <option value="ios">iOS</option>
-            <option value="android">Android</option>
-          </select>
-        </div>
-        <div class="input-group" style="flex:1;">
-          <label>Game</label>
-          <select id="upGame">
-            <option value="ff_max">Free Fire MAX</option>
-            <option value="ff_thuong">Free Fire Thường</option>
-          </select>
-        </div>
+    <div class="game-card" onclick="showGame('ios')">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/1200px-Apple_logo_black.svg.png" class="game-logo" style="background:#fff; padding:10px;">
+      <div class="game-info">
+        <div class="game-title">Hệ Điều Hành iOS</div>
+        <div class="game-desc">Dành cho iPhone, iPad</div>
       </div>
+    </div>
 
-      <div style="display:flex; gap:12px;">
-        <div class="input-group" style="flex:1;"><label>Giá gốc (Điểm)</label><input type="number" id="upPoints" value="10"></div>
-        <div class="input-group" style="flex:1;"><label>Giá Sale</label><input type="number" id="upSalePoints" value="0"></div>
-        <div class="input-group" style="flex:1;"><label>Kho</label><input type="number" id="upStock" value="100"></div>
+    <div class="game-card" onclick="showGame('android')">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Android_robot.svg/1200px-Android_robot.svg.png" class="game-logo">
+      <div class="game-info">
+        <div class="game-title">Hệ Điều Hành Android</div>
+        <div class="game-desc">Dành cho điện thoại Android</div>
       </div>
-      
-      <div class="input-group"><label>Link Ảnh Bìa (Khuyên dùng)</label><input type="text" id="upImageUrl" placeholder="https://..."></div>
-      <div class="input-group"><label>Link File tải xuống (Khuyên dùng)</label><input type="text" id="upFileUrl" placeholder="https://..."></div>
-      
-      <button class="btn" id="uploadBtn" style="margin-top: 10px;">ĐĂNG BÀI</button>
     </div>
-
-    <div class="panel">
-      <h2>📁 Kho File Đã Đăng</h2>
-      <div id="fileList"></div>
-    </div>
-
-    <button class="btn" style="background:#4a1a5a; margin-bottom: 40px;" onclick="localStorage.removeItem('sammx_admintoken'); location.reload();">ĐĂNG XUẤT</button>
   </div>
+
+  <!-- DANH SÁCH GAME -->
+  <div id="gameSelectScreen" class="screen">
+    <div class="shop-header">
+      <button class="back-btn" onclick="showScreen('shopScreen')">←</button>
+      <h2 id="osTitle" style="font-size:1.2rem;">Chọn Game</h2>
+    </div>
+
+    <div class="game-card" onclick="loadFilesByGame('ff_max')">
+      <div class="game-logo" style="display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:bold; color:#fff; background: linear-gradient(135deg,#ff4d4d,#b30000);">MAX</div>
+      <div class="game-info">
+        <div class="game-title">Free Fire MAX</div>
+      </div>
+    </div>
+
+    <div class="game-card" onclick="loadFilesByGame('ff_thuong')">
+      <div class="game-logo" style="display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:bold; color:#fff; background: linear-gradient(135deg,#ffcc00,#b38f00);">TH</div>
+      <div class="game-info">
+        <div class="game-title">Free Fire Thường</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HIỂN THỊ FILE -->
+  <div id="fileListScreen" class="screen">
+    <div class="shop-header">
+      <button class="back-btn" onclick="showScreen('gameSelectScreen')">←</button>
+      <h2 id="fileListTitle" style="font-size:1.2rem;">Danh Sách File</h2>
+    </div>
+    <div id="fileListContent"></div>
+  </div>
+
+  <!-- NẠP TIỀN -->
+  <div id="topupScreen" class="screen">
+    <div class="shop-header">
+      <button class="back-btn" onclick="showScreen('homeScreen')">←</button>
+      <h2 style="font-size:1.2rem;">Nạp Tiền</h2>
+    </div>
+    
+    <div class="topup-grid">
+      <div class="topup-item" onclick="selectTopup(this, 10000, 10)">10.000đ <br><span style="color:#d87cff; font-weight:bold;">+10 Điểm</span></div>
+      <div class="topup-item" onclick="selectTopup(this, 20000, 20)">20.000đ <br><span style="color:#d87cff; font-weight:bold;">+20 Điểm</span></div>
+      <div class="topup-item" onclick="selectTopup(this, 50000, 50)">50.000đ <br><span style="color:#d87cff; font-weight:bold;">+50 Điểm</span></div>
+      <div class="topup-item" onclick="selectTopup(this, 100000, 100)">100.000đ <br><span style="color:#d87cff; font-weight:bold;">+100 Điểm</span></div>
+    </div>
+
+    <div id="qrSection" style="display:none; text-align:center; background: rgba(216,124,255,0.05); padding: 15px; border-radius: 16px; border: 1px solid rgba(216,124,255,0.2);">
+      <p style="font-size:0.9rem; color:#b090c0; margin-bottom:10px;">Quét mã QR dưới đây để thanh toán</p>
+      <img id="qrImage" src="" class="qr-image">
+      <p style="font-size:0.85rem; margin-top:10px; font-weight:bold;">Số tiền: <span id="qrAmount" style="color:#4dff88; font-size:1.2rem;"></span></p>
+      <button class="btn" style="margin-top: 15px; background: #0088ff;" onclick="submitTopup()">TÔI ĐÃ CHUYỂN KHOẢN</button>
+      <div id="verifyingMsg" class="verifying-text" style="display:none;">ĐANG XÁC MINH</div>
+    </div>
+  </div>
+
+  <!-- LỊCH SỬ -->
+  <div id="historyScreen" class="screen">
+    <div class="shop-header">
+      <button class="back-btn" onclick="showScreen('homeScreen')">←</button>
+      <h2 style="font-size:1.2rem;">Lịch Sử Giao Dịch</h2>
+    </div>
+    
+    <h3 style="font-size:1rem; color:#d87cff; margin-bottom:10px;">📥 Lịch sử nạp tiền</h3>
+    <div id="historyTopups"></div>
+
+    <h3 style="font-size:1rem; color:#d87cff; margin-top:20px; margin-bottom:10px;">🛒 Lịch sử mua hàng</h3>
+    <div id="historyPurchases"></div>
+  </div>
+
 </div>
 
 <script>
-let adToken = localStorage.getItem('sammx_admintoken') || '';
+// ===== CẤU HÌNH NGÂN HÀNG CỦA BẠN (SỬA Ở ĐÂY) =====
+const BANK_ID = 'vietcombank'; // Ví dụ: vietcombank, techcombank, mbbank...
+const ACCOUNT_NO = '0355757211'; // Số tài khoản của bạn
+const ACCOUNT_NAME = 'SAMM X MODZ'; // Tên chủ tài khoản
+// ===================================================
+
+let token = localStorage.getItem('sammx_token') || '';
+let currentPoints = 0;
+let selectedAmount = 0;
+let selectedPoints = 0;
+let currentOS = '';
+let currentGame = '';
+let allFiles = [];
 const $ = id => document.getElementById(id);
-const auth = () => ({ 'Authorization': 'Bearer ' + adToken });
 
-$('loginAdminBtn').onclick = async () => {
-  const r = await fetch('/api/admin/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username: $('adUser').value, password: $('adPass').value }) });
-  const d = await r.json(); if (!r.ok) return alert(d.error);
-  adToken = d.token; localStorage.setItem('sammx_admintoken', adToken); enterAdmin();
+let deviceName = localStorage.getItem('samm_device_id');
+if (!deviceName) { const rand = () => Math.random().toString(36).substring(2, 5).toUpperCase(); deviceName = `SAMM-${rand()}-${rand()}-${rand()}`; localStorage.setItem('samm_device_id', deviceName); }
+
+function playMusic() { const music = $('bgMusic'); music.volume = 0.5; music.play().catch(e => { document.body.addEventListener('click', () => { music.play(); }, { once: true }); }); }
+playMusic();
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+
+function updatePointsUI(pts) { currentPoints = pts; $('pointsValue').textContent = pts; }
+
+async function loadMe() {
+  if (!token) return showScreen('authScreen');
+  try {
+    const r = await fetch('/api/me', { headers: { 'Authorization': 'Bearer ' + token } });
+    if (!r.ok) throw 0;
+    const u = await r.json();
+    $('welcomeUsername').textContent = u.username;
+    updatePointsUI(u.points);
+    showScreen('homeScreen');
+  } catch { token = ''; localStorage.removeItem('sammx_token'); showScreen('authScreen'); }
+}
+
+$('loginBtn').onclick = async () => {
+  $('loginError').textContent = '';
+  const r = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username: $('loginUsername').value, password: $('loginPassword').value, device: deviceName }) });
+  const d = await r.json();
+  if (!r.ok) return $('loginError').textContent = d.error;
+  token = d.token; localStorage.setItem('sammx_token', token); loadMe();
 };
 
-function enterAdmin(){
-  $('loginPanel').classList.add('hidden'); $('adminContent').classList.remove('hidden');
-  loadTopups(); loadFiles();
-  setInterval(loadTopups, 5000); // Tự động load nạp tiền mới
-}
-
-// DUYỆT NẠP
-async function loadTopups() {
-  const r = await fetch('/api/admin/topups', { headers: auth() }); const topups = await r.json();
-  const pending = topups.filter(t => t.status === 'pending');
-  
-  if(pending.length === 0) { $('topupList').innerHTML = '<div style="color:#b090c0; font-size:0.9rem;">Không có yêu cầu nạp tiền nào.</div>'; return; }
-  
-  $('topupList').innerHTML = pending.map(t => `
-    <div class="item-row" style="border-left: 3px solid #ffcc00;">
-      <div class="item-info">
-        <div><b>User:</b> ${t.username} <span class="badge bg-yellow">Chờ duyệt</span></div>
-        <div style="color:#d87cff; margin-top:4px;">Nạp ${t.amount.toLocaleString()}đ (${t.points} điểm)</div>
-      </div>
-      <button class="btn btn-small" style="background:#4dff88; color:#000;" onclick="approveTopup(${t.id})">DUYỆT</button>
-    </div>
-  `).join('');
-}
-
-async function approveTopup(id) {
-  if(!confirm('Duyệt yêu cầu nạp này?')) return;
-  const r = await fetch('/api/admin/topups/'+id+'/approve', { method:'POST', headers: auth() });
-  if(r.ok) { alert('Đã cộng điểm!'); loadTopups(); } else alert('Lỗi!');
-}
-
-// ĐĂNG BÀI
-$('uploadBtn').onclick = async () => {
-  if(!$('upName').value.trim()) return alert('Nhập tên file!');
-  if(!$('upFileUrl').value.trim()) return alert('Nhập link file!');
-  
-  const fd = new FormData();
-  fd.append('name', $('upName').value.trim());
-  fd.append('os', $('upOS').value);
-  fd.append('game', $('upGame').value);
-  fd.append('points', $('upPoints').value);
-  fd.append('sale_points', $('upSalePoints').value);
-  fd.append('stock', $('upStock').value);
-  fd.append('file_url', $('upFileUrl').value.trim());
-  if($('upImageUrl').value.trim()) fd.append('image_url', $('upImageUrl').value.trim());
-  
-  $('uploadBtn').textContent = 'ĐANG XỬ LÝ...';
-  const r = await fetch('/api/admin/upload', { method:'POST', headers: auth(), body: fd });
-  $('uploadBtn').textContent = 'ĐĂNG BÀI';
-  
-  if (r.ok) { 
-    alert('Đăng file thành công!'); 
-    $('upName').value=''; $('upImageUrl').value=''; $('upFileUrl').value='';
-    loadFiles(); 
-  } else { alert('Lỗi upload!'); }
+$('registerBtn').onclick = async () => {
+  $('regError').textContent = '';
+  const r = await fetch('/api/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username: $('regUsername').value, password: $('regPassword').value, device: deviceName }) });
+  const d = await r.json();
+  if (!r.ok) return $('regError').textContent = d.error;
+  alert('Tạo tài khoản thành công!'); $('goToLogin').click();
 };
 
-// DANH SÁCH FILE
-async function loadFiles(){
-  const r = await fetch('/api/files'); const files = await r.json();
-  $('fileList').innerHTML = files.map(f => `
-    <div class="item-row">
-      <div class="item-info">
-        <div style="font-weight:bold;">${f.name}</div>
-        <div style="font-size:0.75rem; color:#b090c0;">${f.os.toUpperCase()} • ${f.game} • Giá: ${f.points} đ • Kho: ${f.stock}</div>
-      </div>
-      <button class="btn btn-small btn-del" onclick="delFile(${f.id})">XÓA</button>
-    </div>
-  `).join('');
+$('goToRegister').onclick = () => { $('registerForm').style.display = 'block'; };
+$('goToLogin').onclick = () => { $('registerForm').style.display = 'none'; };
+function logout() { token = ''; localStorage.removeItem('sammx_token'); showScreen('authScreen'); }
+
+function showGame(os) { currentOS = os; $('osTitle').textContent = os === 'ios' ? 'iOS - Chọn Game' : 'Android - Chọn Game'; showScreen('gameSelectScreen'); }
+
+async function loadFilesByGame(game) {
+  currentGame = game;
+  $('fileListTitle').textContent = game === 'ff_max' ? 'Free Fire MAX' : 'Free Fire Thường';
+  showScreen('fileListScreen');
+  $('fileListContent').innerHTML = 'Đang tải...';
+  const r = await fetch('/api/files'); allFiles = await r.json();
+  const filtered = allFiles.filter(f => f.os === currentOS && f.game === currentGame);
+  if (filtered.length === 0) { $('fileListContent').innerHTML = '<div style="text-align:center; color:#b090c0; padding:20px;">Chưa có file nào.</div>'; return; }
+  $('fileListContent').innerHTML = filtered.map(f => {
+    const fPoints = f.points || 0, fSale = f.sale_points || 0, fStock = f.stock || 0, fName = f.name || 'File', fSize = f.size || 0;
+    let img = `<div style="height:150px; display:flex; align-items:center; justify-content:center; font-size:3rem; background:#0d0214;">📄</div>`;
+    if (f.image_url) img = `<img src="${f.image_url}" class="file-cover">`;
+    else if (f.image_path) img = `<img src="${f.image_path}" class="file-cover">`;
+    let priceHtml = `<b>${fPoints} điểm</b>`;
+    if (fSale > 0 && fSale < fPoints) priceHtml = `<span style="text-decoration:line-through; color:#888;">${fPoints}</span> <b style="color:#ff4d4d;">${fSale} (SALE)</b>`;
+    return `<div class="file-card">${img}<div class="file-body"><div style="flex:1;"><div style="font-weight:bold; font-size:0.9rem;">${fName}</div><div style="font-size:0.7rem; color:#d0a0e0;">${(fSize/1024).toFixed(1)} KB • Giá: ${priceHtml} • Kho: ${fStock}</div></div><button class="fi-btn" onclick="buyFile(${f.id}, '${fName}')">MUA</button></div></div>`;
+  }).join('');
 }
 
-async function delFile(id) { if(confirm('Xóa file này?')) { await fetch('/api/admin/files/'+id, {method:'DELETE', headers:auth()}); loadFiles(); } }
+async function buyFile(fileId, fileName) {
+  if (!confirm(`Mua file: ${fileName}?`)) return;
+  const r = await fetch('/api/files/buy', { method:'POST', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type':'application/json' }, body: JSON.stringify({ fileId }) });
+  const d = await r.json();
+  if (!r.ok) return alert(d.error);
+  updatePointsUI(d.new_points);
+  const a = document.createElement('a'); a.href = d.file_path; a.download = fileName; a.target = '_blank'; document.body.appendChild(a); a.click(); a.remove();
+  alert('Mua thành công! File đang tải...');
+  loadFilesByGame(currentGame);
+}
 
-if (adToken) enterAdmin();
+// NẠP TIỀN ĐỘNG
+function selectTopup(element, amount, points) {
+  document.querySelectorAll('.topup-item').forEach(el => el.classList.remove('active'));
+  element.classList.add('active');
+  
+  selectedAmount = amount;
+  selectedPoints = points;
+  
+  // Tạo link QR động từ VietQR
+  const qrUrl = `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?amount=${amount}&addInfo=Nạp%20điểm%20${deviceName}&accountName=${encodeURIComponent(ACCOUNT_NAME)}`;
+  
+  $('qrImage').src = qrUrl;
+  $('qrAmount').textContent = amount.toLocaleString() + 'đ';
+  $('qrSection').style.display = 'block';
+  $('verifyingMsg').style.display = 'none';
+}
+
+async function submitTopup() {
+  if (!confirm(`Bạn xác nhận đã chuyển khoản ${selectedAmount.toLocaleString()}đ?`)) return;
+  
+  $('verifyingMsg').style.display = 'block';
+  
+  const r = await fetch('/api/topup/request', { method:'POST', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type':'application/json' }, body: JSON.stringify({ amount: selectedAmount, points: selectedPoints }) });
+  if (r.ok) {
+    // Không hiện alert dài dòng nữa, hiện chữ ĐANG XÁC MINH
+  } else {
+    alert('Lỗi gửi yêu cầu');
+    $('verifyingMsg').style.display = 'none';
+  }
+}
+
+async function loadHistory() {
+  $('historyTopups').innerHTML = 'Đang tải...';
+  $('historyPurchases').innerHTML = 'Đang tải...';
+  const r = await fetch('/api/history', { headers: { 'Authorization': 'Bearer ' + token } });
+  const d = await r.json();
+
+  if (d.topups.length === 0) $('historyTopups').innerHTML = '<div style="color:#b090c0; font-size:0.85rem;">Chưa có lịch sử nạp.</div>';
+  else $('historyTopups').innerHTML = d.topups.map(t => `<div class="history-item">💵 Nạp ${t.amount.toLocaleString()}đ (${t.points} điểm) - <b style="color:${t.status==='pending'?'#ffcc00':'#4dff88'}">${t.status === 'pending' ? 'ĐANG XÁC MINH' : 'Thành công'}</b><br><span style="font-size:0.7rem; color:#888;">${new Date(t.created_at).toLocaleString()}</span></div>`).join('');
+
+  if (d.purchases.length === 0) $('historyPurchases').innerHTML = '<div style="color:#b090c0; font-size:0.85rem;">Chưa có lịch sử mua.</div>';
+  else $('historyPurchases').innerHTML = d.purchases.map(p => `<div class="history-item">🛒 Mua "${p.file_name}" - <b style="color:#d87cff">-${p.price} điểm</b><br><span style="font-size:0.7rem; color:#888;">${new Date(p.created_at).toLocaleString()}</span></div>`).join('');
+}
+
+loadMe();
 </script>
 </body>
 </html>
