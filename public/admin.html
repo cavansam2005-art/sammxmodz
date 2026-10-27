@@ -7,48 +7,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
-  
-  /* NỀN ĐỎ HUYỀN THOẠI */
-  body { 
-    background: radial-gradient(circle at 10% 20%, #2a0000 0%, #0d0000 60%, #050000 100%); 
-    color:#ffe8e8; padding:20px 12px; min-height:100vh; overflow-x: hidden; 
-  }
+  body { background: radial-gradient(circle at 10% 20%, #2a0000 0%, #0d0000 60%, #050000 100%); color:#ffe8e8; padding:20px 12px; min-height:100vh; overflow-x: hidden; }
   .wrap { max-width: 750px; margin: 0 auto; position: relative; z-index: 1; }
   
-  /* TIÊU ĐỀ PHÁT SÁNG */
-  .app-title { 
-    text-align: center; font-size: 1.8rem; font-weight: 800; 
-    background: linear-gradient(120deg,#ffb0b0 0%,#ff3030 50%,#c00000 100%); 
-    -webkit-background-clip: text; color: transparent; margin-bottom: 24px; letter-spacing: 1.5px;
-    text-shadow: 0 0 20px rgba(255,48,48,0.4);
-  }
+  .app-title { text-align: center; font-size: 1.8rem; font-weight: 800; background: linear-gradient(120deg,#ffb0b0 0%,#ff3030 50%,#c00000 100%); -webkit-background-clip: text; color: transparent; margin-bottom: 24px; letter-spacing: 1.5px; text-shadow: 0 0 20px rgba(255,48,48,0.4); }
   
-  /* KHUNG KÍNH MỜ ĐỎ */
-  .panel { 
-    background: rgba(30, 5, 5, 0.7); backdrop-filter: blur(16px); 
-    border: 1px solid rgba(255, 50, 50, 0.25); border-radius: 24px; 
-    padding: 24px; margin-bottom: 20px; box-shadow: 0 15px 35px -10px rgba(0,0,0,0.9), inset 0 0 20px rgba(255,0,0,0.05); 
-  }
+  .panel { background: rgba(30, 5, 5, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 50, 50, 0.25); border-radius: 24px; padding: 24px; margin-bottom: 20px; box-shadow: 0 15px 35px -10px rgba(0,0,0,0.9); }
   h2 { color: #ff6060; font-size: 1.15rem; letter-spacing: 1px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; font-weight: 700; text-transform: uppercase;}
   h2::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,50,50,0.5), transparent); }
   
-  /* Ô NHẬP LIỆU */
   .input-group { margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
   label { font-size: 0.8rem; font-weight: 700; color: #d09090; }
   
-  input[type="text"], input[type="password"], input[type="number"], input[type="file"], select { 
-    width: 100%; background: rgba(15, 0, 0, 0.6); border: 1.5px solid rgba(255, 50, 50, 0.3); 
-    border-radius: 14px; padding: 15px; color: #fff; font-size: 1rem; outline: none; transition: 0.2s;
-  }
+  input[type="text"], input[type="password"], input[type="number"], input[type="file"], select { width: 100%; background: rgba(15, 0, 0, 0.6); border: 1.5px solid rgba(255, 50, 50, 0.3); border-radius: 14px; padding: 15px; color: #fff; font-size: 1rem; outline: none; }
   input:focus, select:focus { border-color: #ff3030; box-shadow: 0 0 0 4px rgba(255,48,48,0.15); }
   
-  /* NÚT BẤM */
-  .btn { 
-    background: linear-gradient(135deg, #ff5050, #b30000); color: #fff; border: none; 
-    border-radius: 14px; padding: 16px; font-weight: 800; font-size: 1rem; cursor: pointer; 
-    width: 100%; transition: 0.3s; box-shadow: 0 8px 20px -6px rgba(255,48,48,0.5);
-  }
-  .btn:hover { transform: translateY(-2px); filter: brightness(1.2); box-shadow: 0 12px 25px -6px rgba(255,48,48,0.7); }
+  .btn { background: linear-gradient(135deg, #ff5050, #b30000); color: #fff; border: none; border-radius: 14px; padding: 16px; font-weight: 800; font-size: 1rem; cursor: pointer; width: 100%; transition: 0.3s; box-shadow: 0 8px 20px -6px rgba(255,48,48,0.5);}
+  .btn:hover { transform: translateY(-2px); filter: brightness(1.2); }
   .btn-small { padding: 10px 16px; font-size: 0.85rem; border-radius: 10px; width: auto; }
   
   .btn-approve { background: linear-gradient(135deg, #4dff88, #00b359); color: #000; }
@@ -56,29 +31,17 @@
   .btn-edit { background: linear-gradient(135deg, #ff8c00, #b35c00); }
   .btn-blue { background: linear-gradient(135deg, #4dc3ff, #0066cc); }
   
-  /* TABS MENU */
   .tabs { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px;}
   .tabs::-webkit-scrollbar { display: none; }
-  .tab { 
-    flex: 1; padding: 12px; text-align: center; background: rgba(20, 5, 5, 0.6); 
-    border-radius: 12px; cursor: pointer; font-weight: 700; border: 1px solid transparent; 
-    white-space: nowrap; font-size: 0.9rem; color: #a07070; transition: 0.3s;
-  }
+  .tab { flex: 1; padding: 12px; text-align: center; background: rgba(20, 5, 5, 0.6); border-radius: 12px; cursor: pointer; font-weight: 700; border: 1px solid transparent; white-space: nowrap; font-size: 0.9rem; color: #a07070; transition: 0.3s;}
   .tab.active { background: rgba(255, 50, 50, 0.15); border-color: #ff3030; color: #ff8080; box-shadow: 0 0 15px rgba(255,48,48,0.2); }
   
-  /* DANH SÁCH ITEM */
-  .item-row { 
-    background: rgba(20, 5, 5, 0.8); border: 1px solid rgba(255, 50, 50, 0.2); 
-    border-radius: 16px; padding: 16px; margin-bottom: 12px; display: flex; 
-    align-items: center; justify-content: space-between; gap: 12px; 
-  }
+  .item-row { background: rgba(20, 5, 5, 0.8); border: 1px solid rgba(255, 50, 50, 0.2); border-radius: 16px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .item-info { flex: 1; overflow: hidden; }
   .item-title { font-weight: 800; font-size: 1rem; color: #fff; margin-bottom: 4px;}
   .item-sub { font-size: 0.8rem; color: #d09090; line-height: 1.5;}
   
   .hidden { display: none !important; }
-
-  /* MODAL */
   .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 100; padding: 20px; overflow-y: auto;}
   .modal.hidden { display: none !important; }
   .modal-content { background: #1a0000; padding: 24px; border-radius: 20px; width: 100%; max-width: 450px; border: 1px solid rgba(255, 50, 50, 0.4); box-shadow: 0 0 40px rgba(255,0,0,0.2); margin: auto;}
@@ -88,7 +51,6 @@
 <div class="wrap">
   <h1 class="app-title">⚙ SHOP ADMIN</h1>
 
-  <!-- ĐĂNG NHẬP -->
   <div id="loginPanel" class="panel">
     <h2>🔐 Đăng nhập</h2>
     <div class="input-group"><label>Tài khoản</label><input type="text" id="adUser" placeholder="admin"></div>
@@ -96,10 +58,7 @@
     <button class="btn" id="loginAdminBtn">ĐĂNG NHẬP</button>
   </div>
 
-  <!-- NỘI DUNG ADMIN -->
   <div id="adminContent" class="hidden">
-    
-    <!-- MENU TABS -->
     <div class="tabs">
       <div class="tab active" onclick="switchTab('tab-files', this)">📁 Kho File</div>
       <div class="tab" onclick="switchTab('tab-upload', this)">📤 Đăng Bài</div>
@@ -108,48 +67,43 @@
       <div class="tab" onclick="switchTab('tab-users', this)">👥 Users</div>
     </div>
 
-    <!-- TAB 1: KHO FILE -->
+    <!-- TAB KHO FILE -->
     <div id="tab-files" class="panel">
       <h2>📁 Kho File Đã Đăng</h2>
-      <div id="fileList"></div>
+      <div id="fileList"><div style="text-align:center; color:#d09090; padding:20px;">Đang tải dữ liệu...</div></div>
     </div>
 
-    <!-- TAB 2: ĐĂNG BÀI -->
+    <!-- TAB ĐĂNG BÀI -->
     <div id="tab-upload" class="panel hidden">
       <h2>📤 Đăng File Mới</h2>
       <div class="input-group"><label>Tên File (Hiển thị)</label><input type="text" id="upName" placeholder="VD: Mod FF Max iOS..."></div>
-      
       <div style="display:flex; gap:15px;">
         <div class="input-group" style="flex:1;"><label>Hệ Điều Hành</label><select id="upOS"><option value="ios">iOS</option><option value="android">Android</option></select></div>
         <div class="input-group" style="flex:1;"><label>Game</label><select id="upGame"><option value="ff_max">Free Fire MAX</option><option value="ff_thuong">Free Fire Thường</option></select></div>
       </div>
-      
       <div style="display:flex; gap:15px;">
         <div class="input-group" style="flex:1;"><label>Giá gốc (Điểm)</label><input type="number" id="upPoints" value="10" min="0"></div>
         <div class="input-group" style="flex:1;"><label>Giá Sale (0=Ko)</label><input type="number" id="upSalePoints" value="0" min="0"></div>
         <div class="input-group" style="flex:1;"><label>Kho (SL)</label><input type="number" id="upStock" value="100" min="0"></div>
       </div>
-
       <div style="border: 1px dashed rgba(255,50,50,0.3); padding: 15px; border-radius: 16px; margin-bottom: 15px; background: rgba(0,0,0,0.2);">
         <div class="input-group"><label>Chọn ảnh từ thư viện</label><input type="file" id="upImage" accept="image/*"></div>
         <div class="input-group"><label style="color:#ffcc00;">Hoặc dán Link Ảnh (Nên dùng)</label><input type="text" id="upImageUrl" placeholder="https://..."></div>
       </div>
-
       <div style="border: 1px dashed rgba(255,50,50,0.3); padding: 15px; border-radius: 16px; margin-bottom: 15px; background: rgba(0,0,0,0.2);">
         <div class="input-group"><label>Chọn file từ máy (Nếu < 100MB)</label><input type="file" id="upFile"></div>
         <div class="input-group"><label style="color:#ffcc00;">Hoặc dán Link File (Nên dùng)</label><input type="text" id="upFileUrl" placeholder="https://..."></div>
       </div>
-      
       <button class="btn" id="uploadBtn">ĐĂNG BÀI NGAY</button>
     </div>
 
-    <!-- TAB 3: DUYỆT NẠP -->
+    <!-- TAB DUYỆT NẠP -->
     <div id="tab-topup" class="panel hidden">
       <h2>💳 Duyệt Nạp Tiền</h2>
       <div id="topupList"></div>
     </div>
 
-    <!-- TAB 4: TẠO CODE (KEY) -->
+    <!-- TAB TẠO CODE -->
     <div id="tab-codes" class="panel hidden">
       <h2>🎟 Tạo Mã Code (Key)</h2>
       <div style="display:flex; gap:15px;">
@@ -163,13 +117,12 @@
       <div id="codeList" style="max-height: 300px; overflow-y: auto;"></div>
     </div>
 
-    <!-- TAB 5: USERS & CHUYỂN ĐIỂM BẰNG ID -->
+    <!-- TAB USERS -->
     <div id="tab-users" class="panel hidden">
       <h2>📱 Chuyển Điểm Bằng ID</h2>
       <div class="input-group"><label>Mã Thiết Bị (ID)</label><input type="text" id="deviceToPoint" placeholder="SAMM-XXX-XXX-XXX"></div>
       <div class="input-group"><label>Số điểm muốn cộng</label><input type="number" id="pointsToAdd" value="100" min="1"></div>
       <button class="btn btn-blue" onclick="addPointsToDevice()">CHUYỂN ĐIỂM NGAY</button>
-
       <h2 style="margin-top: 30px;">👥 Danh sách Users</h2>
       <div id="userList" style="max-height: 350px; overflow-y: auto;"></div>
     </div>
@@ -234,22 +187,36 @@ function switchTab(tabId, el) {
   $(tabId).classList.remove('hidden');
 }
 
-// QUẢN LÝ FILE
+// HÀM TẢI FILE (ĐÃ ĐƯỢC SỬA LỖI CHỐNG CRASH)
 async function loadFiles(){
   try {
-    const r = await fetch('/api/files'); const files = await r.json();
-    if(!files || files.length === 0) { $('fileList').innerHTML = '<div style="text-align:center; color:#d09090; padding:20px;">Chưa có file nào được đăng.</div>'; return; }
+    const r = await fetch('/api/files'); 
+    if(!r.ok) throw new Error('Mạng lỗi');
+    
+    const files = await r.json();
+    
+    if(!Array.isArray(files) || files.length === 0) { 
+      $('fileList').innerHTML = '<div style="text-align:center; color:#d09090; padding:20px;">Chưa có file nào được đăng.</div>'; 
+      return; 
+    }
+    
     $('fileList').innerHTML = files.map(f => {
       let gameName = f.game === 'ff_max' ? 'FF MAX' : (f.game === 'ff_thuong' ? 'FF THƯỜNG' : 'FREE');
       return `<div class="item-row">
-        <div class="item-info"><div class="item-title">${f.name}</div><div class="item-sub">${f.os.toUpperCase()} • ${gameName}<br>Giá: <span style="color:#ff6060; font-weight:bold;">${f.points} đ</span> • Kho: ${f.stock}</div></div>
+        <div class="item-info">
+          <div class="item-title">${f.name || 'Không tên'}</div>
+          <div class="item-sub">${(f.os || '').toUpperCase()} • ${gameName}<br>Giá: <span style="color:#ff6060; font-weight:bold;">${f.points || 0} đ</span> • Kho: ${f.stock || 0}</div>
+        </div>
         <div style="display:flex; flex-direction:column; gap:8px;">
-          <button class="btn btn-small btn-edit" onclick="openFileModal(${f.id}, '${f.name.replace(/'/g, "\\'")}', ${f.points}, ${f.sale_points||0}, ${f.stock})">SỬA</button>
+          <button class="btn btn-small btn-edit" onclick="openFileModal(${f.id}, '${(f.name || '').replace(/'/g, "\\'")}', ${f.points || 0}, ${f.sale_points||0}, ${f.stock || 0})">SỬA</button>
           <button class="btn btn-small btn-del" onclick="delFile(${f.id})">XÓA</button>
         </div>
       </div>`;
     }).join('');
-  } catch (err) { $('fileList').innerHTML = '<div style="text-align:center; color:#ff4d4d; padding:20px;">Lỗi tải dữ liệu file.</div>'; }
+  } catch (err) {
+    console.error(err);
+    $('fileList').innerHTML = '<div style="text-align:center; color:#ff4d4d; padding:20px;">Lỗi tải dữ liệu file. Vui lòng thử lại sau!</div>';
+  }
 }
 
 function openFileModal(id, name, points, sale, stock) {
@@ -267,7 +234,6 @@ async function saveFileEdit() {
 
 async function delFile(id) { if(confirm('Xóa file này?')) { await fetch('/api/admin/files/'+id, {method:'DELETE', headers:auth()}); loadFiles(); } }
 
-// ĐĂNG BÀI
 $('uploadBtn').onclick = async () => {
   if(!$('upName').value.trim()) return alert('Nhập tên file!');
   if(!$('upFile').files[0] && !$('upFileUrl').value.trim()) return alert('Chọn file hoặc nhập link file!');
@@ -291,11 +257,10 @@ $('uploadBtn').onclick = async () => {
   } else { alert('Lỗi upload!'); }
 };
 
-// DUYỆT NẠP
 async function loadTopups() {
   const r = await fetch('/api/admin/topups', { headers: auth() }); const topups = await r.json();
   const pending = topups.filter(t => t.status === 'pending');
-  if(pending.length === 0) { $('topupList').innerHTML = '<div style="text-align:center; color:#d09090;">Không có yêu cầu nạp tiền.</div>'; return; }
+  if(pending.length === 0) { $('topupList').innerHTML = '<div style="text-align:center; color:#d09090; padding:20px;">Không có yêu cầu nạp tiền.</div>'; return; }
   $('topupList').innerHTML = pending.map(t => `
     <div class="item-row" style="border-left: 4px solid #ffcc00;">
       <div class="item-info"><div class="item-title">User: ${t.username}</div><div class="item-sub">Nạp: ${t.amount.toLocaleString()}đ (${t.points} điểm)</div></div>
@@ -309,7 +274,6 @@ async function approveTopup(id) {
   if(r.ok) { alert('Đã cộng điểm!'); loadTopups(); loadUsers(); } else alert('Lỗi!');
 }
 
-// TẠO CODE
 $('createCodeBtn').onclick = async () => {
   const points = parseInt($('codePoints').value); const count = parseInt($('codeCount').value); const max_devices = parseInt($('codeMaxDevices').value);
   const r = await fetch('/api/admin/codes', { method:'POST', headers:{...auth(), 'Content-Type':'application/json'}, body: JSON.stringify({ points, count, max_devices }) });
@@ -328,7 +292,6 @@ async function loadCodes(){
 }
 async function delCode(id) { if(confirm('Xóa Code?')) { await fetch('/api/admin/codes/'+id, {method:'DELETE', headers:auth()}); loadCodes(); } }
 
-// QUẢN LÝ USERS & CHUYỂN ĐIỂM
 async function addPointsToDevice() {
   const device = $('deviceToPoint').value.trim(); const points = parseInt($('pointsToAdd').value);
   if(!device || !points) return alert('Nhập đủ ID và điểm!');
@@ -339,7 +302,7 @@ async function addPointsToDevice() {
 
 async function loadUsers(){
   const r = await fetch('/api/admin/users', { headers: auth() }); const users = await r.json();
-  if(users.length === 0) { $('userList').innerHTML = '<div style="text-align:center; color:#d09090;">Chưa có user.</div>'; return; }
+  if(users.length === 0) { $('userList').innerHTML = '<div style="text-align:center; color:#d09090; padding:20px;">Chưa có user.</div>'; return; }
   $('userList').innerHTML = users.map(u => `
     <div class="item-row">
       <div class="item-info"><div class="item-title">👤 ${u.username}</div><div class="item-sub">Điểm: <span style="color:#ff6060; font-weight:bold;">${u.points}</span><br>📱 ID: <span style="color:#ff8080;">${u.device || 'Chưa rõ'}</span></div></div>
@@ -350,7 +313,6 @@ async function loadUsers(){
     </div>
   `).join('');
 }
-
 function openEditPoints(id, username, currentPoints) { $('editUserId').value = id; $('editUserName').value = username; $('editUserPoints').value = currentPoints; $('editPointsModal').classList.remove('hidden'); }
 async function saveUserPoints() {
   const id = $('editUserId').value; const points = parseInt($('editUserPoints').value);
