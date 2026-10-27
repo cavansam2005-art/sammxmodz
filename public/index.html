@@ -52,6 +52,7 @@
   .file-cover { width:100%; height:auto; max-height:220px; object-fit:contain; background:#0d0214; display:block; }
   .file-body { padding:15px; display:flex; align-items:center; gap:15px; }
   .fi-btn { background: linear-gradient(135deg,#d87cff,#9b30d9); color:#fff; border-radius:12px; padding:10px 16px; font-weight:800; border:none; cursor:pointer; box-shadow: 0 5px 15px rgba(216,124,255,0.3); font-size: 0.9rem;}
+  .fi-btn-free { background: linear-gradient(135deg,#4dff88,#00b359); color:#000; box-shadow: 0 5px 15px rgba(77,255,136,0.3);}
 
   .topup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
   .topup-item { background: rgba(20,8,30,0.8); border: 1.5px solid rgba(216,124,255,0.2); border-radius: 16px; padding: 15px; text-align: center; cursor: pointer; transition: .2s; font-size: 1rem; font-weight: bold; }
@@ -80,12 +81,13 @@
   .history-content.active { display: block; animation: fadeUp 0.2s; }
   .history-item { background: rgba(20,8,30,0.6); padding: 12px; border-radius: 12px; margin-bottom: 8px; border-left: 3px solid #d87cff; font-size: 0.85rem; }
 
+  /* NÚT CHAT ZALO NỔI */
   .zalo-float {
-    position: absolute; bottom: 85px; right: 20px; width: 55px; height: 55px; background: #fff; border-radius: 50%;
+    position: absolute; bottom: 85px; right: 20px; width: 60px; height: 60px; background: #fff; border-radius: 50%;
     display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 15px rgba(0,136,255,0.5);
-    cursor: pointer; z-index: 99; animation: pulse-zalo 2s infinite;
+    cursor: pointer; z-index: 99; animation: pulse-zalo 2s infinite; overflow: hidden;
   }
-  .zalo-float img { width: 40px; height: 40px; object-fit: contain; }
+  .zalo-float img { width: 100%; height: 100%; object-fit: cover; }
   @keyframes pulse-zalo { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,136,255, 0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(0,136,255, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,136,255, 0); } }
 
   .modal-welcome { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 999; padding: 20px; animation: fadeIn 0.5s; }
@@ -118,32 +120,25 @@
 
     <!-- ĐĂNG NHẬP / ĐĂNG KÝ -->
     <div id="authScreen" class="screen active">
-      
-      <!-- TABS CHUYỂN ĐỔI ĐĂNG NHẬP / ĐĂNG KÝ -->
       <div class="auth-tabs">
         <div class="auth-tab active" onclick="switchAuthTab('login')">ĐĂNG NHẬP</div>
         <div class="auth-tab" onclick="switchAuthTab('register')">ĐĂNG KÝ</div>
       </div>
-
-      <!-- FORM ĐĂNG NHẬP -->
       <div id="formLogin">
         <div class="input-group"><input type="text" id="loginUsername" placeholder="Tên đăng nhập..."></div>
         <div class="input-group"><input type="password" id="loginPassword" placeholder="Mật khẩu..."></div>
         <button class="btn" id="loginBtn">ĐĂNG NHẬP</button>
         <div id="loginError" style="color:#ff4d4d; text-align:center; font-size:0.9rem; font-weight:bold; margin-top:10px;"></div>
       </div>
-
-      <!-- FORM ĐĂNG KÝ -->
       <div id="formRegister" style="display:none;">
         <div class="input-group"><input type="text" id="regUsername" placeholder="Tạo tên đăng nhập..."></div>
         <div class="input-group"><input type="password" id="regPassword" placeholder="Tạo mật khẩu..."></div>
         <button class="btn" id="registerBtn">TẠO TÀI KHOẢN</button>
         <div id="regError" style="color:#ff4d4d; text-align:center; font-size:0.9rem; font-weight:bold; margin-top:10px;"></div>
       </div>
-
     </div>
 
-    <!-- MUA KEY -->
+    <!-- MUA KEY (CỬA HÀNG) -->
     <div id="muaKeyScreen" class="screen">
       <div class="shop-header">
         <h2 style="font-size:1.3rem; color: #fff;">🛒 Cửa Hàng</h2>
@@ -155,6 +150,12 @@
       <div class="game-card" onclick="showGame('android')">
         <img src="https://files.catbox.moe/zgk8gy.png" class="game-logo">
         <div class="game-info"><div class="game-title">Hệ Điều Hành Android</div><div class="game-desc">Dành cho điện thoại Android</div></div>
+      </div>
+      
+      <!-- NÚT KHO FILE FREE -->
+      <div class="game-card" onclick="loadFilesByGame('free')" style="border-color: #4dff88; box-shadow: 0 0 15px rgba(77,255,136,0.2);">
+        <div class="game-logo" style="display:flex; align-items:center; justify-content:center; font-size:2rem; background: rgba(77,255,136,0.1); color:#4dff88;">🎁</div>
+        <div class="game-info"><div class="game-title" style="color:#4dff88;">Kho File Free</div><div class="game-desc">Tải miễn phí (0 điểm)</div></div>
       </div>
     </div>
 
@@ -172,6 +173,16 @@
         <div class="topup-item" onclick="selectTopup(this, 50000, 50)">50.000đ <br><span style="color:#d87cff;">+50 Điểm</span></div>
         <div class="topup-item" onclick="selectTopup(this, 100000, 100)">100.000đ <br><span style="color:#d87cff;">+100 Điểm</span></div>
       </div>
+
+      <!-- TÙY CHỈNH NẠP THỦ CÔNG -->
+      <div style="background: rgba(216,124,255,0.05); padding: 15px; border-radius: 16px; border: 1px solid rgba(216,124,255,0.2); margin-bottom: 15px;">
+        <p style="font-size: 0.9rem; font-weight: bold; color: #d87cff; margin-bottom: 10px;">Hoặc nhập số tiền tùy chỉnh (Tỷ lệ 1.000đ = 1 Điểm):</p>
+        <div style="display:flex; gap: 10px;">
+          <input type="number" id="customAmount" placeholder="VD: 30000" style="flex:1; background:rgba(0,0,0,0.5); border:1.5px solid rgba(216,124,255,0.3); border-radius:12px; padding:12px; color:#fff; outline:none;">
+          <button class="btn" style="width: auto; padding: 0 20px; border-radius:12px;" onclick="submitCustomTopup()">NẠP</button>
+        </div>
+      </div>
+
       <div id="qrSection" class="qr-section">
         <p style="font-size:0.9rem; color:#b090c0;">Quét mã QR để thanh toán</p>
         <img id="qrImage" src="" class="qr-image">
@@ -262,7 +273,7 @@
 
     <div id="fileListScreen" class="screen">
       <div class="shop-header">
-        <button class="back-btn" onclick="switchTab('gameSelectScreen')">←</button>
+        <button class="back-btn" onclick="switchTab('muaKeyScreen')">←</button>
         <h2 id="fileListTitle" style="font-size:1.2rem; color: #fff;">Danh Sách File</h2>
       </div>
       <div id="fileListContent"></div>
@@ -270,9 +281,9 @@
 
   </div>
 
-  <!-- NÚT CHAT ZALO NỔI -->
+  <!-- NÚT CHAT ZALO NỔI (Đã đổi icon) -->
   <div class="zalo-float" onclick="window.open('https://zalo.me/0355757211', '_blank')">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Icon_of_Zalo.svg/1200px-Icon_of_Zalo.svg.png">
+    <img src="https://files.catbox.moe/0iix80.jpeg">
   </div>
 
   <!-- MENU DƯỚI ĐÁY -->
@@ -318,7 +329,6 @@ if (!deviceName) { const rand = () => Math.random().toString(36).substring(2, 5)
 function playMusic() { const music = $('bgMusic'); music.volume = 0.5; music.play().catch(e => { document.body.addEventListener('click', () => { music.play(); }, { once: true }); }); }
 playMusic();
 
-// CHUYỂN ĐỔI TAB ĐĂNG NHẬP / ĐĂNG KÝ
 function switchAuthTab(type) {
   document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
   if (type === 'login') {
@@ -417,14 +427,20 @@ function showGame(os) { currentOS = os; $('osTitle').textContent = os === 'ios' 
 
 async function loadFilesByGame(game) {
   currentGame = game;
-  $('fileListTitle').textContent = game === 'ff_max' ? 'Free Fire MAX' : 'Free Fire Thường';
+  $('fileListTitle').textContent = game === 'ff_max' ? 'Free Fire MAX' : (game === 'ff_thuong' ? 'Free Fire Thường' : 'Kho File Free');
   switchTab('fileListScreen');
   $('fileListContent').innerHTML = 'Đang tải dữ liệu...';
   const r = await fetch('/api/files'); allFiles = await r.json();
-  const filtered = allFiles.filter(f => f.os === currentOS && f.game === currentGame);
+  
+  let filtered = [];
+  if (game === 'free') {
+    filtered = allFiles.filter(f => f.points === 0 && f.sale_points === 0);
+  } else {
+    filtered = allFiles.filter(f => f.os === currentOS && f.game === game && f.points > 0);
+  }
   
   if (filtered.length === 0) { 
-    $('fileListContent').innerHTML = '<div style="text-align:center; color:#b090c0; padding:30px; font-size: 1.1rem;">Chưa có file nào cho game này.</div>'; 
+    $('fileListContent').innerHTML = '<div style="text-align:center; color:#b090c0; padding:30px; font-size: 1.1rem;">Chưa có file nào.</div>'; 
     return; 
   }
   
@@ -435,20 +451,26 @@ async function loadFilesByGame(game) {
     else if (f.image_path) img = `<img src="${f.image_path}" class="file-cover">`;
     
     let priceHtml = `<b>${fPoints} điểm</b>`;
-    if (fSale > 0 && fSale < fPoints) priceHtml = `<span style="text-decoration:line-through; color:#888;">${fPoints}</span> <b style="color:#ff4d4d;">${fSale} (SALE)</b>`;
+    let btnClass = 'fi-btn';
+    if (fPoints === 0) {
+      priceHtml = `<b style="color:#4dff88;">FREE</b>`;
+      btnClass = 'fi-btn fi-btn-free';
+    } else if (fSale > 0 && fSale < fPoints) {
+      priceHtml = `<span style="text-decoration:line-through; color:#888;">${fPoints}</span> <b style="color:#ff4d4d;">${fSale} (SALE)</b>`;
+    }
     
-    return `<div class="file-card">${img}<div class="file-body"><div style="flex:1;"><div style="font-weight:bold; font-size:1rem; color: #fff;">${fName}</div><div style="font-size:0.75rem; color:#d0a0e0; margin-top: 4px;">Dung lượng: ${(fSize/1024).toFixed(1)} KB<br>Giá: ${priceHtml} • Kho: ${fStock}</div></div><button class="fi-btn" onclick="buyFile(${f.id}, '${fName}')">MUA</button></div></div>`;
+    return `<div class="file-card">${img}<div class="file-body"><div style="flex:1;"><div style="font-weight:bold; font-size:1rem; color: #fff;">${fName}</div><div style="font-size:0.75rem; color:#d0a0e0; margin-top: 4px;">Dung lượng: ${(fSize/1024).toFixed(1)} KB<br>Giá: ${priceHtml} • Kho: ${fStock}</div></div><button class="${btnClass}" onclick="buyFile(${f.id}, '${fName}')">TẢI</button></div></div>`;
   }).join('');
 }
 
 async function buyFile(fileId, fileName) {
-  if (!confirm(`Bạn có chắc muốn mua file: ${fileName}?`)) return;
+  if (!confirm(`Bạn có chắc muốn mua/tải file: ${fileName}?`)) return;
   const r = await fetch('/api/files/buy', { method:'POST', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type':'application/json' }, body: JSON.stringify({ fileId }) });
   const d = await r.json();
   if (!r.ok) return alert(d.error);
   updatePointsUI(d.new_points);
   const a = document.createElement('a'); a.href = d.file_path; a.download = fileName; a.target = '_blank'; document.body.appendChild(a); a.click(); a.remove();
-  alert('Mua thành công! Hệ thống đang tải file...');
+  alert('Thành công! Hệ thống đang tải file...');
   loadFilesByGame(currentGame);
 }
 
@@ -463,6 +485,18 @@ function selectTopup(element, amount, points) {
   $('qrAmount').textContent = amount.toLocaleString() + ' VNĐ';
   $('qrSection').style.display = 'block';
   $('verifyingMsg').style.display = 'none';
+}
+
+function submitCustomTopup() {
+  const amount = parseInt($('customAmount').value);
+  if(!amount || amount < 1000) return alert('Số tiền tối thiểu là 1.000đ');
+  const points = Math.floor(amount / 1000);
+  
+  // Giả lập click vào mệnh giá để tạo QR
+  const fakeBtn = document.createElement('div');
+  selectTopup(fakeBtn, amount, points);
+  alert(`Đã tạo mã QR cho số tiền ${amount.toLocaleString()}đ (${points} điểm). Vui lòng quét mã bên dưới!`);
+  $('customAmount').value = '';
 }
 
 async function submitTopup() {
