@@ -4,79 +4,130 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SAMM X MODZ VIP</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
   
-  /* ẢNH NỀN VÀ NHẠC */
+  /* NỀN TỐI BÓNG BẨY VỚI ẢNH NỀN */
   body { 
-    min-height:100vh; display:flex; justify-content:center; align-items:center; padding:16px; overflow-x:hidden;
-    background: linear-gradient(rgba(20, 5, 30, 0.85), rgba(10, 2, 15, 0.95)), url('https://files.catbox.moe/cemtij.jpeg') no-repeat center center fixed;
+    min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; overflow-x:hidden;
+    background: linear-gradient(rgba(15, 5, 25, 0.85), rgba(5, 0, 10, 0.95)), url('https://files.catbox.moe/cemtij.jpeg') no-repeat center center fixed;
     background-size: cover;
+    color: #f5e8ff;
   }
 
-  /* HIỆU ỨNG ÁNH SÁNG TÍM */
-  body::before { 
-    content:''; position:fixed; top:-20%; left:-10%; width:60vmax; height:60vmax; 
-    background: radial-gradient(circle, rgba(186,85,211,0.15) 0%, transparent 70%); 
-    pointer-events:none; z-index:0; 
+  /* Hiệu ứng ánh sáng tím tỏa ra */
+  body::before {
+    content:''; position:fixed; top:-20%; left:-20%; width:70vmax; height:70vmax;
+    background: radial-gradient(circle, rgba(216,124,255,0.15) 0%, transparent 60%);
+    pointer-events:none; z-index:0;
   }
 
+  /* KHUNG KÍNH MỜ (GLASSMORPHISM) */
   .app-container { 
-    position:relative; z-index:1; width:100%; max-width:430px; 
-    background: linear-gradient(160deg, rgba(25,10,35,0.85), rgba(15,5,25,0.95)); 
-    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-    border-radius:32px; box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9), 0 0 0 1px rgba(200,100,255,0.3); 
-    padding:26px 22px 30px; color:#f5e8ff; max-height:95vh; overflow-y:auto; 
+    position:relative; z-index:1; width:100%; max-width:420px; 
+    background: linear-gradient(160deg, rgba(30, 10, 45, 0.6), rgba(15, 5, 25, 0.8)); 
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-radius: 32px; 
+    box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 0 1px rgba(216,124,255,0.2); 
+    padding: 40px 24px 30px; 
+    max-height: 95vh; overflow-y: auto; 
     animation: floatUp 0.6s ease-out;
   }
   @keyframes floatUp { from{opacity:0; transform:translateY(30px);} to{opacity:1; transform:translateY(0);} }
   
   .app-container::-webkit-scrollbar { width:5px; } 
   .app-container::-webkit-scrollbar-thumb { background:#5a2a7a; border-radius:10px; }
-  
-  .app-title { text-align:center; font-size:1.8rem; font-weight:800; letter-spacing:1px; background: linear-gradient(120deg,#f0a8ff 0%,#b04de0 50%,#e07bff 100%); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 0 22px rgba(180,80,220,0.5); }
-  
-  .screen { display:none; flex-direction:column; gap:14px; } 
+
+  /* PHẦN ĐẦU (AVATAR & TÊN) */
+  .header-brand {
+    display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 30px;
+  }
+  .avatar-logo {
+    width: 90px; height: 90px; border-radius: 50%; object-fit: cover;
+    border: 3px solid rgba(216,124,255,0.5); box-shadow: 0 0 20px rgba(216,124,255,0.4);
+    margin-bottom: 15px; background: #000;
+    animation: pulseGlow 3s infinite alternate;
+  }
+  @keyframes pulseGlow {
+    from { box-shadow: 0 0 15px rgba(216,124,255,0.3); }
+    to { box-shadow: 0 0 30px rgba(216,124,255,0.8); }
+  }
+  .app-title {
+    font-size: 1.7rem; font-weight: 800; letter-spacing: 1.5px;
+    background: linear-gradient(120deg,#f0a8ff 0%,#d87cff 50%,#9b30d9 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    text-shadow: 0 0 20px rgba(216,124,255,0.3);
+  }
+
+  /* CÁC MÀN HÌNH */
+  .screen { display:none; flex-direction:column; gap:16px; } 
   .screen.active { display:flex; animation: fadeUp .35s ease; }
   @keyframes fadeUp { from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:translateY(0);} }
   
-  .input-group input, .redeem-row input { width:100%; background:rgba(28,15,43,0.8); border:1.5px solid #452a60; border-radius:16px; padding:14px 18px; color:#fff; outline:none; transition:.2s; }
-  .input-group input:focus, .redeem-row input:focus { border-color:#b04de0; box-shadow: 0 0 0 3.5px rgba(176,77,224,0.2); background:rgba(35,20,50,0.9); }
-  
-  .btn { border:none; border-radius:16px; padding:15px; font-weight:700; cursor:pointer; transition:.2s; }
-  .btn-primary { background: linear-gradient(135deg,#d87cff,#9b30d9 55%,#6a1b9a); color:#fff; box-shadow: 0 10px 24px -8px rgba(155,48,217,0.7); }
-  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 14px 28px -8px rgba(155,48,217,0.9); }
-  .btn-outline { background:transparent; border:1.5px solid #5a2a7a; color:#d0a0e0; }
-  .btn-outline:hover { background:rgba(42,16,64,0.8); border-color:#9b30d9; color:#fff; }
-  
-  .user-box { background: linear-gradient(160deg,rgba(42,16,53,0.8),rgba(26,8,31,0.9)); border-radius:24px; padding:20px; text-align:center; border:1px solid #4a1a5a; position:relative; overflow:hidden; }
-  .user-box::after { content:''; position:absolute; top:-60px; right:-60px; width:160px; height:160px; background: radial-gradient(circle, rgba(180,80,220,0.2), transparent 70%); border-radius:50%; }
-  .avatar { width:70px; height:70px; margin:0 auto 10px; background: linear-gradient(145deg,#d87cff,#6a1b9a); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:800; color:#fff; position:relative; z-index:1; box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
-  .points-value { font-size:1.8rem; font-weight:800; color:#d87cff; text-shadow: 0 0 10px rgba(216,124,255,0.5); }
-  
-  .section-title { font-size:0.95rem; font-weight:700; color:#d87cff; text-transform:uppercase; margin-top:8px; border-bottom:1px solid #452a60; padding-bottom:5px; }
-  .redeem-row { display:flex; gap:8px; } 
-  .redeem-row button { background: #9b30d9; color:#fff; border:none; border-radius:14px; padding:0 20px; font-weight:700; cursor:pointer; }
-  
-  .topup-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
-  .topup-item { background:rgba(28,15,43,0.8); border:1px solid #452a60; border-radius:14px; padding:12px 6px; text-align:center; cursor:pointer; transition:.2s; }
-  .topup-item:hover { border-color:#d87cff; background:rgba(42,16,64,0.9); transform: translateY(-2px); }
-  .topup-points { font-size:1.1rem; font-weight:800; color:#d87cff; }
-  
-  .file-card { background:rgba(26,8,31,0.8); border:1px solid #3a1545; border-radius:16px; overflow:hidden; margin-bottom:10px; display:flex; flex-direction:column; }
-  .file-cover { width:100%; height:auto; max-height:300px; object-fit:contain; background:#0d0214; display:block; border-bottom:1px solid #3a1545; }
-  .file-cover-placeholder { width:100%; height:150px; display:flex; align-items:center; justify-content:center; font-size:3rem; background:#0d0214; border-bottom:1px solid #3a1545; }
-  .file-body { padding:12px; display:flex; align-items:center; gap:10px; }
-  
-  .fi-btn { background: linear-gradient(135deg,#d87cff,#9b30d9); color:#fff; border-radius:10px; padding:8px 14px; text-decoration:none; font-size:0.8rem; font-weight:bold; border:none; cursor:pointer; white-space:nowrap; }
-  .contact-btn { background: linear-gradient(135deg,#9b30d9,#6a1b9a); color:#fff; border:none; border-radius:16px; padding:14px; font-weight:700; width:100%; margin-top:10px; cursor:pointer; box-shadow: 0 8px 20px -6px rgba(155,48,217,0.6); }
+  /* Ô NHẬP LIỆU */
+  .input-group { display:flex; flex-direction:column; gap:8px; }
+  .input-group input { 
+    width:100%; background:rgba(0,0,0,0.4); border:1.5px solid rgba(216,124,255,0.3); 
+    border-radius:16px; padding:16px 18px; color:#fff; font-size:0.95rem; outline:none; transition:.2s; 
+  }
+  .input-group input:focus { 
+    border-color:#d87cff; background:rgba(30,10,45,0.8); box-shadow: 0 0 0 4px rgba(216,124,255,0.15); 
+  }
+  .input-group input::placeholder { color: #886b9a; }
 
-  /* LOADING XÁC THỰC THIẾT BỊ */
-  #verifyScreen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; text-align: center; }
+  /* NÚT BẤM */
+  .btn { border:none; border-radius:16px; padding:16px; font-weight:800; font-size:1rem; letter-spacing:0.5px; cursor:pointer; transition:.3s; }
+  .btn-primary { 
+    background: linear-gradient(135deg,#d87cff,#9b30d9 60%,#6a1b9a); color:#fff; 
+    box-shadow: 0 10px 25px -8px rgba(216,124,255,0.6); 
+  }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow: 0 15px 30px -8px rgba(216,124,255,0.8); filter:brightness(1.1); }
+  .btn-outline { background:transparent; border:1.5px solid rgba(216,124,255,0.4); color:#d87cff; }
+  .btn-outline:hover { background:rgba(216,124,255,0.1); color:#fff; }
+
+  /* CHUYỂN ĐỔI ĐĂNG NHẬP/ĐĂNG KÝ */
+  .switch-text { text-align:center; font-size:0.9rem; color:#b090c0; margin-top:10px; }
+  .switch-text span { color:#d87cff; font-weight:700; cursor:pointer; transition:.2s; }
+  .switch-text span:hover { color:#f0a8ff; text-decoration:underline; }
+
+  .error-msg { font-size:0.85rem; color:#ff4d4d; text-align:center; min-height:20px; font-weight:600; }
+
+  /* THÔNG TIN CHÀO MỪNG (FOOTER) */
+  .welcome-footer {
+    margin-top: 35px; text-align: center; border-top: 1px solid rgba(216,124,255,0.15); padding-top: 20px;
+  }
+  .welcome-footer h3 {
+    font-size: 0.85rem; color: #e0b0ff; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 5px;
+  }
+  .welcome-footer p {
+    font-size: 0.7rem; color: #886b9a;
+  }
+
+  /* TRANG CHỦ (HOME) - GIỮ NGUYÊN CHỨC NĂNG CŨ */
+  .user-box { background: rgba(20, 8, 30, 0.8); border-radius:24px; padding:20px; text-align:center; border:1px solid rgba(216,124,255,0.2); margin-bottom: 20px; }
+  .user-avatar { width:70px; height:70px; margin:0 auto 10px; background: linear-gradient(145deg,#d87cff,#6a1b9a); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:800; color:#fff; }
+  .points-value { font-size:1.8rem; font-weight:800; color:#d87cff; text-shadow: 0 0 10px rgba(216,124,255,0.5); }
+  .section-title { font-size:0.95rem; font-weight:700; color:#d87cff; text-transform:uppercase; margin-top:8px; border-bottom:1px solid rgba(216,124,255,0.2); padding-bottom:5px; }
+  .redeem-row { display:flex; gap:8px; } 
+  .redeem-row input { flex: 1; background:rgba(0,0,0,0.4); border:1.5px solid rgba(216,124,255,0.3); border-radius:14px; padding:12px; color:#fff; outline:none; }
+  .redeem-row button { background: #9b30d9; color:#fff; border:none; border-radius:14px; padding:0 20px; font-weight:700; cursor:pointer; }
+  .topup-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  .topup-item { background:rgba(20,8,30,0.6); border:1px solid rgba(216,124,255,0.2); border-radius:14px; padding:12px 6px; text-align:center; cursor:pointer; }
+  .topup-points { font-size:1.1rem; font-weight:800; color:#d87cff; }
+  .file-card { background:rgba(20, 8, 30, 0.7); border:1px solid rgba(216,124,255,0.15); border-radius:16px; overflow:hidden; margin-bottom:10px; }
+  .file-cover { width:100%; height:auto; max-height:300px; object-fit:contain; background:#0d0214; display:block; }
+  .file-cover-placeholder { width:100%; height:150px; display:flex; align-items:center; justify-content:center; font-size:3rem; background:#0d0214; }
+  .file-body { padding:12px; display:flex; align-items:center; gap:10px; }
+  .fi-btn { background: linear-gradient(135deg,#d87cff,#9b30d9); color:#fff; border-radius:10px; padding:8px 14px; text-decoration:none; font-size:0.8rem; font-weight:bold; border:none; cursor:pointer; white-space:nowrap; }
+  .contact-btn { background: linear-gradient(135deg,#9b30d9,#6a1b9a); color:#fff; border:none; border-radius:16px; padding:14px; font-weight:700; width:100%; margin-top:10px; cursor:pointer; }
+
+  /* XÁC THỰC THIẾT BỊ */
+  #verifyScreen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 250px; text-align: center; }
   #verifyScreen.active { display: flex; }
   .verify-icon { font-size: 4rem; color: #d87cff; margin-bottom: 20px; animation: pulse 1.5s infinite; }
   @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
-  .progress-container { width: 100%; background: #2a1035; border-radius: 10px; overflow: hidden; height: 12px; margin-top: 20px; border: 1px solid #4a1a5a; }
+  .progress-container { width: 100%; background: rgba(0,0,0,0.5); border-radius: 10px; overflow: hidden; height: 12px; margin-top: 20px; border: 1px solid rgba(216,124,255,0.3); }
   .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #9b30d9, #d87cff); transition: width 0.1s linear; box-shadow: 0 0 10px #d87cff; }
   .verify-text { font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; }
   .verify-percent { font-size: 0.9rem; color: #d0a0e0; margin-top: 5px; font-family: monospace; }
@@ -89,8 +140,14 @@
 </audio>
 
 <div class="app-container">
-  <h1 class="app-title">SAMM X MODZ VIP</h1>
+  
+  <!-- PHẦN ĐẦU: AVATAR VÀ TÊN APP -->
+  <div class="header-brand" id="brandHeader">
+    <img src="https://files.catbox.moe/cemtij.jpeg" class="avatar-logo" alt="SAMM Logo">
+    <h1 class="app-title">SAMM X MODZ VIP</h1>
+  </div>
 
+  <!-- MÀN HÌNH XÁC THỰC -->
   <div id="verifyScreen" class="screen">
     <div class="verify-icon">🛡️</div>
     <div class="verify-text" id="verifyStatus">Đang kết nối máy chủ...</div>
@@ -100,27 +157,30 @@
     <div class="verify-percent" id="verifyPercent">0%</div>
   </div>
 
+  <!-- MÀN HÌNH ĐĂNG NHẬP -->
   <div id="loginScreen" class="screen">
     <div class="input-group"><input type="text" id="loginUsername" placeholder="Tên đăng nhập..."></div>
     <div class="input-group"><input type="password" id="loginPassword" placeholder="Mật khẩu..."></div>
     <button class="btn btn-primary" id="loginBtn">ĐĂNG NHẬP</button>
-    <div style="text-align:center; color:#c08a8a; font-size:0.85rem;">Chưa có tài khoản? <span id="goToRegister" style="color:#d87cff; cursor:pointer; text-decoration:underline;">Đăng ký</span></div>
-    <div id="loginError" style="color:#ff8585; text-align:center; font-size:0.8rem; min-height:18px;"></div>
+    <div class="switch-text">Chưa có tài khoản? <span id="goToRegister">Đăng ký ngay</span></div>
+    <div id="loginError" class="error-msg"></div>
   </div>
 
+  <!-- MÀN HÌNH ĐĂNG KÝ -->
   <div id="registerScreen" class="screen">
     <div class="input-group"><input type="text" id="regUsername" placeholder="Tạo tên đăng nhập..."></div>
     <div class="input-group"><input type="password" id="regPassword" placeholder="Tạo mật khẩu..."></div>
     <button class="btn btn-primary" id="registerBtn">TẠO TÀI KHOẢN</button>
-    <div style="text-align:center; color:#c08a8a; font-size:0.85rem;">Đã có tài khoản? <span id="goToLogin" style="color:#d87cff; cursor:pointer; text-decoration:underline;">Đăng nhập</span></div>
-    <div id="regError" style="color:#ff8585; text-align:center; font-size:0.8rem; min-height:18px;"></div>
+    <div class="switch-text">Đã có tài khoản? <span id="goToLogin">Đăng nhập</span></div>
+    <div id="regError" class="error-msg"></div>
   </div>
 
+  <!-- MÀN HÌNH TRANG CHỦ -->
   <div id="homeScreen" class="screen">
     <div class="user-box">
-      <div class="avatar" id="userAvatar">👑</div>
-      <div id="welcomeUsername" style="font-size:1.2rem; font-weight:bold; margin-bottom:10px; position:relative; z-index:1;">User</div>
-      <div style="background:rgba(180,80,220,0.15); padding:10px; border-radius:14px; position:relative; z-index:1; border:1px solid rgba(180,80,220,0.3);">
+      <div class="user-avatar" id="userAvatar">👑</div>
+      <div id="welcomeUsername" style="font-size:1.2rem; font-weight:bold; margin-bottom:10px;">User</div>
+      <div style="background:rgba(216,124,255,0.1); padding:10px; border-radius:14px;">
         <div style="font-size:0.7rem; color:#d0a0e0; letter-spacing:1px;">SỐ DƯ ĐIỂM</div>
         <div class="points-value" id="pointsValue">0 <span style="font-size:1rem;">điểm</span></div>
       </div>
@@ -131,7 +191,7 @@
       <input type="text" id="codeInput" placeholder="Nhập code VIP...">
       <button id="redeemBtn">NHẬN</button>
     </div>
-    <div id="redeemMsg" style="color:#7ee08a; text-align:center; font-size:0.85rem; min-height:18px;"></div>
+    <div id="redeemMsg" style="color:#4dff88; text-align:center; font-size:0.85rem; min-height:18px;"></div>
 
     <div class="section-title">💰 Nạp điểm (Liên hệ Zalo)</div>
     <div class="topup-grid">
@@ -147,6 +207,13 @@
     <button class="contact-btn" onclick="window.open('https://zalo.me/0355757211', '_blank')">📞 SAMM X MODZ</button>
     <button class="btn btn-outline" id="logoutBtn" style="margin-top:10px;">ĐĂNG XUẤT</button>
   </div>
+
+  <!-- PHẦN FOOTER: THÔNG TIN CHÀO MỪNG -->
+  <div class="welcome-footer" id="welcomeFooter">
+    <h3>Chào mừng bạn đến với SAMM X MODZ VIP</h3>
+    <p>Phiên bản 1.0.0 - Hệ thống bảo mật & chia sẻ tài nguyên</p>
+  </div>
+
 </div>
 
 <script>
@@ -167,6 +234,8 @@ playMusic();
 // XÁC THỰC THIẾT BỊ
 function startVerification(callback) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $('brandHeader').style.display = 'flex'; // Giữ avatar
+  $('welcomeFooter').style.display = 'block'; // Giữ footer
   $('verifyScreen').classList.add('active');
   
   let progress = 0;
@@ -196,8 +265,18 @@ function startVerification(callback) {
   }, 40);
 }
 
+// CHUYỂN MÀN HÌNH
 function showScreen(name){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  
+  if (name === 'home') {
+    $('brandHeader').style.display = 'none'; // Ẩn avatar to khi vào trong
+    $('welcomeFooter').style.display = 'none'; // Ẩn footer
+  } else {
+    $('brandHeader').style.display = 'flex';
+    $('welcomeFooter').style.display = 'block';
+  }
+  
   $(name + 'Screen').classList.add('active');
 }
 
@@ -249,8 +328,11 @@ $('loginBtn').onclick = async () => {
 
 $('registerBtn').onclick = async () => {
   $('regError').textContent = '';
+  $('registerBtn').textContent = 'ĐANG XỬ LÝ...';
   const r = await fetch('/api/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username: $('regUsername').value, password: $('regPassword').value }) });
   const d = await r.json();
+  $('registerBtn').textContent = 'TẠO TÀI KHOẢN';
+  
   if (!r.ok) return $('regError').textContent = d.error;
   alert('Tạo tài khoản thành công!'); showScreen('login');
 };
@@ -264,7 +346,7 @@ $('redeemBtn').onclick = async () => {
   const r = await fetch('/api/redeem', { method:'POST', headers:{ 'Authorization': 'Bearer ' + token, 'Content-Type':'application/json' }, body: JSON.stringify({ code: $('codeInput').value }) });
   const d = await r.json();
   if (!r.ok) return $('redeemMsg').style.color = 'red', $('redeemMsg').textContent = d.error;
-  $('redeemMsg').style.color = '#7ee08a';
+  $('redeemMsg').style.color = '#4dff88';
   $('redeemMsg').textContent = `+${d.added} điểm! Tổng: ${d.points} điểm`;
   updatePointsUI(d.points);
   $('codeInput').value = '';
@@ -282,30 +364,23 @@ async function loadFiles(){
       ? `<img src="${f.image_path}" class="file-cover" onerror="this.style.display='none'">` 
       : `<div class="file-cover-placeholder">📄</div>`;
     
-    // SỬA LỖI TÊN FILE: Xóa ký tự lạ, ưu tiên tên Admin nhập
-    let displayName = f.name;
-    // Xóa các ký tự lạ do lỗi font (chỉ giữ chữ, số, khoảng trắng, và các dấu tiếng Việt)
-    displayName = displayName.replace(/[^\w\sÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴÝỶỸửữựỳỵỷỹ]/g, '');
-    // Xóa đuôi file (.zip, .apk...)
-    if (displayName.includes('.')) {
-      displayName = displayName.substring(0, displayName.lastIndexOf('.'));
+    let priceHtml = `<b>${f.points} điểm</b>`;
+    if (f.sale_points > 0 && f.sale_points < f.points) {
+      priceHtml = `<span style="text-decoration:line-through; color:#888; margin-right:5px;">${f.points}</span> <b style="color:#ff4d4d; text-shadow:0 0 5px #ff4d4d;">${f.sale_points} điểm (SALE)</b>`;
     }
-    // Nếu sau khi lọc mà tên rỗng thì để mặc định
-    if(displayName.trim() === '') displayName = 'File VIP';
 
     list.innerHTML += `<div class="file-card">${img}
       <div class="file-body">
         <div style="flex:1; overflow:hidden;">
-          <div style="font-weight:bold; font-size:0.9rem; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${displayName}</div>
-          <div style="font-size:0.7rem; color:#d0a0e0; margin-top:2px;">${(f.size/1024).toFixed(1)} KB • Giá: <b>${f.points} điểm</b></div>
+          <div style="font-weight:bold; font-size:0.9rem; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${f.name}</div>
+          <div style="font-size:0.7rem; color:#d0a0e0; margin-top:2px;">${(f.size/1024).toFixed(1)} KB • Giá: ${priceHtml} • Kho: ${f.stock}</div>
         </div>
-        <button class="fi-btn" onclick="buyFile(${f.id}, '${displayName}')">MUA FILE</button>
+        <button class="fi-btn" onclick="buyFile(${f.id}, '${f.name.replace(/'/g, "\\'")}')">MUA FILE</button>
       </div>
     </div>`;
   });
 }
 
-// TẢI FILE TRỰC TIẾP
 async function buyFile(fileId, fileName) {
   if (!confirm(`Bạn có chắc muốn dùng điểm để mua file: ${fileName}?`)) return;
   
@@ -317,19 +392,20 @@ async function buyFile(fileId, fileName) {
   const d = await r.json();
   
   if (!r.ok) {
-    return alert(d.error); // Báo lỗi nếu thiếu điểm
+    return alert(d.error);
   }
   
-  // Cập nhật lại số điểm trên giao diện
   updatePointsUI(d.new_points);
   
-  // TỰ ĐỘNG TẢI FILE XUỐNG NGAY LẬP TỨC
   const a = document.createElement('a');
   a.href = d.file_path;
-  a.download = fileName; // Ép trình duyệt tải xuống thay vì mở
+  a.download = fileName;
+  a.target = '_blank';
   document.body.appendChild(a);
   a.click();
   a.remove();
+  
+  alert('Mua thành công! File đang được tải xuống...');
 }
 loadMe();
 </script>
