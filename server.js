@@ -28,8 +28,12 @@ async function initDB() {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, username TEXT UNIQUE, password TEXT, points INTEGER DEFAULT 0, device TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
       CREATE TABLE IF NOT EXISTS files (id SERIAL PRIMARY KEY, name TEXT, size INTEGER, file_path TEXT, image_path TEXT, points INTEGER DEFAULT 0, sale_points INTEGER DEFAULT 0, stock INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
-      CREATE TABLE IF NOT EXISTS codes (id SERIAL PRIMARY KEY, code TEXT UNIQUE, points INTEGER, used INTEGER DEFAULT 0, used_by TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+      CREATE TABLE IF NOT EXISTS codes (id SERIAL PRIMARY KEY, code TEXT UNIQUE, points INTEGER, max_devices INTEGER DEFAULT 1, used_count INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
     `);
+    // Tự động nâng cấp database cũ (nếu có)
+    try { await pool.query("ALTER TABLE codes ADD COLUMN max_devices INTEGER DEFAULT 1"); } catch(e) {}
+    try { await pool.query("ALTER TABLE codes ADD COLUMN used_count INTEGER DEFAULT 0"); } catch(e) {}
+    
     console.log('✅ Kết nối Database Supabase thành công!');
   } catch (err) {
     console.error('❌ Lỗi khởi tạo DB:', err);
@@ -90,7 +94,6 @@ app.post('/api/login', async (req, res) => {
     const user = result.rows[0];
     if (!user || !bcrypt.compareSync(password, user.password)) return res.status(400).json({ error: 'Sai tài khoản hoặc mật khẩu' });
     
-    // Lưu tên thiết bị mỗi khi đăng nhập
     if (device) await pool.query('UPDATE users SET device = $1 WHERE id = $2', [device, user.id]);
     
     const token = jwt.sign({ id: user.id, username: user.username, role: 'user' }, JWT_SECRET, { expiresIn: '7d' });
@@ -112,9 +115,14 @@ app.post('/api/redeem', authUser, async (req, res) => {
     const cResult = await pool.query('SELECT * FROM codes WHERE code = $1', [code.trim().toUpperCase()]);
     const c = cResult.rows[0];
     if (!c) return res.status(400).json({ error: 'Code không tồn tại' });
-    if (c.used) return res.status(400).json({ error: 'Code đã dùng' });
     
-    await pool.query('UPDATE codes SET used = 1, used_by = $1 WHERE id = $2', [req.user.username, c.id]);
+    // Kiểm tra xem đã hết lượt thiết bị chưa
+    if (c.used_count >= c.max_devices) {
+      return res.status(400).json({ error: 'Code này đã hết lượt sử dụng cho phép!' });
+    }
+    
+    // Cập nhật số lượt đã dùng
+    await pool.query('UPDATE codes SET used_count = used_count + 1 WHERE id = $1', [c.id]);
     await pool.query('UPDATE users SET points = points + $1 WHERE id = $2', [c.points, req.user.id]);
     
     const updated = await pool.query('SELECT points FROM users WHERE id = $1', [req.user.id]);
@@ -192,7 +200,6 @@ app.post('/api/admin/upload', authAdmin, upload.fields([{ name: 'file', maxCount
   } catch (err) { res.status(500).json({ error: 'Lỗi lưu file' }); }
 });
 
-// API SỬA FILE (Có hỗ trợ thay ảnh bìa)
 app.put('/api/admin/files/:id', authAdmin, upload.single('image'), async (req, res) => {
   const { name, points, sale_points, stock } = req.body;
   const id = req.params.id;
@@ -208,7 +215,6 @@ app.put('/api/admin/files/:id', authAdmin, upload.single('image'), async (req, r
   } catch (err) { res.status(500).json({ error: 'Lỗi cập nhật' }); }
 });
 
-// API XÓA FILE
 app.delete('/api/admin/files/:id', authAdmin, async (req, res) => {
   try {
     await pool.query('DELETE FROM files WHERE id = $1', [req.params.id]);
@@ -216,14 +222,15 @@ app.delete('/api/admin/files/:id', authAdmin, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Lỗi xóa' }); }
 });
 
+// TẠO CODE VỚI SỐ LƯỢNG THIẾT BỊ
 app.post('/api/admin/codes', authAdmin, async (req, res) => {
-  const { points, count } = req.body;
+  const { points, count, max_devices } = req.body;
   const n = Math.min(count || 1, 50);
   const created = [];
   try {
     for (let i = 0; i < n; i++) {
       let code = 'VIP-' + crypto.randomBytes(4).toString('hex').toUpperCase();
-      await pool.query('INSERT INTO codes (code, points) VALUES ($1, $2)', [code, points]);
+      await pool.query('INSERT INTO codes (code, points, max_devices) VALUES ($1, $2, $3)', [code, points, max_devices || 1]);
       created.push(code);
     }
     res.json({ success: true, codes: created });
@@ -237,7 +244,6 @@ app.get('/api/admin/codes', authAdmin, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
-// API XÓA KEY/CODE
 app.delete('/api/admin/codes/:id', authAdmin, async (req, res) => {
   try {
     await pool.query('DELETE FROM codes WHERE id = $1', [req.params.id]);
@@ -245,7 +251,6 @@ app.delete('/api/admin/codes/:id', authAdmin, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Lỗi xóa' }); }
 });
 
-// API QUẢN LÝ USER (Lấy danh sách)
 app.get('/api/admin/users', authAdmin, async (req, res) => {
   try {
     const result = await pool.query('SELECT id, username, points, device FROM users ORDER BY id DESC');
@@ -253,7 +258,6 @@ app.get('/api/admin/users', authAdmin, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
-// API SỬA THIẾT BỊ CỦA USER
 app.put('/api/admin/users/:id/device', authAdmin, async (req, res) => {
   try {
     await pool.query('UPDATE users SET device = $1 WHERE id = $2', [req.body.device, req.params.id]);
@@ -261,7 +265,6 @@ app.put('/api/admin/users/:id/device', authAdmin, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Lỗi cập nhật' }); }
 });
 
-// API CỘNG ĐIỂM TRỰC TIẾP CHO THIẾT BỊ (Tính năng mới bạn yêu cầu)
 app.post('/api/admin/device/points', authAdmin, async (req, res) => {
   const { device, points } = req.body;
   if (!device || !points) return res.status(400).json({ error: 'Thiếu thông tin' });
