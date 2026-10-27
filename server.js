@@ -95,6 +95,15 @@ app.get('/api/me', authUser, async (req, res) => {
   try { const result = await pool.query('SELECT id, username, points FROM users WHERE id = $1', [req.user.id]); res.json(result.rows[0]); } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
+// API THÔNG BÁO ĐĂNG NHẬP (Dành cho tính năng Admin nhận thông báo)
+app.post('/api/admin/notify-login', async (req, res) => {
+  const { username, device } = req.body;
+  try {
+    console.log(`[THÔNG BÁO] User ${username} vừa đăng nhập từ thiết bị ${device} vào lúc ${new Date().toLocaleString()}`);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
+});
+
 // ===== API TOP BẢNG XẾP HẠNG =====
 app.get('/api/top', async (req, res) => {
   try {
