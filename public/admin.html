@@ -49,9 +49,9 @@
   .hidden { display: none !important; }
 
   /* MODAL */
-  .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 100; padding: 20px; }
+  .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 100; padding: 20px; overflow-y: auto;}
   .modal.hidden { display: none !important; }
-  .modal-content { background: #11051c; padding: 24px; border-radius: 20px; width: 100%; max-width: 400px; border: 1px solid rgba(216,124,255,0.3); }
+  .modal-content { background: #11051c; padding: 24px; border-radius: 20px; width: 100%; max-width: 450px; border: 1px solid rgba(216,124,255,0.3); margin: auto;}
 </style>
 </head>
 <body>
@@ -85,10 +85,10 @@
       <div id="topupList"></div>
     </div>
 
-    <!-- TAB 2: CHUYỂN ĐIỂM BẰNG ID THIẾT BỊ -->
+    <!-- TAB 2: CHUYỂN ĐIỂM BẰNG ID -->
     <div id="tab-device" class="panel hidden">
       <h2 style="color:#4dc3ff;">📱 Chuyển Điểm Bằng ID</h2>
-      <p style="font-size: 0.85rem; color: #b090c0; margin-bottom: 15px;">Nhập mã thiết bị (VD: SAMM-XXX-XXX-XXX) để cộng điểm trực tiếp.</p>
+      <p style="font-size: 0.85rem; color: #b090c0; margin-bottom: 15px;">Nhập mã thiết bị (VD: SAMM-XXX-XXX) để cộng điểm trực tiếp.</p>
       <div class="input-group"><label>Mã Thiết Bị (ID)</label><input type="text" id="deviceToPoint" placeholder="SAMM-XXX-XXX-XXX"></div>
       <div class="input-group"><label>Số điểm muốn cộng</label><input type="number" id="pointsToAdd" value="100" min="1"></div>
       <button class="btn btn-blue" onclick="addPointsToDevice()">CHUYỂN ĐIỂM NGAY</button>
@@ -104,7 +104,7 @@
       </div>
       <button class="btn" id="createCodeBtn">TẠO MÃ CODE NGAY</button>
       <div id="newCodes" style="margin-top:20px; text-align:center; display: none; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px;"></div>
-      <h2 style="margin-top: 30px;">📋 Danh Sách Code Đã Tạo</h2>
+      <h2 style="margin-top: 30px;">📋 Danh Sách Code</h2>
       <div id="codeList" style="max-height: 300px; overflow-y: auto;"></div>
     </div>
 
@@ -164,17 +164,29 @@
   <div class="modal-content">
     <h2 style="text-align:center;">💰 SỬA SỐ ĐIỂM</h2>
     <input type="hidden" id="editUserId">
-    <div class="input-group" style="margin-top: 15px;">
-      <label>Tên User</label>
-      <input type="text" id="editUserName" disabled style="opacity: 0.6;">
-    </div>
-    <div class="input-group">
-      <label>Số điểm mới (Ghi đè)</label>
-      <input type="number" id="editUserPoints">
-    </div>
+    <div class="input-group" style="margin-top: 15px;"><label>Tên User</label><input type="text" id="editUserName" disabled style="opacity: 0.6;"></div>
+    <div class="input-group"><label>Số điểm mới</label><input type="number" id="editUserPoints"></div>
     <div style="display:flex; gap:10px; margin-top:20px;">
       <button class="btn btn-edit" onclick="saveUserPoints()">LƯU LẠI</button>
       <button class="btn btn-del" onclick="closeModal()">HỦY</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SỬA FILE (MỚI) -->
+<div id="editFileModal" class="modal hidden">
+  <div class="modal-content">
+    <h2 style="text-align:center;">✏️ SỬA THÔNG TIN FILE</h2>
+    <input type="hidden" id="editFileId">
+    <div class="input-group" style="margin-top: 15px;"><label>Tên File</label><input type="text" id="editFileName"></div>
+    <div style="display:flex; gap:15px;">
+      <div class="input-group" style="flex:1;"><label>Giá gốc</label><input type="number" id="editFilePoints" min="0"></div>
+      <div class="input-group" style="flex:1;"><label>Giá Sale</label><input type="number" id="editFileSalePoints" min="0"></div>
+      <div class="input-group" style="flex:1;"><label>Kho</label><input type="number" id="editFileStock" min="0"></div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:20px;">
+      <button class="btn btn-edit" onclick="saveFileEdit()">LƯU LẠI</button>
+      <button class="btn btn-del" onclick="closeFileModal()">HỦY</button>
     </div>
   </div>
 </div>
@@ -203,10 +215,11 @@ function switchTab(tabId, el) {
   $(tabId).classList.remove('hidden');
 }
 
+// CÁC HÀM TẢI DỮ LIỆU
 async function loadTopups() {
   const r = await fetch('/api/admin/topups', { headers: auth() }); const topups = await r.json();
   const pending = topups.filter(t => t.status === 'pending');
-  if(pending.length === 0) { $('topupList').innerHTML = '<div style="text-align:center; color:#b090c0; font-size:0.95rem; padding: 10px;">Không có yêu cầu nạp tiền nào đang chờ.</div>'; return; }
+  if(pending.length === 0) { $('topupList').innerHTML = '<div style="text-align:center; color:#b090c0; padding: 10px;">Không có yêu cầu nạp tiền nào.</div>'; return; }
   $('topupList').innerHTML = pending.map(t => `
     <div class="item-row" style="border-left: 4px solid #ffcc00;">
       <div class="item-info"><div class="item-title">User: <span style="color:#d87cff;">${t.username}</span></div><div class="item-sub">Nạp: <b>${t.amount.toLocaleString()}đ</b> (${t.points} điểm)</div></div>
@@ -216,15 +229,15 @@ async function loadTopups() {
 }
 
 async function approveTopup(id) {
-  if(!confirm('Xác nhận đã nhận được tiền và muốn cộng điểm?')) return;
+  if(!confirm('Duyệt nạp tiền?')) return;
   const r = await fetch('/api/admin/topups/'+id+'/approve', { method:'POST', headers: auth() });
-  if(r.ok) { alert('Đã cộng điểm thành công!'); loadTopups(); loadUsers(); } else alert('Lỗi duyệt!');
+  if(r.ok) { alert('Đã cộng điểm!'); loadTopups(); loadUsers(); } else alert('Lỗi!');
 }
 
 async function addPointsToDevice() {
   const device = $('deviceToPoint').value.trim();
   const points = parseInt($('pointsToAdd').value);
-  if(!device || !points) return alert('Vui lòng nhập đủ ID thiết bị và số điểm!');
+  if(!device || !points) return alert('Nhập đủ ID và điểm!');
   const r = await fetch('/api/admin/device/points', { method: 'POST', headers: { ...auth(), 'Content-Type':'application/json' }, body: JSON.stringify({ device, points }) });
   const d = await r.json();
   if (r.ok) { alert(`Đã chuyển ${points} điểm!`); $('deviceToPoint').value = ''; loadUsers(); } else { alert(d.error); }
@@ -234,7 +247,6 @@ $('createCodeBtn').onclick = async () => {
   const points = parseInt($('codePoints').value);
   const count = parseInt($('codeCount').value);
   const max_devices = parseInt($('codeMaxDevices').value);
-  if(points < 1 || count < 1) return alert('Lỗi nhập liệu');
   const r = await fetch('/api/admin/codes', { method:'POST', headers:{...auth(), 'Content-Type':'application/json'}, body: JSON.stringify({ points, count, max_devices }) });
   const d = await r.json();
   if (r.ok) { $('newCodes').style.display = 'block'; $('newCodes').innerHTML = d.codes.map(c => `<div style="font-family: monospace; font-size: 1.2rem; color: #ffcc00; margin: 5px 0;">${c}</div>`).join(''); loadCodes(); }
@@ -250,20 +262,50 @@ async function loadCodes(){
     </div>
   `).join('');
 }
-
 async function delCode(id) { if(confirm('Xóa Code?')) { await fetch('/api/admin/codes/'+id, {method:'DELETE', headers:auth()}); loadCodes(); } }
 
+// QUẢN LÝ FILE (CÓ NÚT SỬA)
 async function loadFiles(){
   const r = await fetch('/api/files'); const files = await r.json();
   if(files.length === 0) { $('fileList').innerHTML = '<div style="text-align:center; color:#b090c0; padding:10px;">Chưa có file.</div>'; return; }
   $('fileList').innerHTML = files.map(f => {
     let gameName = f.game === 'ff_max' ? 'FF MAX' : (f.game === 'ff_thuong' ? 'FF THƯỜNG' : 'FREE');
-    return `<div class="item-row"><div class="item-info"><div class="item-title">${f.name}</div><div class="item-sub">${f.os.toUpperCase()} • ${gameName}<br>Giá: <span style="color:#d87cff;">${f.points} đ</span> • Kho: ${f.stock}</div></div><button class="btn btn-small btn-del" onclick="delFile(${f.id})">XÓA</button></div>`;
+    let isFree = f.points === 0 ? ' (FREE)' : '';
+    return `<div class="item-row">
+      <div class="item-info"><div class="item-title">${f.name}${isFree}</div><div class="item-sub">${f.os.toUpperCase()} • ${gameName}<br>Giá: <span style="color:#d87cff;">${f.points} đ</span> • Kho: ${f.stock}</div></div>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <button class="btn btn-small btn-edit" onclick="openFileModal(${f.id}, '${f.name.replace(/'/g, "\\'")}', ${f.points}, ${f.sale_points||0}, ${f.stock})">SỬA</button>
+        <button class="btn btn-small btn-del" onclick="delFile(${f.id})">XÓA</button>
+      </div>
+    </div>`;
   }).join('');
 }
 
 async function delFile(id) { if(confirm('Xóa file?')) { await fetch('/api/admin/files/'+id, {method:'DELETE', headers:auth()}); loadFiles(); } }
 
+function openFileModal(id, name, points, sale, stock) {
+  $('editFileId').value = id;
+  $('editFileName').value = name;
+  $('editFilePoints').value = points;
+  $('editFileSalePoints').value = sale;
+  $('editFileStock').value = stock;
+  $('editFileModal').classList.remove('hidden');
+}
+function closeFileModal() { $('editFileModal').classList.add('hidden'); }
+
+async function saveFileEdit() {
+  const id = $('editFileId').value;
+  const fd = new FormData();
+  fd.append('name', $('editFileName').value);
+  fd.append('points', $('editFilePoints').value);
+  fd.append('sale_points', $('editFileSalePoints').value);
+  fd.append('stock', $('editFileStock').value);
+  
+  const r = await fetch('/api/admin/files/' + id, { method: 'PUT', headers: auth(), body: fd });
+  if (r.ok) { alert('Đã cập nhật file! (Thời gian sẽ được làm mới)'); closeFileModal(); loadFiles(); } else { alert('Lỗi cập nhật!'); }
+}
+
+// ĐĂNG BÀI (CÓ LINK ẢNH VÀ FILE)
 $('uploadBtn').onclick = async () => {
   if(!$('upName').value.trim()) return alert('Nhập tên file!');
   if(!$('upFile').files[0] && !$('upFileUrl').value.trim()) return alert('Chọn file hoặc nhập link file!');
@@ -291,6 +333,7 @@ $('uploadBtn').onclick = async () => {
   } else { alert('Lỗi upload!'); }
 };
 
+// QUẢN LÝ USERS
 async function loadUsers(){
   const r = await fetch('/api/admin/users', { headers: auth() }); const users = await r.json();
   if(users.length === 0) { $('userList').innerHTML = '<div style="text-align:center; color:#b090c0; padding:10px;">Chưa có user.</div>'; return; }
@@ -306,22 +349,14 @@ async function loadUsers(){
 }
 
 function openEditPoints(id, username, currentPoints) { $('editUserId').value = id; $('editUserName').value = username; $('editUserPoints').value = currentPoints; $('editPointsModal').classList.remove('hidden'); }
-
 async function saveUserPoints() {
-  const id = $('editUserId').value;
-  const points = parseInt($('editUserPoints').value);
+  const id = $('editUserId').value; const points = parseInt($('editUserPoints').value);
   if (isNaN(points) || points < 0) return alert('Điểm không hợp lệ!');
   const r = await fetch('/api/admin/users/' + id + '/setpoints', { method: 'PUT', headers: { ...auth(), 'Content-Type':'application/json' }, body: JSON.stringify({ points }) });
   if (r.ok) { alert('Đã cập nhật!'); closeModal(); loadUsers(); } else { alert('Lỗi!'); }
 }
-
 function closeModal() { $('editPointsModal').classList.add('hidden'); }
-
-async function delUser(id) {
-  if(!confirm('CẢNH BÁO: Xóa tài khoản này vĩnh viễn?')) return;
-  const r = await fetch('/api/admin/users/' + id, { method: 'DELETE', headers: auth() });
-  if (r.ok) { alert('Đã xóa!'); loadUsers(); } else { alert('Lỗi!'); }
-}
+async function delUser(id) { if(confirm('Xóa tài khoản này?')) { await fetch('/api/admin/users/' + id, { method: 'DELETE', headers: auth() }); loadUsers(); } }
 
 if (adToken) enterAdmin();
 </script>
