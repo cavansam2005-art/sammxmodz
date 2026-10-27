@@ -13,9 +13,9 @@ const JWT_SECRET = 'SAMMXMODZ_VIP_SECRET_2024';
 const ADMIN_USER = 'admin';
 const ADMIN_PASS = 'admin123';
 
-// ====== ĐÃ SỬA LỖI KẾT NỐI DATABASE (SESSION POOLER) ======
-const DATABASE_URL = 'postgresql://postgres.sfzamacyheooutadwjlj:SamKwjff123@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres';
-// ==========================================================
+// ====== ĐÃ SỬA LỖI KẾT NỐI DATABASE (CHUẨN SESSION POOLER) ======
+const DATABASE_URL = 'postgresql://postgres.sfzamacyheooutadwjlj:SamKwjff123@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres';
+// ================================================================
 
 const pool = new Pool({
   connectionString: DATABASE_URL,
