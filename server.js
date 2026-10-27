@@ -13,9 +13,10 @@ const JWT_SECRET = 'SAMMXMODZ_VIP_SECRET_2024';
 const ADMIN_USER = 'admin';
 const ADMIN_PASS = 'admin123';
 
-// ====== CẤU HÌNH DATABASE SUPABASE CỦA BẠN ======
-const DATABASE_URL = 'postgresql://postgres:SamKwjff123@db.sfzamacyheooutadwjlj.supabase.co:5432/postgres';
-// ===============================================
+// ====== CẤU HÌNH DATABASE SUPABASE (DÙNG SESSION POOLER) ======
+// Sử dụng cổng 6543 và thêm chữ pooler vào để Render không bị chặn IPv6
+const DATABASE_URL = 'postgresql://postgres.sfzamacyheooutadwjlj:SamKwjff123@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres';
+// =============================================================
 
 const pool = new Pool({
   connectionString: DATABASE_URL,
@@ -37,7 +38,7 @@ async function initDB() {
 }
 initDB();
 
-// Cấu hình thư mục upload tạm thời (File sẽ lưu trên ổ cứng Render, nhưng Tài khoản/Điểm thì lưu vĩnh viễn)
+// Cấu hình thư mục upload
 const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
@@ -77,7 +78,10 @@ app.post('/api/register', async (req, res) => {
     const hash = bcrypt.hashSync(password, 10);
     await pool.query('INSERT INTO users (username, password) VALUES ($1, $2)', [username, hash]);
     res.json({ success: true });
-  } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
+  } catch (err) { 
+    console.error(err);
+    res.status(500).json({ error: 'Lỗi server' }); 
+  }
 });
 
 app.post('/api/login', async (req, res) => {
