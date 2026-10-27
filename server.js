@@ -85,9 +85,7 @@ app.get('/api/me', authUser, async (req, res) => {
   try { const result = await pool.query('SELECT id, username, points FROM users WHERE id = $1', [req.user.id]); res.json(result.rows[0]); } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
-app.post('/api/admin/notify-login', async (req, res) => {
-  res.json({ success: true });
-});
+app.post('/api/admin/notify-login', async (req, res) => { res.json({ success: true }); });
 
 // ===== API TOP =====
 app.get('/api/top', async (req, res) => {
@@ -118,7 +116,7 @@ app.get('/api/history', authUser, async (req, res) => {
 // ===== API FILE =====
 app.get('/api/files', async (req, res) => {
   try {
-    const result = await pool.query('SELECT id, name, size, file_path, image_path, image_url, os, game, points, sale_points, stock FROM files ORDER BY id DESC');
+    const result = await pool.query('SELECT id, name, size, file_path, image_path, image_url, os, game, points, sale_points, stock, created_at FROM files ORDER BY id DESC');
     res.json(result.rows);
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
@@ -145,14 +143,10 @@ app.post('/api/files/buy', authUser, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
-// ===== API CODE (ĐÃ FIX LỖI DÙNG NHIỀU LẦN TRÊN 1 THIẾT BỊ) =====
+// ===== API CODE (CHẶN DÙNG LẠI TRÊN CÙNG THIẾT BỊ) =====
 app.post('/api/redeem', authUser, async (req, res) => {
-  const { code } = req.body;
-  const device = req.body.device; 
-  
+  const { code, device } = req.body; 
   if (!code) return res.status(400).json({ error: 'Chưa nhập code' });
-  if (!device) return res.status(400).json({ error: 'Không tìm thấy thiết bị' });
-  
   try {
     const cResult = await pool.query('SELECT * FROM codes WHERE code = $1', [code.trim().toUpperCase()]);
     const c = cResult.rows[0];
@@ -160,19 +154,12 @@ app.post('/api/redeem', authUser, async (req, res) => {
     
     // Kiểm tra xem thiết bị này đã dùng code này chưa
     const usedResult = await pool.query('SELECT * FROM code_uses WHERE code_id = $1 AND device = $2', [c.id, device]);
-    if (usedResult.rows.length > 0) {
-      return res.status(400).json({ error: 'Thiết bị này đã sử dụng code này rồi!' });
-    }
+    if (usedResult.rows.length > 0) return res.status(400).json({ error: 'Thiết bị này đã sử dụng code này rồi!' });
     
     // Đếm tổng số lần dùng
     const countResult = await pool.query('SELECT COUNT(*) FROM code_uses WHERE code_id = $1', [c.id]);
-    const usedCount = parseInt(countResult.rows[0].count);
+    if (parseInt(countResult.rows[0].count) >= c.max_devices) return res.status(400).json({ error: 'Code này đã hết lượt sử dụng!' });
     
-    if (usedCount >= c.max_devices) {
-      return res.status(400).json({ error: 'Code này đã hết lượt sử dụng!' });
-    }
-    
-    // Lưu lịch sử dùng code
     await pool.query('INSERT INTO code_uses (code_id, device) VALUES ($1, $2)', [c.id, device]);
     await pool.query('UPDATE codes SET used_count = used_count + 1 WHERE id = $1', [c.id]);
     await pool.query('UPDATE users SET points = points + $1 WHERE id = $2', [c.points, req.user.id]);
@@ -189,7 +176,7 @@ app.post('/api/admin/login', (req, res) => {
   res.json({ token: jwt.sign({ role: 'admin', username }, JWT_SECRET, { expiresIn: '1d' }) });
 });
 
-// API ĐĂNG BÀI (Nhận cả link URL hoặc file tải lên)
+// ĐĂNG BÀI MỚI
 app.post('/api/admin/upload', authAdmin, upload.fields([{ name: 'file', maxCount: 1 }, { name: 'image', maxCount: 1 }]), async (req, res) => {
   const { name, points, sale_points, stock, file_url, image_url, os, game } = req.body;
   let final_file_path = '', final_size = 0;
@@ -202,17 +189,33 @@ app.post('/api/admin/upload', authAdmin, upload.fields([{ name: 'file', maxCount
   } else { return res.status(400).json({ error: 'Vui lòng chọn file hoặc nhập URL' }); }
   
   let image_path = null;
-  if (req.files?.image) {
-    image_path = '/uploads/' + req.files.image[0].filename;
-  }
+  if (req.files?.image) image_path = '/uploads/' + req.files.image[0].filename;
 
   try {
     await pool.query(
-      'INSERT INTO files (name, size, file_path, image_path, image_url, os, game, points, sale_points, stock) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+      'INSERT INTO files (name, size, file_path, image_path, image_url, os, game, points, sale_points, stock, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP)',
       [name, final_size, final_file_path, image_path, image_url || null, os, game, parseInt(points) || 0, parseInt(sale_points) || 0, parseInt(stock) || 0]
     );
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: 'Lỗi lưu file' }); }
+});
+
+// SỬA FILE (Ghi đè created_at để tính thời gian "Cập nhập")
+app.put('/api/admin/files/:id', authAdmin, upload.fields([{ name: 'file', maxCount: 1 }, { name: 'image', maxCount: 1 }]), async (req, res) => {
+  const { name, points, sale_points, stock, image_url } = req.body;
+  const id = req.params.id;
+  
+  try {
+    if (req.files?.image) {
+      const image_path = '/uploads/' + req.files.image[0].filename;
+      await pool.query('UPDATE files SET name = $1, points = $2, sale_points = $3, stock = $4, image_path = $5, created_at = CURRENT_TIMESTAMP WHERE id = $6', [name, points, sale_points, stock, image_path, id]);
+    } else if (image_url) {
+      await pool.query('UPDATE files SET name = $1, points = $2, sale_points = $3, stock = $4, image_url = $5, created_at = CURRENT_TIMESTAMP WHERE id = $6', [name, points, sale_points, stock, image_url, id]);
+    } else {
+      await pool.query('UPDATE files SET name = $1, points = $2, sale_points = $3, stock = $4, created_at = CURRENT_TIMESTAMP WHERE id = $5', [name, points, sale_points, stock, id]);
+    }
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: 'Lỗi cập nhật' }); }
 });
 
 app.delete('/api/admin/files/:id', authAdmin, async (req, res) => {
