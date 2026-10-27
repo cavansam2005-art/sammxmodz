@@ -13,23 +13,27 @@ const JWT_SECRET = 'SAMMXMODZ_VIP_SECRET_2024';
 const ADMIN_USER = 'admin';
 const ADMIN_PASS = 'admin123';
 
-// ====== ĐÃ SỬA LỖI KẾT NỐI DATABASE (CHUẨN SESSION POOLER) ======
+// ====== CẤU HÌNH DATABASE SUPABASE ======
 const DATABASE_URL = 'postgresql://postgres.sfzamacyheooutadwjlj:SamKwjff123@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres';
-// ================================================================
+// ========================================
 
 const pool = new Pool({
   connectionString: DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
 
-// Khởi tạo bảng tự động
+// Khởi tạo bảng tự động (đã thêm cột device)
 async function initDB() {
   try {
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, username TEXT UNIQUE, password TEXT, points INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+      CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, username TEXT UNIQUE, password TEXT, points INTEGER DEFAULT 0, device TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
       CREATE TABLE IF NOT EXISTS files (id SERIAL PRIMARY KEY, name TEXT, size INTEGER, file_path TEXT, image_path TEXT, points INTEGER DEFAULT 0, sale_points INTEGER DEFAULT 0, stock INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
       CREATE TABLE IF NOT EXISTS codes (id SERIAL PRIMARY KEY, code TEXT UNIQUE, points INTEGER, used INTEGER DEFAULT 0, used_by TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
     `);
+    // Tự động thêm cột nếu Database cũ chưa có
+    await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS device TEXT");
+    await pool.query("ALTER TABLE files ADD COLUMN IF NOT EXISTS sale_points INTEGER DEFAULT 0");
+    await pool.query("ALTER TABLE files ADD COLUMN IF NOT EXISTS stock INTEGER DEFAULT 0");
     console.log('✅ Kết nối Database Supabase thành công!');
   } catch (err) {
     console.error('❌ Lỗi khởi tạo DB:', err);
@@ -69,13 +73,13 @@ function authAdmin(req, res, next) {
 
 // ===== API NGƯỜI DÙNG =====
 app.post('/api/register', async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, device } = req.body;
   if (!username || !password) return res.status(400).json({ error: 'Thiếu thông tin' });
   try {
     const exists = await pool.query('SELECT id FROM users WHERE username = $1', [username]);
     if (exists.rows.length > 0) return res.status(400).json({ error: 'Username đã tồn tại' });
     const hash = bcrypt.hashSync(password, 10);
-    await pool.query('INSERT INTO users (username, password) VALUES ($1, $2)', [username, hash]);
+    await pool.query('INSERT INTO users (username, password, device) VALUES ($1, $2, $3)', [username, hash, device || 'Không rõ']);
     res.json({ success: true });
   } catch (err) { 
     console.error(err);
@@ -84,11 +88,15 @@ app.post('/api/register', async (req, res) => {
 });
 
 app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, device } = req.body;
   try {
     const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
     const user = result.rows[0];
     if (!user || !bcrypt.compareSync(password, user.password)) return res.status(400).json({ error: 'Sai tài khoản hoặc mật khẩu' });
+    
+    // Lưu tên thiết bị mỗi khi đăng nhập
+    if (device) await pool.query('UPDATE users SET device = $1 WHERE id = $2', [device, user.id]);
+    
     const token = jwt.sign({ id: user.id, username: user.username, role: 'user' }, JWT_SECRET, { expiresIn: '7d' });
     res.json({ token, username: user.username, points: user.points });
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
@@ -224,9 +232,10 @@ app.get('/api/admin/codes', authAdmin, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
+// SỬA LẠI ĐỂ TRẢ VỀ CẢ CỘT DEVICE
 app.get('/api/admin/users', authAdmin, async (req, res) => {
   try {
-    const result = await pool.query('SELECT id, username, points FROM users ORDER BY id DESC');
+    const result = await pool.query('SELECT id, username, points, device FROM users ORDER BY id DESC');
     res.json(result.rows);
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
