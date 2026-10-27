@@ -111,14 +111,13 @@ app.get('/api/history', authUser, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
-// API FILE (ĐÃ SỬA LỖI KHÔNG TRẢ VỀ DỮ LIỆU)
+// API FILE (BẢN SỬA LỖI HOÀN TOÀN)
 app.get('/api/files', async (req, res) => {
   try {
     const result = await pool.query('SELECT id, name, size, file_path, image_path, image_url, os, game, points, sale_points, stock, created_at FROM files ORDER BY id DESC');
-    // Nếu result.rows bị undefined thì trả về mảng rỗng để không báo lỗi
-    res.json(result.rows || []);
+    res.json(result.rows);
   } catch (err) { 
-    console.error('Lỗi API files:', err);
+    console.error('Lỗi lấy danh sách file:', err);
     res.status(500).json({ error: 'Lỗi server' }); 
   }
 });
