@@ -7,47 +7,74 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
-  body { min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; background: linear-gradient(rgba(10, 5, 20, 0.9), rgba(5, 2, 10, 0.95)), url('https://files.catbox.moe/cemtij.jpeg') no-repeat center center fixed; background-size: cover; color: #f5e8ff; }
-  .app-container { width:100%; max-width:440px; background: linear-gradient(160deg, rgba(30, 10, 45, 0.8), rgba(15, 5, 25, 0.95)); backdrop-filter: blur(20px); border-radius: 32px; box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9), 0 0 0 1px rgba(216,124,255,0.2); padding: 30px 24px; max-height: 95vh; overflow-y: auto; }
-  .screen { display:none; flex-direction:column; gap:16px; } .screen.active { display:flex; animation: fadeUp .3s; }
+  body { 
+    min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; 
+    background: linear-gradient(rgba(10, 5, 20, 0.9), rgba(5, 2, 10, 0.95)), url('https://files.catbox.moe/cemtij.jpeg') no-repeat center center fixed; 
+    background-size: cover; color: #f5e8ff; 
+  }
+  
+  /* LÀM KHU TO LÊN (MAX-WIDTH 500PX) */
+  .app-container { 
+    width:100%; max-width:500px; 
+    background: linear-gradient(160deg, rgba(30, 10, 45, 0.85), rgba(15, 5, 25, 0.95)); 
+    backdrop-filter: blur(20px); border-radius: 32px; 
+    box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9), 0 0 0 1px rgba(216,124,255,0.3); 
+    padding: 35px 28px; max-height: 95vh; overflow-y: auto; 
+  }
+  
+  .screen { display:none; flex-direction:column; gap:18px; } 
+  .screen.active { display:flex; animation: fadeUp .3s; }
   @keyframes fadeUp { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
   
-  .app-title { text-align:center; font-size: 1.7rem; font-weight: 800; background: linear-gradient(120deg,#f0a8ff,#d87cff); -webkit-background-clip: text; color: transparent; margin-bottom: 20px; }
-  .btn { background: linear-gradient(135deg,#d87cff,#9b30d9); color:#fff; border:none; border-radius:16px; padding:15px; font-weight:800; cursor:pointer; width: 100%; transition:.2s; }
-  .btn:active { transform: scale(0.98); }
-  .btn-outline { background: transparent; border: 1.5px solid rgba(216,124,255,0.5); color: #d87cff; }
-  .input-group input { width:100%; background:rgba(0,0,0,0.4); border:1.5px solid rgba(216,124,255,0.3); border-radius:14px; padding:14px; color:#fff; outline:none; margin-bottom:10px; }
+  .app-title { text-align:center; font-size: 1.9rem; font-weight: 800; background: linear-gradient(120deg,#f0a8ff,#d87cff); -webkit-background-clip: text; color: transparent; margin-bottom: 20px; letter-spacing: 1px; }
   
-  .header-user { display: flex; justify-content: space-between; align-items: center; background: rgba(216,124,255,0.1); padding: 10px 15px; border-radius: 16px; margin-bottom: 15px; }
-  .points-value { font-size: 1.2rem; font-weight: 800; color: #d87cff; }
+  .btn { background: linear-gradient(135deg,#d87cff,#9b30d9); color:#fff; border:none; border-radius:16px; padding:18px; font-weight:800; font-size: 1.05rem; cursor:pointer; width: 100%; transition:.2s; box-shadow: 0 8px 20px -6px rgba(216,124,255,0.4); }
+  .btn:active { transform: scale(0.98); }
+  
+  .input-group input { width:100%; background:rgba(0,0,0,0.5); border:1.5px solid rgba(216,124,255,0.3); border-radius:16px; padding:16px; color:#fff; outline:none; margin-bottom:10px; font-size: 1rem; }
+  .input-group input:focus { border-color: #d87cff; box-shadow: 0 0 0 4px rgba(216,124,255,0.15); }
+  
+  .header-user { display: flex; justify-content: space-between; align-items: center; background: rgba(216,124,255,0.1); padding: 15px 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid rgba(216,124,255,0.2); }
+  .points-value { font-size: 1.4rem; font-weight: 800; color: #d87cff; text-shadow: 0 0 10px rgba(216,124,255,0.4); }
 
-  .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .menu-item { background: rgba(20,8,30,0.8); border: 1px solid rgba(216,124,255,0.2); border-radius: 20px; padding: 20px; text-align: center; cursor: pointer; transition: .2s; }
-  .menu-item:hover { border-color: #d87cff; background: rgba(40, 15, 60, 0.9); }
-  .menu-icon { font-size: 2.5rem; margin-bottom: 10px; display: block; }
-  .menu-text { font-weight: 700; font-size: 0.95rem; }
+  .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+  .menu-item { background: rgba(20,8,30,0.8); border: 1px solid rgba(216,124,255,0.2); border-radius: 24px; padding: 25px 15px; text-align: center; cursor: pointer; transition: .2s; }
+  .menu-item:hover { border-color: #d87cff; background: rgba(40, 15, 60, 0.9); transform: translateY(-2px); }
+  .menu-icon { font-size: 3rem; margin-bottom: 12px; display: block; }
+  .menu-text { font-weight: 700; font-size: 1.05rem; color: #fff; }
 
-  .shop-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
-  .back-btn { background: rgba(216,124,255,0.2); border: none; color: #fff; width: 36px; height: 36px; border-radius: 10px; cursor: pointer; font-size: 1.2rem; }
-  .game-card { background: rgba(20,8,30,0.8); border: 1px solid rgba(216,124,255,0.2); border-radius: 16px; padding: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; cursor: pointer; }
-  .game-logo { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; background: #000; }
+  .shop-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+  .back-btn { background: rgba(216,124,255,0.2); border: none; color: #fff; width: 45px; height: 45px; border-radius: 14px; cursor: pointer; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; transition: .2s;}
+  .back-btn:hover { background: rgba(216,124,255,0.4); }
+  
+  /* KHUNG GAME TO HƠN */
+  .game-card { background: rgba(20,8,30,0.8); border: 1px solid rgba(216,124,255,0.2); border-radius: 20px; padding: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 18px; cursor: pointer; transition: .2s; }
+  .game-card:hover { border-color: #d87cff; background: rgba(40, 15, 60, 0.9); }
+  .game-logo { width: 75px; height: 75px; border-radius: 16px; object-fit: cover; background: #000; border: 2px solid rgba(255,255,255,0.1); }
   .game-info { flex: 1; }
-  .game-title { font-weight: 800; font-size: 1.1rem; }
-  .game-desc { font-size: 0.75rem; color: #b090c0; margin-top: 4px; }
+  .game-title { font-weight: 800; font-size: 1.25rem; color: #fff;}
+  .game-desc { font-size: 0.85rem; color: #b090c0; margin-top: 5px; }
 
-  .file-card { background:rgba(20, 8, 30, 0.7); border:1px solid rgba(216,124,255,0.15); border-radius:16px; overflow:hidden; margin-bottom:10px; }
-  .file-cover { width:100%; height:auto; max-height:200px; object-fit:contain; background:#0d0214; display:block; }
-  .file-body { padding:12px; display:flex; align-items:center; gap:10px; }
-  .fi-btn { background: linear-gradient(135deg,#d87cff,#9b30d9); color:#fff; border-radius:10px; padding:8px 14px; font-weight:bold; border:none; cursor:pointer; white-space:nowrap; }
+  /* FILE CARD TO HƠN */
+  .file-card { background:rgba(20, 8, 30, 0.7); border:1px solid rgba(216,124,255,0.15); border-radius:20px; overflow:hidden; margin-bottom:15px; }
+  .file-cover { width:100%; height:auto; max-height:250px; object-fit:contain; background:#0d0214; display:block; }
+  .file-body { padding:15px; display:flex; align-items:center; gap:15px; }
+  .fi-btn { background: linear-gradient(135deg,#d87cff,#9b30d9); color:#fff; border-radius:12px; padding:10px 18px; font-weight:800; font-size: 0.95rem; border:none; cursor:pointer; white-space:nowrap; }
 
-  .qr-image { width: 100%; max-width: 280px; border-radius: 16px; margin: 10px auto; display: block; border: 3px solid #d87cff; background: #fff; padding: 10px; }
-  .topup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-  .topup-item { background: rgba(20,8,30,0.8); border: 1px solid rgba(216,124,255,0.2); border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; transition: .2s; }
+  /* NẠP TIỀN */
+  .topup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+  .topup-item { background: rgba(20,8,30,0.8); border: 1.5px solid rgba(216,124,255,0.2); border-radius: 16px; padding: 18px 12px; text-align: center; cursor: pointer; transition: .2s; font-size: 1.05rem; font-weight: bold;}
   .topup-item:hover { border-color: #d87cff; background: rgba(40, 15, 60, 0.9); }
-  .topup-item.active { border-color: #4dff88; box-shadow: 0 0 10px rgba(77,255,136,0.3); }
-  .history-item { background: rgba(20,8,30,0.6); padding: 12px; border-radius: 12px; margin-bottom: 8px; border-left: 3px solid #d87cff; font-size: 0.85rem; }
-  .verifying-text { color: #ffcc00; font-weight: 800; text-align: center; font-size: 1.1rem; margin-top: 10px; animation: blink 1s infinite alternate; }
-  @keyframes blink { from { opacity: 0.6; } to { opacity: 1; } }
+  .topup-item.active { border-color: #4dff88; background: rgba(77,255,136,0.1); box-shadow: 0 0 15px rgba(77,255,136,0.3); }
+  
+  .qr-section { display:none; text-align:center; background: rgba(216,124,255,0.05); padding: 25px 15px; border-radius: 20px; border: 1px solid rgba(216,124,255,0.3); margin-top: 20px; }
+  .qr-image { width: 100%; max-width: 320px; border-radius: 20px; margin: 15px auto; display: block; border: 4px solid #d87cff; background: #fff; padding: 10px; box-shadow: 0 10px 30px rgba(216,124,255,0.3); }
+  .qr-amount { font-size: 1.5rem; font-weight: 800; color: #4dff88; text-shadow: 0 0 10px rgba(77,255,136,0.4); margin: 10px 0; }
+  
+  .verifying-text { color: #ffcc00; font-weight: 800; text-align: center; font-size: 1.2rem; margin-top: 15px; animation: blink 1s infinite alternate; letter-spacing: 1px;}
+  @keyframes blink { from { opacity: 0.5; } to { opacity: 1; } }
+
+  .history-item { background: rgba(20,8,30,0.6); padding: 15px; border-radius: 16px; margin-bottom: 10px; border-left: 4px solid #d87cff; font-size: 0.95rem; }
 </style>
 </head>
 <body>
@@ -61,27 +88,27 @@
     <div class="input-group"><input type="text" id="loginUsername" placeholder="Tên đăng nhập..."></div>
     <div class="input-group"><input type="password" id="loginPassword" placeholder="Mật khẩu..."></div>
     <button class="btn" id="loginBtn">ĐĂNG NHẬP</button>
-    <div style="text-align:center; font-size:0.9rem; margin-top:10px;">Chưa có tài khoản? <span id="goToRegister" style="color:#d87cff; cursor:pointer; font-weight:bold;">Đăng ký</span></div>
-    <div id="loginError" style="color:#ff4d4d; text-align:center; font-size:0.85rem;"></div>
+    <div style="text-align:center; font-size:1rem; margin-top:10px; color: #b090c0;">Chưa có tài khoản? <span id="goToRegister" style="color:#d87cff; cursor:pointer; font-weight:bold;">Đăng ký ngay</span></div>
+    <div id="loginError" style="color:#ff4d4d; text-align:center; font-size:0.9rem; font-weight:bold;"></div>
 
     <div id="registerForm" style="display:none; margin-top:20px; border-top:1px solid rgba(216,124,255,0.2); padding-top:20px;">
       <div class="input-group"><input type="text" id="regUsername" placeholder="Tạo tên đăng nhập..."></div>
       <div class="input-group"><input type="password" id="regPassword" placeholder="Tạo mật khẩu..."></div>
       <button class="btn" id="registerBtn">TẠO TÀI KHOẢN</button>
-      <div style="text-align:center; font-size:0.9rem; margin-top:10px;">Đã có tài khoản? <span id="goToLogin" style="color:#d87cff; cursor:pointer; font-weight:bold;">Đăng nhập</span></div>
-      <div id="regError" style="color:#ff4d4d; text-align:center; font-size:0.85rem;"></div>
+      <div style="text-align:center; font-size:1rem; margin-top:10px; color: #b090c0;">Đã có tài khoản? <span id="goToLogin" style="color:#d87cff; cursor:pointer; font-weight:bold;">Đăng nhập</span></div>
+      <div id="regError" style="color:#ff4d4d; text-align:center; font-size:0.9rem; font-weight:bold;"></div>
     </div>
   </div>
 
-  <!-- TRANG CHỦ (MENU CHÍNH) -->
+  <!-- TRANG CHỦ -->
   <div id="homeScreen" class="screen">
     <div class="header-user">
       <div>
-        <div style="font-size:0.75rem; color:#b090c0;">Xin chào,</div>
-        <div id="welcomeUsername" style="font-weight:800; font-size:1.1rem;">User</div>
+        <div style="font-size:0.85rem; color:#b090c0; margin-bottom: 2px;">Xin chào,</div>
+        <div id="welcomeUsername" style="font-weight:800; font-size:1.3rem; color: #fff;">User</div>
       </div>
       <div style="text-align:right;">
-        <div style="font-size:0.7rem; color:#b090c0;">Số dư</div>
+        <div style="font-size:0.8rem; color:#b090c0; margin-bottom: 2px;">Số dư của bạn</div>
         <div class="points-value" id="pointsValue">0 đ</div>
       </div>
     </div>
@@ -110,11 +137,11 @@
   <div id="shopScreen" class="screen">
     <div class="shop-header">
       <button class="back-btn" onclick="showScreen('homeScreen')">←</button>
-      <h2 style="font-size:1.2rem;">Cửa Hàng</h2>
+      <h2 style="font-size:1.4rem; color: #fff;">Cửa Hàng</h2>
     </div>
     
     <div class="game-card" onclick="showGame('ios')">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/1200px-Apple_logo_black.svg.png" class="game-logo" style="background:#fff; padding:10px;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/1200px-Apple_logo_black.svg.png" class="game-logo" style="background:#fff; padding:12px;">
       <div class="game-info">
         <div class="game-title">Hệ Điều Hành iOS</div>
         <div class="game-desc">Dành cho iPhone, iPad</div>
@@ -130,24 +157,26 @@
     </div>
   </div>
 
-  <!-- DANH SÁCH GAME -->
+  <!-- CHỌN GAME (ĐÃ THAY ICON MỚI) -->
   <div id="gameSelectScreen" class="screen">
     <div class="shop-header">
       <button class="back-btn" onclick="showScreen('shopScreen')">←</button>
-      <h2 id="osTitle" style="font-size:1.2rem;">Chọn Game</h2>
+      <h2 id="osTitle" style="font-size:1.4rem; color: #fff;">Chọn Game</h2>
     </div>
 
     <div class="game-card" onclick="loadFilesByGame('ff_max')">
-      <div class="game-logo" style="display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:bold; color:#fff; background: linear-gradient(135deg,#ff4d4d,#b30000);">MAX</div>
+      <img src="https://files.catbox.moe/ql0vdm.jpeg" class="game-logo">
       <div class="game-info">
         <div class="game-title">Free Fire MAX</div>
+        <div class="game-desc">Phiên bản đặc biệt</div>
       </div>
     </div>
 
     <div class="game-card" onclick="loadFilesByGame('ff_thuong')">
-      <div class="game-logo" style="display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:bold; color:#fff; background: linear-gradient(135deg,#ffcc00,#b38f00);">TH</div>
+      <img src="https://files.catbox.moe/1povgt.jpeg" class="game-logo">
       <div class="game-info">
         <div class="game-title">Free Fire Thường</div>
+        <div class="game-desc">Phiên bản tiêu chuẩn</div>
       </div>
     </div>
   </div>
@@ -156,7 +185,7 @@
   <div id="fileListScreen" class="screen">
     <div class="shop-header">
       <button class="back-btn" onclick="showScreen('gameSelectScreen')">←</button>
-      <h2 id="fileListTitle" style="font-size:1.2rem;">Danh Sách File</h2>
+      <h2 id="fileListTitle" style="font-size:1.4rem; color: #fff;">Danh Sách File</h2>
     </div>
     <div id="fileListContent"></div>
   </div>
@@ -165,21 +194,23 @@
   <div id="topupScreen" class="screen">
     <div class="shop-header">
       <button class="back-btn" onclick="showScreen('homeScreen')">←</button>
-      <h2 style="font-size:1.2rem;">Nạp Tiền</h2>
+      <h2 style="font-size:1.4rem; color: #fff;">Nạp Tiền</h2>
     </div>
     
     <div class="topup-grid">
-      <div class="topup-item" onclick="selectTopup(this, 10000, 10)">10.000đ <br><span style="color:#d87cff; font-weight:bold;">+10 Điểm</span></div>
-      <div class="topup-item" onclick="selectTopup(this, 20000, 20)">20.000đ <br><span style="color:#d87cff; font-weight:bold;">+20 Điểm</span></div>
-      <div class="topup-item" onclick="selectTopup(this, 50000, 50)">50.000đ <br><span style="color:#d87cff; font-weight:bold;">+50 Điểm</span></div>
-      <div class="topup-item" onclick="selectTopup(this, 100000, 100)">100.000đ <br><span style="color:#d87cff; font-weight:bold;">+100 Điểm</span></div>
+      <div class="topup-item" onclick="selectTopup(this, 10000, 10)">10.000đ <br><span style="color:#d87cff;">+10 Điểm</span></div>
+      <div class="topup-item" onclick="selectTopup(this, 20000, 20)">20.000đ <br><span style="color:#d87cff;">+20 Điểm</span></div>
+      <div class="topup-item" onclick="selectTopup(this, 50000, 50)">50.000đ <br><span style="color:#d87cff;">+50 Điểm</span></div>
+      <div class="topup-item" onclick="selectTopup(this, 100000, 100)">100.000đ <br><span style="color:#d87cff;">+100 Điểm</span></div>
     </div>
 
-    <div id="qrSection" style="display:none; text-align:center; background: rgba(216,124,255,0.05); padding: 15px; border-radius: 16px; border: 1px solid rgba(216,124,255,0.2);">
-      <p style="font-size:0.9rem; color:#b090c0; margin-bottom:10px;">Quét mã QR dưới đây để thanh toán</p>
+    <div id="qrSection" class="qr-section">
+      <p style="font-size:1rem; color:#b090c0;">Quét mã QR dưới đây để thanh toán</p>
       <img id="qrImage" src="" class="qr-image">
-      <p style="font-size:0.85rem; margin-top:10px; font-weight:bold;">Số tiền: <span id="qrAmount" style="color:#4dff88; font-size:1.2rem;"></span></p>
-      <button class="btn" style="margin-top: 15px; background: #0088ff;" onclick="submitTopup()">TÔI ĐÃ CHUYỂN KHOẢN</button>
+      <p style="font-size:1rem; color:#fff;">Số tiền cần chuyển:</p>
+      <div id="qrAmount" class="qr-amount"></div>
+      
+      <button class="btn" style="background: #0088ff; margin-top: 10px;" onclick="submitTopup()">TÔI ĐÃ CHUYỂN KHOẢN</button>
       <div id="verifyingMsg" class="verifying-text" style="display:none;">ĐANG XÁC MINH</div>
     </div>
   </div>
@@ -188,24 +219,24 @@
   <div id="historyScreen" class="screen">
     <div class="shop-header">
       <button class="back-btn" onclick="showScreen('homeScreen')">←</button>
-      <h2 style="font-size:1.2rem;">Lịch Sử Giao Dịch</h2>
+      <h2 style="font-size:1.4rem; color: #fff;">Lịch Sử Giao Dịch</h2>
     </div>
     
-    <h3 style="font-size:1rem; color:#d87cff; margin-bottom:10px;">📥 Lịch sử nạp tiền</h3>
+    <h3 style="font-size:1.1rem; color:#d87cff; margin-bottom:10px;">📥 Lịch sử nạp tiền</h3>
     <div id="historyTopups"></div>
 
-    <h3 style="font-size:1rem; color:#d87cff; margin-top:20px; margin-bottom:10px;">🛒 Lịch sử mua hàng</h3>
+    <h3 style="font-size:1.1rem; color:#d87cff; margin-top:25px; margin-bottom:10px;">🛒 Lịch sử mua hàng</h3>
     <div id="historyPurchases"></div>
   </div>
 
 </div>
 
 <script>
-// ===== CẤU HÌNH NGÂN HÀNG CỦA BẠN (SỬA Ở ĐÂY) =====
-const BANK_ID = 'vietcombank'; // Ví dụ: vietcombank, techcombank, mbbank...
-const ACCOUNT_NO = '0355757211'; // Số tài khoản của bạn
-const ACCOUNT_NAME = 'SAMM X MODZ'; // Tên chủ tài khoản
-// ===================================================
+// ===== CẤU HÌNH NGÂN HÀNG (ĐÃ CÀI MB BANK) =====
+const BANK_ID = 'mbbank'; 
+const ACCOUNT_NO = '2333612345555'; 
+const ACCOUNT_NAME = 'SAMM X MODZ'; 
+// ===============================================
 
 let token = localStorage.getItem('sammx_token') || '';
 let currentPoints = 0;
@@ -267,33 +298,40 @@ async function loadFilesByGame(game) {
   currentGame = game;
   $('fileListTitle').textContent = game === 'ff_max' ? 'Free Fire MAX' : 'Free Fire Thường';
   showScreen('fileListScreen');
-  $('fileListContent').innerHTML = 'Đang tải...';
+  $('fileListContent').innerHTML = 'Đang tải dữ liệu...';
   const r = await fetch('/api/files'); allFiles = await r.json();
   const filtered = allFiles.filter(f => f.os === currentOS && f.game === currentGame);
-  if (filtered.length === 0) { $('fileListContent').innerHTML = '<div style="text-align:center; color:#b090c0; padding:20px;">Chưa có file nào.</div>'; return; }
+  
+  if (filtered.length === 0) { 
+    $('fileListContent').innerHTML = '<div style="text-align:center; color:#b090c0; padding:30px; font-size: 1.1rem;">Chưa có file nào cho game này.</div>'; 
+    return; 
+  }
+  
   $('fileListContent').innerHTML = filtered.map(f => {
     const fPoints = f.points || 0, fSale = f.sale_points || 0, fStock = f.stock || 0, fName = f.name || 'File', fSize = f.size || 0;
     let img = `<div style="height:150px; display:flex; align-items:center; justify-content:center; font-size:3rem; background:#0d0214;">📄</div>`;
     if (f.image_url) img = `<img src="${f.image_url}" class="file-cover">`;
     else if (f.image_path) img = `<img src="${f.image_path}" class="file-cover">`;
+    
     let priceHtml = `<b>${fPoints} điểm</b>`;
     if (fSale > 0 && fSale < fPoints) priceHtml = `<span style="text-decoration:line-through; color:#888;">${fPoints}</span> <b style="color:#ff4d4d;">${fSale} (SALE)</b>`;
-    return `<div class="file-card">${img}<div class="file-body"><div style="flex:1;"><div style="font-weight:bold; font-size:0.9rem;">${fName}</div><div style="font-size:0.7rem; color:#d0a0e0;">${(fSize/1024).toFixed(1)} KB • Giá: ${priceHtml} • Kho: ${fStock}</div></div><button class="fi-btn" onclick="buyFile(${f.id}, '${fName}')">MUA</button></div></div>`;
+    
+    return `<div class="file-card">${img}<div class="file-body"><div style="flex:1;"><div style="font-weight:bold; font-size:1.05rem; color: #fff;">${fName}</div><div style="font-size:0.8rem; color:#d0a0e0; margin-top: 4px;">Dung lượng: ${(fSize/1024).toFixed(1)} KB<br>Giá: ${priceHtml} • Kho: ${fStock}</div></div><button class="fi-btn" onclick="buyFile(${f.id}, '${fName}')">MUA NGAY</button></div></div>`;
   }).join('');
 }
 
 async function buyFile(fileId, fileName) {
-  if (!confirm(`Mua file: ${fileName}?`)) return;
+  if (!confirm(`Bạn có chắc muốn mua file: ${fileName}?`)) return;
   const r = await fetch('/api/files/buy', { method:'POST', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type':'application/json' }, body: JSON.stringify({ fileId }) });
   const d = await r.json();
   if (!r.ok) return alert(d.error);
   updatePointsUI(d.new_points);
   const a = document.createElement('a'); a.href = d.file_path; a.download = fileName; a.target = '_blank'; document.body.appendChild(a); a.click(); a.remove();
-  alert('Mua thành công! File đang tải...');
+  alert('Mua thành công! Hệ thống đang tải file...');
   loadFilesByGame(currentGame);
 }
 
-// NẠP TIỀN ĐỘNG
+// NẠP TIỀN VỚI MÃ QR ĐỘNG
 function selectTopup(element, amount, points) {
   document.querySelectorAll('.topup-item').forEach(el => el.classList.remove('active'));
   element.classList.add('active');
@@ -301,25 +339,23 @@ function selectTopup(element, amount, points) {
   selectedAmount = amount;
   selectedPoints = points;
   
-  // Tạo link QR động từ VietQR
-  const qrUrl = `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?amount=${amount}&addInfo=Nạp%20điểm%20${deviceName}&accountName=${encodeURIComponent(ACCOUNT_NAME)}`;
+  // Tạo link QR động từ VietQR (Tự động điền số tiền & nội dung CK)
+  const qrUrl = `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?amount=${amount}&addInfo=NAP%20${deviceName}&accountName=${encodeURIComponent(ACCOUNT_NAME)}`;
   
   $('qrImage').src = qrUrl;
-  $('qrAmount').textContent = amount.toLocaleString() + 'đ';
+  $('qrAmount').textContent = amount.toLocaleString() + ' VNĐ';
   $('qrSection').style.display = 'block';
   $('verifyingMsg').style.display = 'none';
 }
 
 async function submitTopup() {
-  if (!confirm(`Bạn xác nhận đã chuyển khoản ${selectedAmount.toLocaleString()}đ?`)) return;
+  if (!confirm(`Xác nhận bạn đã chuyển khoản ${selectedAmount.toLocaleString()}đ?`)) return;
   
   $('verifyingMsg').style.display = 'block';
   
   const r = await fetch('/api/topup/request', { method:'POST', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type':'application/json' }, body: JSON.stringify({ amount: selectedAmount, points: selectedPoints }) });
-  if (r.ok) {
-    // Không hiện alert dài dòng nữa, hiện chữ ĐANG XÁC MINH
-  } else {
-    alert('Lỗi gửi yêu cầu');
+  if (!r.ok) {
+    alert('Lỗi gửi yêu cầu, vui lòng thử lại!');
     $('verifyingMsg').style.display = 'none';
   }
 }
@@ -330,11 +366,11 @@ async function loadHistory() {
   const r = await fetch('/api/history', { headers: { 'Authorization': 'Bearer ' + token } });
   const d = await r.json();
 
-  if (d.topups.length === 0) $('historyTopups').innerHTML = '<div style="color:#b090c0; font-size:0.85rem;">Chưa có lịch sử nạp.</div>';
-  else $('historyTopups').innerHTML = d.topups.map(t => `<div class="history-item">💵 Nạp ${t.amount.toLocaleString()}đ (${t.points} điểm) - <b style="color:${t.status==='pending'?'#ffcc00':'#4dff88'}">${t.status === 'pending' ? 'ĐANG XÁC MINH' : 'Thành công'}</b><br><span style="font-size:0.7rem; color:#888;">${new Date(t.created_at).toLocaleString()}</span></div>`).join('');
+  if (d.topups.length === 0) $('historyTopups').innerHTML = '<div style="color:#b090c0; font-size:0.9rem;">Chưa có lịch sử nạp.</div>';
+  else $('historyTopups').innerHTML = d.topups.map(t => `<div class="history-item">💵 Nạp ${t.amount.toLocaleString()}đ (${t.points} điểm) - <b style="color:${t.status==='pending'?'#ffcc00':'#4dff88'}">${t.status === 'pending' ? 'ĐANG XÁC MINH' : 'Thành công'}</b><br><span style="font-size:0.8rem; color:#888;">${new Date(t.created_at).toLocaleString()}</span></div>`).join('');
 
-  if (d.purchases.length === 0) $('historyPurchases').innerHTML = '<div style="color:#b090c0; font-size:0.85rem;">Chưa có lịch sử mua.</div>';
-  else $('historyPurchases').innerHTML = d.purchases.map(p => `<div class="history-item">🛒 Mua "${p.file_name}" - <b style="color:#d87cff">-${p.price} điểm</b><br><span style="font-size:0.7rem; color:#888;">${new Date(p.created_at).toLocaleString()}</span></div>`).join('');
+  if (d.purchases.length === 0) $('historyPurchases').innerHTML = '<div style="color:#b090c0; font-size:0.9rem;">Chưa có lịch sử mua.</div>';
+  else $('historyPurchases').innerHTML = d.purchases.map(p => `<div class="history-item">🛒 Mua "${p.file_name}" - <b style="color:#d87cff">-${p.price} điểm</b><br><span style="font-size:0.8rem; color:#888;">${new Date(p.created_at).toLocaleString()}</span></div>`).join('');
 }
 
 loadMe();
