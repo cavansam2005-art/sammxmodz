@@ -2,256 +2,281 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>SAMM X MODZ VIP</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
   body { 
-    min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; 
-    background: linear-gradient(rgba(10, 5, 20, 0.9), rgba(5, 2, 10, 0.95)), url('https://files.catbox.moe/cemtij.jpeg') no-repeat center center fixed; 
-    background-size: cover; color: #f5e8ff; 
+    height:100vh; display:flex; justify-content:center; align-items:center; 
+    background: #05010a; color: #f5e8ff; overflow: hidden;
   }
   
   .app-container { 
-    width:100%; max-width:500px; background: linear-gradient(160deg, rgba(30, 10, 45, 0.85), rgba(15, 5, 25, 0.95)); 
-    backdrop-filter: blur(20px); border-radius: 32px; box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9), 0 0 0 1px rgba(216,124,255,0.3); 
-    padding: 35px 28px; max-height: 95vh; overflow-y: auto; 
+    position: relative; width:100%; max-width:480px; height: 100vh; max-height: 100dvh; 
+    background: linear-gradient(rgba(10, 5, 20, 0.92), rgba(5, 2, 10, 0.98)), url('https://files.catbox.moe/cemtij.jpeg') no-repeat center center; 
+    background-size: cover;
+    display: flex; flex-direction: column; overflow: hidden;
   }
-  
+
+  /* KHU VỰC NỘI DUNG */
+  .content-area { flex: 1; overflow-y: auto; padding: 25px 20px 100px 20px; scrollbar-width: none; }
+  .content-area::-webkit-scrollbar { display: none; }
+
   .screen { display:none; flex-direction:column; gap:18px; } .screen.active { display:flex; animation: fadeUp .3s; }
   @keyframes fadeUp { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
   
-  .app-title { text-align:center; font-size: 1.9rem; font-weight: 800; background: linear-gradient(120deg,#f0a8ff,#d87cff); -webkit-background-clip: text; color: transparent; margin-bottom: 20px; text-shadow: 0 0 30px rgba(216,124,255,0.4); }
+  .app-title { text-align:center; font-size: 1.7rem; font-weight: 800; background: linear-gradient(120deg,#f0a8ff,#d87cff); -webkit-background-clip: text; color: transparent; margin-bottom: 20px; text-shadow: 0 0 20px rgba(216,124,255,0.3); }
   
-  /* HIỆU ỨNG NEON CHO NÚT BẤM */
-  .btn { background: linear-gradient(135deg,#d87cff,#9b30d9); color:#fff; border:none; border-radius:16px; padding:18px; font-weight:800; font-size: 1.05rem; cursor:pointer; width: 100%; transition:.3s; box-shadow: 0 0 15px rgba(216,124,255,0.4); position: relative; overflow: hidden;}
-  .btn::after { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background: linear-gradient(transparent, rgba(255,255,255,0.3), transparent); transform: rotate(45deg); transition: 0.5s; opacity: 0;}
-  .btn:hover::after { opacity: 1; left: 100%; }
+  .btn { background: linear-gradient(135deg,#d87cff,#9b30d9); color:#fff; border:none; border-radius:16px; padding:16px; font-weight:800; font-size: 1rem; cursor:pointer; width: 100%; transition:.2s; box-shadow: 0 8px 20px -6px rgba(216,124,255,0.5); }
   .btn:active { transform: scale(0.96); }
   
-  .input-group input { width:100%; background:rgba(0,0,0,0.5); border:1.5px solid rgba(216,124,255,0.3); border-radius:16px; padding:16px; color:#fff; outline:none; margin-bottom:10px; font-size: 1rem; transition: 0.3s;}
-  .input-group input:focus { border-color: #d87cff; box-shadow: 0 0 10px rgba(216,124,255,0.3); }
+  .input-group input { width:100%; background:rgba(0,0,0,0.5); border:1.5px solid rgba(216,124,255,0.3); border-radius:16px; padding:15px; color:#fff; outline:none; margin-bottom:10px; font-size: 0.95rem; }
+  .input-group input:focus { border-color: #d87cff; box-shadow: 0 0 0 3px rgba(216,124,255,0.15); }
   
   /* HEADER USER */
-  .header-user { display: flex; justify-content: space-between; align-items: center; background: rgba(216,124,255,0.1); padding: 20px; border-radius: 24px; margin-bottom: 20px; border: 1px solid rgba(216,124,255,0.2); box-shadow: inset 0 0 20px rgba(216,124,255,0.1); }
-  .points-value { font-size: 1.5rem; font-weight: 800; color: #d87cff; text-shadow: 0 0 15px rgba(216,124,255,0.6); }
+  .header-user { display: flex; justify-content: space-between; align-items: center; background: rgba(216,124,255,0.1); padding: 18px 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid rgba(216,124,255,0.2); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+  .points-value { font-size: 1.5rem; font-weight: 800; color: #d87cff; text-shadow: 0 0 10px rgba(216,124,255,0.4); }
 
-  /* MENU */
-  .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-  .menu-item { background: linear-gradient(145deg, rgba(40,15,60,0.9), rgba(20,8,30,0.9)); border: 1px solid rgba(216,124,255,0.2); border-radius: 24px; padding: 25px 15px; text-align: center; cursor: pointer; transition: .3s; box-shadow: 0 10px 20px -10px rgba(0,0,0,0.8); }
-  .menu-item:hover { border-color: #d87cff; transform: translateY(-5px); box-shadow: 0 15px 30px -10px rgba(216,124,255,0.4); }
-  .menu-icon { font-size: 3rem; margin-bottom: 12px; display: block; filter: drop-shadow(0 0 10px rgba(216,124,255,0.5)); }
-  .menu-text { font-weight: 800; font-size: 1.05rem; color: #fff; }
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: absolute; bottom: 0; left: 0; width: 100%;
+    background: #0d0214; display: flex; justify-content: space-around; align-items: center;
+    padding: 12px 5px 20px 5px; border-top: 1px solid rgba(216,124,255,0.15); z-index: 100;
+  }
+  .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #9b30d9; cursor: pointer; transition: 0.2s; flex: 1; opacity: 0.6; }
+  .nav-item.active { opacity: 1; transform: translateY(-3px); }
+  .nav-icon { font-size: 1.6rem; margin-bottom: 6px; filter: drop-shadow(0 0 5px rgba(155,48,217,0.5)); }
+  .nav-text { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.5px; }
+  
+  .nav-item[data-tab="freeKeyScreen"] .nav-icon { color: #00ffff; filter: drop-shadow(0 0 5px rgba(0,255,255,0.5)); }
 
-  /* BẢNG XẾP HẠNG */
-  .rank-box { background: rgba(20,8,30,0.8); border-radius: 20px; padding: 15px; border: 1px solid rgba(216,124,255,0.2); margin-bottom: 15px; }
-  .rank-title { font-size: 1.1rem; font-weight: 800; color: #ffcc00; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; text-shadow: 0 0 10px rgba(255,204,0,0.3);}
-  .rank-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed rgba(255,255,255,0.1); font-size: 0.95rem; }
-  .rank-item:last-child { border-bottom: none; }
-  .rank-top1 { color: #ffd700; font-weight: 800; font-size: 1.05rem;}
-  .rank-top2 { color: #c0c0c0; font-weight: 700; }
-  .rank-top3 { color: #cd7f32; font-weight: 700; }
-
+  /* GAME CARDS */
   .shop-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
-  .back-btn { background: rgba(216,124,255,0.2); border: none; color: #fff; width: 45px; height: 45px; border-radius: 14px; cursor: pointer; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; }
-  
-  .game-card { background: rgba(20,8,30,0.8); border: 1px solid rgba(216,124,255,0.2); border-radius: 20px; padding: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 18px; cursor: pointer; transition: .3s; }
-  .game-card:hover { border-color: #d87cff; transform: scale(1.02); }
-  .game-logo { width: 75px; height: 75px; border-radius: 16px; object-fit: cover; background: #000; border: 2px solid rgba(216,124,255,0.3); }
-  .game-title { font-weight: 800; font-size: 1.25rem; color: #fff; }
-  .game-desc { font-size: 0.85rem; color: #b090c0; margin-top: 5px; }
+  .back-btn { background: rgba(216,124,255,0.2); border: none; color: #fff; width: 40px; height: 40px; border-radius: 12px; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
+  .game-card { background: rgba(20,8,30,0.8); border: 1px solid rgba(216,124,255,0.2); border-radius: 20px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: .2s; }
+  .game-card:active { transform: scale(0.98); }
+  .game-logo { width: 65px; height: 65px; border-radius: 14px; object-fit: cover; background: #000; border: 1px solid rgba(216,124,255,0.3); }
+  .game-title { font-weight: 800; font-size: 1.1rem; color: #fff; }
+  .game-desc { font-size: 0.8rem; color: #b090c0; margin-top: 4px; }
 
-  .file-card { background:rgba(20, 8, 30, 0.7); border:1px solid rgba(216,124,255,0.15); border-radius:20px; overflow:hidden; margin-bottom:15px; transition: .3s; }
-  .file-card:hover { border-color: #d87cff; }
-  .file-cover { width:100%; height:auto; max-height:250px; object-fit:contain; background:#0d0214; display:block; }
+  .file-card { background:rgba(20, 8, 30, 0.7); border:1px solid rgba(216,124,255,0.15); border-radius:20px; overflow:hidden; margin-bottom:15px; }
+  .file-cover { width:100%; height:auto; max-height:220px; object-fit:contain; background:#0d0214; display:block; }
   .file-body { padding:15px; display:flex; align-items:center; gap:15px; }
-  .fi-btn { background: linear-gradient(135deg,#d87cff,#9b30d9); color:#fff; border-radius:12px; padding:10px 18px; font-weight:800; border:none; cursor:pointer; box-shadow: 0 5px 15px rgba(216,124,255,0.3); }
+  .fi-btn { background: linear-gradient(135deg,#d87cff,#9b30d9); color:#fff; border-radius:12px; padding:10px 16px; font-weight:800; border:none; cursor:pointer; box-shadow: 0 5px 15px rgba(216,124,255,0.3); font-size: 0.9rem;}
 
+  /* NẠP TIỀN */
   .topup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
-  .topup-item { background: rgba(20,8,30,0.8); border: 1.5px solid rgba(216,124,255,0.2); border-radius: 16px; padding: 18px 12px; text-align: center; cursor: pointer; transition: .3s; font-size: 1.05rem; font-weight: bold; }
-  .topup-item:hover { border-color: #d87cff; background: rgba(40, 15, 60, 0.9); }
+  .topup-item { background: rgba(20,8,30,0.8); border: 1.5px solid rgba(216,124,255,0.2); border-radius: 16px; padding: 15px; text-align: center; cursor: pointer; transition: .2s; font-size: 1rem; font-weight: bold; }
   .topup-item.active { border-color: #4dff88; background: rgba(77,255,136,0.1); box-shadow: 0 0 20px rgba(77,255,136,0.3); }
-  
-  .qr-section { display:none; text-align:center; background: rgba(216,124,255,0.05); padding: 25px 15px; border-radius: 20px; border: 1px solid rgba(216,124,255,0.3); margin-top: 20px; }
-  .qr-image { width: 100%; max-width: 320px; border-radius: 20px; margin: 15px auto; display: block; border: 4px solid #d87cff; background: #fff; padding: 10px; box-shadow: 0 10px 30px rgba(216,124,255,0.4); }
-  .qr-amount { font-size: 1.6rem; font-weight: 800; color: #4dff88; text-shadow: 0 0 15px rgba(77,255,136,0.6); margin: 10px 0; }
-  
-  .verifying-text { color: #ffcc00; font-weight: 800; text-align: center; font-size: 1.2rem; margin-top: 15px; animation: blink 1s infinite alternate; letter-spacing: 1px;}
+  .qr-section { display:none; text-align:center; background: rgba(216,124,255,0.05); padding: 20px 15px; border-radius: 20px; border: 1px solid rgba(216,124,255,0.3); margin-top: 20px; }
+  .qr-image { width: 100%; max-width: 280px; border-radius: 20px; margin: 15px auto; display: block; border: 3px solid #d87cff; background: #fff; padding: 8px; }
+  .qr-amount { font-size: 1.5rem; font-weight: 800; color: #4dff88; margin: 10px 0; }
+  .verifying-text { color: #ffcc00; font-weight: 800; text-align: center; font-size: 1.1rem; margin-top: 15px; animation: blink 1s infinite alternate; }
   @keyframes blink { from { opacity: 0.4; } to { opacity: 1; } }
-  .history-item { background: rgba(20,8,30,0.6); padding: 15px; border-radius: 16px; margin-bottom: 10px; border-left: 4px solid #d87cff; font-size: 0.95rem; }
+
+  /* FREE KEY */
+  .free-key-box { background: linear-gradient(135deg, rgba(0,255,255,0.1), rgba(216,124,255,0.1)); border: 1px dashed #00ffff; border-radius: 20px; padding: 25px; text-align: center; margin-top: 20px; }
+  .free-key-title { color: #00ffff; font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; text-shadow: 0 0 10px rgba(0,255,255,0.5); }
+
+  /* GỘP TOP VÀ LỊCH SỬ */
+  .combined-box { background: rgba(20,8,30,0.8); border-radius: 20px; padding: 20px; border: 1px solid rgba(216,124,255,0.2); margin-bottom: 20px; }
+  .top-columns { display: flex; gap: 15px; }
+  .top-col { flex: 1; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px; }
+  .top-col h4 { color: #d87cff; font-size: 0.9rem; margin-bottom: 12px; text-align: center; border-bottom: 1px dashed rgba(216,124,255,0.3); padding-bottom: 8px; }
+  .rank-row { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 8px; }
+  .rank-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px; }
+  .rank-val { color: #4dff88; font-weight: bold; }
+  
+  /* TABS LỊCH SỬ */
+  .history-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+  .history-tab { flex: 1; text-align: center; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: bold; color: #b090c0; border: 1px solid transparent;}
+  .history-tab.active { background: rgba(216,124,255,0.2); border-color: #d87cff; color: #fff; }
+  .history-content { display: none; }
+  .history-content.active { display: block; animation: fadeUp 0.2s; }
+  .history-item { background: rgba(20,8,30,0.6); padding: 12px; border-radius: 12px; margin-bottom: 8px; border-left: 3px solid #d87cff; font-size: 0.85rem; }
 </style>
 </head>
 <body>
 <audio id="bgMusic" loop><source src="https://files.catbox.moe/ylpmoe.mp3" type="audio/mpeg"></audio>
+
 <div class="app-container">
   
-  <h1 class="app-title">SAMM X MODZ VIP</h1>
+  <div class="content-area">
+    <h1 class="app-title">SAMM X MODZ VIP</h1>
 
-  <!-- ĐĂNG NHẬP -->
-  <div id="authScreen" class="screen active">
-    <div class="input-group"><input type="text" id="loginUsername" placeholder="Tên đăng nhập..."></div>
-    <div class="input-group"><input type="password" id="loginPassword" placeholder="Mật khẩu..."></div>
-    <button class="btn" id="loginBtn">ĐĂNG NHẬP</button>
-    <div style="text-align:center; font-size:1rem; margin-top:10px; color: #b090c0;">Chưa có tài khoản? <span id="goToRegister" style="color:#d87cff; cursor:pointer; font-weight:bold;">Đăng ký ngay</span></div>
-    <div id="loginError" style="color:#ff4d4d; text-align:center; font-size:0.9rem; font-weight:bold;"></div>
+    <!-- ĐĂNG NHẬP -->
+    <div id="authScreen" class="screen active">
+      <div class="input-group"><input type="text" id="loginUsername" placeholder="Tên đăng nhập..."></div>
+      <div class="input-group"><input type="password" id="loginPassword" placeholder="Mật khẩu..."></div>
+      <button class="btn" id="loginBtn">ĐĂNG NHẬP</button>
+      <div style="text-align:center; font-size:0.9rem; margin-top:10px; color: #b090c0;">Chưa có tài khoản? <span id="goToRegister" style="color:#d87cff; cursor:pointer; font-weight:bold;">Đăng ký</span></div>
+      <div id="loginError" style="color:#ff4d4d; text-align:center; font-size:0.9rem; font-weight:bold;"></div>
 
-    <div id="registerForm" style="display:none; margin-top:20px; border-top:1px solid rgba(216,124,255,0.2); padding-top:20px;">
-      <div class="input-group"><input type="text" id="regUsername" placeholder="Tạo tên đăng nhập..."></div>
-      <div class="input-group"><input type="password" id="regPassword" placeholder="Tạo mật khẩu..."></div>
-      <button class="btn" id="registerBtn">TẠO TÀI KHOẢN</button>
-      <div style="text-align:center; font-size:1rem; margin-top:10px; color: #b090c0;">Đã có tài khoản? <span id="goToLogin" style="color:#d87cff; cursor:pointer; font-weight:bold;">Đăng nhập</span></div>
-      <div id="regError" style="color:#ff4d4d; text-align:center; font-size:0.9rem; font-weight:bold;"></div>
-    </div>
-  </div>
-
-  <!-- TRANG CHỦ -->
-  <div id="homeScreen" class="screen">
-    <div class="header-user">
-      <div>
-        <div style="font-size:0.85rem; color:#b090c0; margin-bottom: 2px;">Xin chào,</div>
-        <div id="welcomeUsername" style="font-weight:800; font-size:1.3rem; color: #fff;">User</div>
-      </div>
-      <div style="text-align:right;">
-        <div style="font-size:0.8rem; color:#b090c0; margin-bottom: 2px;">Số dư của bạn</div>
-        <div class="points-value" id="pointsValue">0 đ</div>
+      <div id="registerForm" style="display:none; margin-top:20px; border-top:1px solid rgba(216,124,255,0.2); padding-top:20px;">
+        <div class="input-group"><input type="text" id="regUsername" placeholder="Tạo tên đăng nhập..."></div>
+        <div class="input-group"><input type="password" id="regPassword" placeholder="Tạo mật khẩu..."></div>
+        <button class="btn" id="registerBtn">TẠO TÀI KHOẢN</button>
+        <div style="text-align:center; font-size:0.9rem; margin-top:10px; color: #b090c0;">Đã có tài khoản? <span id="goToLogin" style="color:#d87cff; cursor:pointer; font-weight:bold;">Đăng nhập</span></div>
+        <div id="regError" style="color:#ff4d4d; text-align:center; font-size:0.9rem; font-weight:bold;"></div>
       </div>
     </div>
 
-    <!-- BẢNG VINH DANH -->
-    <div class="rank-box">
-      <div class="rank-title">🏆 ĐẠI GIA NẠP TIỀN</div>
-      <div id="topNapList"><div style="font-size:0.85rem; color:#888; text-align:center;">Đang tải...</div></div>
-    </div>
-    <div class="rank-box">
-      <div class="rank-title">🔥 KHÁCH MUA NHIỀU NHẤT</div>
-      <div id="topMuaList"><div style="font-size:0.85rem; color:#888; text-align:center;">Đang tải...</div></div>
-    </div>
-
-    <div class="menu-grid">
-      <div class="menu-item" onclick="showScreen('shopScreen')">
-        <span class="menu-icon">🛒</span>
-        <div class="menu-text">Cửa Hàng</div>
+    <!-- MUA KEY -->
+    <div id="muaKeyScreen" class="screen">
+      <div class="shop-header">
+        <h2 style="font-size:1.3rem; color: #fff;">🛒 Cửa Hàng</h2>
       </div>
-      <div class="menu-item" onclick="showScreen('topupScreen')">
-        <span class="menu-icon">💳</span>
-        <div class="menu-text">Nạp Tiền</div>
+      <div class="game-card" onclick="showGame('ios')">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/1200px-Apple_logo_black.svg.png" class="game-logo" style="background:#fff; padding:10px;">
+        <div class="game-info"><div class="game-title">Hệ Điều Hành iOS</div><div class="game-desc">Dành cho iPhone, iPad</div></div>
       </div>
-      <div class="menu-item" onclick="loadHistory(); showScreen('historyScreen')">
-        <span class="menu-icon">📜</span>
-        <div class="menu-text">Lịch Sử</div>
-      </div>
-      <div class="menu-item" onclick="logout()">
-        <span class="menu-icon">🚪</span>
-        <div class="menu-text">Đăng Xuất</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CỬA HÀNG -->
-  <div id="shopScreen" class="screen">
-    <div class="shop-header">
-      <button class="back-btn" onclick="showScreen('homeScreen')">←</button>
-      <h2 style="font-size:1.4rem; color: #fff;">Cửa Hàng</h2>
-    </div>
-    
-    <div class="game-card" onclick="showGame('ios')">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/1200px-Apple_logo_black.svg.png" class="game-logo" style="background:#fff; padding:12px;">
-      <div class="game-info">
-        <div class="game-title">Hệ Điều Hành iOS</div>
-        <div class="game-desc">Dành cho iPhone, iPad</div>
+      <div class="game-card" onclick="showGame('android')">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Android_robot.svg/1200px-Android_robot.svg.png" class="game-logo">
+        <div class="game-info"><div class="game-title">Hệ Điều Hành Android</div><div class="game-desc">Dành cho điện thoại Android</div></div>
       </div>
     </div>
 
-    <div class="game-card" onclick="showGame('android')">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Android_robot.svg/1200px-Android_robot.svg.png" class="game-logo">
-      <div class="game-info">
-        <div class="game-title">Hệ Điều Hành Android</div>
-        <div class="game-desc">Dành cho điện thoại Android</div>
+    <!-- NẠP TIỀN -->
+    <div id="napTienScreen" class="screen">
+      <div class="shop-header">
+        <h2 style="font-size:1.3rem; color: #fff;">💳 Nạp Tiền</h2>
+      </div>
+      <div class="header-user" style="margin-bottom: 10px;">
+        <div><div style="font-size:0.8rem; color:#b090c0;">Số dư hiện tại:</div><div class="points-value" id="pointsValue">0 đ</div></div>
+      </div>
+      <div class="topup-grid">
+        <div class="topup-item" onclick="selectTopup(this, 10000, 10)">10.000đ <br><span style="color:#d87cff;">+10 Điểm</span></div>
+        <div class="topup-item" onclick="selectTopup(this, 20000, 20)">20.000đ <br><span style="color:#d87cff;">+20 Điểm</span></div>
+        <div class="topup-item" onclick="selectTopup(this, 50000, 50)">50.000đ <br><span style="color:#d87cff;">+50 Điểm</span></div>
+        <div class="topup-item" onclick="selectTopup(this, 100000, 100)">100.000đ <br><span style="color:#d87cff;">+100 Điểm</span></div>
+      </div>
+      <div id="qrSection" class="qr-section">
+        <p style="font-size:0.9rem; color:#b090c0;">Quét mã QR để thanh toán</p>
+        <img id="qrImage" src="" class="qr-image">
+        <div id="qrAmount" class="qr-amount"></div>
+        <button class="btn" style="background: #0088ff;" onclick="submitTopup()">TÔI ĐÃ CHUYỂN KHOẢN</button>
+        <div id="verifyingMsg" class="verifying-text" style="display:none;">ĐANG XÁC MINH...</div>
       </div>
     </div>
-  </div>
 
-  <!-- CHỌN GAME -->
-  <div id="gameSelectScreen" class="screen">
-    <div class="shop-header">
-      <button class="back-btn" onclick="showScreen('shopScreen')">←</button>
-      <h2 id="osTitle" style="font-size:1.4rem; color: #fff;">Chọn Game</h2>
-    </div>
-
-    <div class="game-card" onclick="loadFilesByGame('ff_max')">
-      <img src="https://files.catbox.moe/ql0vdm.jpeg" class="game-logo">
-      <div class="game-info">
-        <div class="game-title">Free Fire MAX</div>
-        <div class="game-desc">Phiên bản đặc biệt</div>
+    <!-- GỘP TOP NẠP & TOP MUA -->
+    <div id="topNapScreen" class="screen">
+      <div class="shop-header">
+        <h2 style="font-size:1.3rem; color: #fff;">🏆 Bảng Xếp Hạng</h2>
       </div>
-    </div>
-
-    <div class="game-card" onclick="loadFilesByGame('ff_thuong')">
-      <img src="https://files.catbox.moe/1povgt.jpeg" class="game-logo">
-      <div class="game-info">
-        <div class="game-title">Free Fire Thường</div>
-        <div class="game-desc">Phiên bản tiêu chuẩn</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- HIỂN THỊ FILE -->
-  <div id="fileListScreen" class="screen">
-    <div class="shop-header">
-      <button class="back-btn" onclick="showScreen('gameSelectScreen')">←</button>
-      <h2 id="fileListTitle" style="font-size:1.4rem; color: #fff;">Danh Sách File</h2>
-    </div>
-    <div id="fileListContent"></div>
-  </div>
-
-  <!-- NẠP TIỀN -->
-  <div id="topupScreen" class="screen">
-    <div class="shop-header">
-      <button class="back-btn" onclick="showScreen('homeScreen')">←</button>
-      <h2 style="font-size:1.4rem; color: #fff;">Nạp Tiền</h2>
-    </div>
-    
-    <div class="topup-grid">
-      <div class="topup-item" onclick="selectTopup(this, 10000, 10)">10.000đ <br><span style="color:#d87cff;">+10 Điểm</span></div>
-      <div class="topup-item" onclick="selectTopup(this, 20000, 20)">20.000đ <br><span style="color:#d87cff;">+20 Điểm</span></div>
-      <div class="topup-item" onclick="selectTopup(this, 50000, 50)">50.000đ <br><span style="color:#d87cff;">+50 Điểm</span></div>
-      <div class="topup-item" onclick="selectTopup(this, 100000, 100)">100.000đ <br><span style="color:#d87cff;">+100 Điểm</span></div>
-    </div>
-
-    <div id="qrSection" class="qr-section">
-      <p style="font-size:1rem; color:#b090c0;">Quét mã QR dưới đây để thanh toán</p>
-      <img id="qrImage" src="" class="qr-image">
-      <p style="font-size:1rem; color:#fff;">Số tiền cần chuyển:</p>
-      <div id="qrAmount" class="qr-amount"></div>
       
-      <button class="btn" style="background: #0088ff; margin-top: 10px; box-shadow: 0 0 15px rgba(0,136,255,0.5);" onclick="submitTopup()">TÔI ĐÃ CHUYỂN KHOẢN</button>
-      <div id="verifyingMsg" class="verifying-text" style="display:none;">ĐANG XÁC MINH...</div>
+      <div class="combined-box">
+        <div class="top-columns">
+          <!-- Cột Top Nạp -->
+          <div class="top-col">
+            <h4>👑 TOP NẠP</h4>
+            <div id="topNapList"><div style="font-size:0.75rem; color:#888; text-align:center;">Đang tải...</div></div>
+          </div>
+          <!-- Cột Top Mua -->
+          <div class="top-col">
+            <h4>🔥 TOP MUA</h4>
+            <div id="topMuaList"><div style="font-size:0.75rem; color:#888; text-align:center;">Đang tải...</div></div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- FREE KEY -->
+    <div id="freeKeyScreen" class="screen">
+      <div class="shop-header">
+        <h2 style="font-size:1.3rem; color: #fff;">🎁 Nhận Free Key</h2>
+      </div>
+      <div class="free-key-box">
+        <div class="free-key-title">FREE KEY</div>
+        <p style="font-size: 0.9rem; color: #b090c0; margin-bottom: 15px;">Nhập mã để nhận điểm miễn phí!</p>
+        <div class="input-group">
+          <input type="text" id="freeKeyInput" placeholder="Nhập mã Code VIP..." style="text-align: center; font-weight: bold; letter-spacing: 2px;">
+        </div>
+        <button class="btn" style="background: #00ffff; color: #000; box-shadow: 0 0 20px rgba(0,255,255,0.4);" onclick="redeemCode()">NHẬN ĐIỂM NGAY</button>
+        <div id="redeemMsg" style="color:#4dff88; text-align:center; font-size:0.9rem; margin-top: 10px; font-weight: bold;"></div>
+      </div>
+    </div>
+
+    <!-- TÀI KHOẢN VÀ GỘP LỊCH SỬ -->
+    <div id="taiKhoanScreen" class="screen">
+      <div class="shop-header">
+        <h2 style="font-size:1.3rem; color: #fff;">👤 Tài Khoản</h2>
+      </div>
+      <div class="header-user" style="margin-bottom: 20px;">
+        <div>
+          <div style="font-size:0.85rem; color:#b090c0;">Xin chào,</div>
+          <div id="welcomeUsername" style="font-weight:800; font-size:1.2rem; color: #fff;">User</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:0.8rem; color:#b090c0;">Số dư</div>
+          <div class="points-value" id="pointsValueAccount">0 đ</div>
+        </div>
+      </div>
+
+      <div class="combined-box">
+        <div class="history-tabs">
+          <div class="history-tab active" onclick="switchHistory('nap')">📥 Lịch Sử Nạp</div>
+          <div class="history-tab" onclick="switchHistory('mua')">🛒 Lịch Sử Mua</div>
+        </div>
+        <div id="historyNap" class="history-content active"></div>
+        <div id="historyMua" class="history-content"></div>
+      </div>
+
+      <button class="btn" style="background: transparent; border: 1px solid #ff4d4d; color: #ff4d4d;" onclick="logout()">ĐĂNG XUẤT</button>
+    </div>
+
+    <!-- CÁC TRANG ĐIỀU HƯỚNG ẨN -->
+    <div id="gameSelectScreen" class="screen">
+      <div class="shop-header">
+        <button class="back-btn" onclick="switchTab('muaKeyScreen')">←</button>
+        <h2 id="osTitle" style="font-size:1.2rem; color: #fff;">Chọn Game</h2>
+      </div>
+      <div class="game-card" onclick="loadFilesByGame('ff_max')">
+        <img src="https://files.catbox.moe/ql0vdm.jpeg" class="game-logo">
+        <div class="game-info"><div class="game-title">Free Fire MAX</div></div>
+      </div>
+      <div class="game-card" onclick="loadFilesByGame('ff_thuong')">
+        <img src="https://files.catbox.moe/1povgt.jpeg" class="game-logo">
+        <div class="game-info"><div class="game-title">Free Fire Thường</div></div>
+      </div>
+    </div>
+
+    <div id="fileListScreen" class="screen">
+      <div class="shop-header">
+        <button class="back-btn" onclick="switchTab('gameSelectScreen')">←</button>
+        <h2 id="fileListTitle" style="font-size:1.2rem; color: #fff;">Danh Sách File</h2>
+      </div>
+      <div id="fileListContent"></div>
+    </div>
+
   </div>
 
-  <!-- LỊCH SỬ -->
-  <div id="historyScreen" class="screen">
-    <div class="shop-header">
-      <button class="back-btn" onclick="showScreen('homeScreen')">←</button>
-      <h2 style="font-size:1.4rem; color: #fff;">Lịch Sử Giao Dịch</h2>
+  <!-- MENU DƯỚI ĐÁY -->
+  <div class="bottom-nav" id="bottomNav" style="display: none;">
+    <div class="nav-item" data-tab="muaKeyScreen" onclick="switchTab('muaKeyScreen')">
+      <div class="nav-icon">🔑</div><div class="nav-text">MUA KEY</div>
     </div>
-    
-    <h3 style="font-size:1.1rem; color:#d87cff; margin-bottom:10px;">📥 Lịch sử nạp tiền</h3>
-    <div id="historyTopups"></div>
-
-    <h3 style="font-size:1.1rem; color:#d87cff; margin-top:25px; margin-bottom:10px;">🛒 Lịch sử mua hàng</h3>
-    <div id="historyPurchases"></div>
+    <div class="nav-item" data-tab="napTienScreen" onclick="switchTab('napTienScreen')">
+      <div class="nav-icon">💳</div><div class="nav-text">NẠP TIỀN</div>
+    </div>
+    <div class="nav-item" data-tab="topNapScreen" onclick="switchTab('topNapScreen')">
+      <div class="nav-icon">📊</div><div class="nav-text">TOP NẠP</div>
+    </div>
+    <div class="nav-item" data-tab="freeKeyScreen" onclick="switchTab('freeKeyScreen')">
+      <div class="nav-icon">🎁</div><div class="nav-text">FREE KEY</div>
+    </div>
+    <div class="nav-item" data-tab="taiKhoanScreen" onclick="switchTab('taiKhoanScreen')">
+      <div class="nav-icon">👤</div><div class="nav-text">TÀI KHOẢN</div>
+    </div>
   </div>
 
 </div>
 
 <script>
-// ===== CẤU HÌNH NGÂN HÀNG MB BANK =====
 const BANK_ID = 'mbbank'; 
 const ACCOUNT_NO = '2333612345555'; 
 const ACCOUNT_NAME = 'SAMM X MODZ'; 
-// ======================================
 
 let token = localStorage.getItem('sammx_token') || '';
 let currentPoints = 0;
@@ -268,50 +293,44 @@ if (!deviceName) { const rand = () => Math.random().toString(36).substring(2, 5)
 function playMusic() { const music = $('bgMusic'); music.volume = 0.5; music.play().catch(e => { document.body.addEventListener('click', () => { music.play(); }, { once: true }); }); }
 playMusic();
 
-function showScreen(id) {
+function switchTab(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  $(id).classList.add('active');
-  if(id === 'homeScreen') loadTop(); // Load lại top khi về trang chủ
+  $(screenId).classList.add('active');
+  
+  document.querySelectorAll('.nav-item').forEach(nav => {
+    if(nav.dataset.tab === screenId) nav.classList.add('active');
+    else nav.classList.remove('active');
+  });
+
+  if(screenId === 'topNapScreen') loadTop();
+  if(screenId === 'taiKhoanScreen') loadHistory();
 }
 
-function updatePointsUI(pts) { currentPoints = pts; $('pointsValue').textContent = pts; }
+function updatePointsUI(pts) { 
+  currentPoints = pts; 
+  $('pointsValue').textContent = pts + ' đ'; 
+  $('pointsValueAccount').textContent = pts + ' đ';
+}
 
 async function loadMe() {
-  if (!token) return showScreen('authScreen');
+  if (!token) {
+    $('bottomNav').style.display = 'none';
+    return switchTab('authScreen');
+  }
   try {
     const r = await fetch('/api/me', { headers: { 'Authorization': 'Bearer ' + token } });
     if (!r.ok) throw 0;
     const u = await r.json();
     $('welcomeUsername').textContent = u.username;
     updatePointsUI(u.points);
-    showScreen('homeScreen');
-  } catch { token = ''; localStorage.removeItem('sammx_token'); showScreen('authScreen'); }
-}
-
-// TẢI BẢNG XẾP HẠNG
-async function loadTop() {
-  try {
-    const r = await fetch('/api/top');
-    const d = await r.json();
     
-    // Top Nạp
-    if(d.topNaps.length === 0) $('topNapList').innerHTML = '<div style="font-size:0.85rem; color:#888; text-align:center;">Chưa có dữ liệu</div>';
-    else $('topNapList').innerHTML = d.topNaps.map((t, i) => `
-      <div class="rank-item">
-        <div class="${i===0?'rank-top1':i===1?'rank-top2':i===2?'rank-top3':''}">${i+1}. ${t.username}</div>
-        <div style="color:#4dff88; font-weight:bold;">${Number(t.total_amount).toLocaleString()}đ</div>
-      </div>
-    `).join('');
-
-    // Top Mua
-    if(d.topMuas.length === 0) $('topMuaList').innerHTML = '<div style="font-size:0.85rem; color:#888; text-align:center;">Chưa có dữ liệu</div>';
-    else $('topMuaList').innerHTML = d.topMuas.map((t, i) => `
-      <div class="rank-item">
-        <div class="${i===0?'rank-top1':i===1?'rank-top2':i===2?'rank-top3':''}">${i+1}. ${t.username}</div>
-        <div style="color:#d87cff; font-weight:bold;">${t.total_buys} File</div>
-      </div>
-    `).join('');
-  } catch(e){}
+    $('bottomNav').style.display = 'flex';
+    switchTab('muaKeyScreen');
+  } catch { 
+    token = ''; localStorage.removeItem('sammx_token'); 
+    $('bottomNav').style.display = 'none';
+    switchTab('authScreen'); 
+  }
 }
 
 $('loginBtn').onclick = async () => {
@@ -332,14 +351,30 @@ $('registerBtn').onclick = async () => {
 
 $('goToRegister').onclick = () => { $('registerForm').style.display = 'block'; };
 $('goToLogin').onclick = () => { $('registerForm').style.display = 'none'; };
-function logout() { token = ''; localStorage.removeItem('sammx_token'); showScreen('authScreen'); }
+function logout() { token = ''; localStorage.removeItem('sammx_token'); loadMe(); }
 
-function showGame(os) { currentOS = os; $('osTitle').textContent = os === 'ios' ? 'iOS - Chọn Game' : 'Android - Chọn Game'; showScreen('gameSelectScreen'); }
+async function redeemCode() {
+  const code = $('freeKeyInput').value;
+  if(!code) return alert('Vui lòng nhập mã Code!');
+  $('redeemMsg').style.color = '#d87cff'; $('redeemMsg').textContent = 'Đang kiểm tra...';
+  
+  const r = await fetch('/api/redeem', { method:'POST', headers:{ 'Authorization': 'Bearer ' + token, 'Content-Type':'application/json' }, body: JSON.stringify({ code }) });
+  const d = await r.json();
+  
+  if (!r.ok) { $('redeemMsg').style.color = '#ff4d4d'; $('redeemMsg').textContent = d.error; return; }
+  
+  $('redeemMsg').style.color = '#4dff88'; 
+  $('redeemMsg').textContent = `+${d.added} điểm! Tổng: ${d.points} điểm`;
+  updatePointsUI(d.points); 
+  $('freeKeyInput').value = '';
+}
+
+function showGame(os) { currentOS = os; $('osTitle').textContent = os === 'ios' ? 'iOS - Chọn Game' : 'Android - Chọn Game'; switchTab('gameSelectScreen'); }
 
 async function loadFilesByGame(game) {
   currentGame = game;
   $('fileListTitle').textContent = game === 'ff_max' ? 'Free Fire MAX' : 'Free Fire Thường';
-  showScreen('fileListScreen');
+  switchTab('fileListScreen');
   $('fileListContent').innerHTML = 'Đang tải dữ liệu...';
   const r = await fetch('/api/files'); allFiles = await r.json();
   const filtered = allFiles.filter(f => f.os === currentOS && f.game === currentGame);
@@ -358,7 +393,7 @@ async function loadFilesByGame(game) {
     let priceHtml = `<b>${fPoints} điểm</b>`;
     if (fSale > 0 && fSale < fPoints) priceHtml = `<span style="text-decoration:line-through; color:#888;">${fPoints}</span> <b style="color:#ff4d4d;">${fSale} (SALE)</b>`;
     
-    return `<div class="file-card">${img}<div class="file-body"><div style="flex:1;"><div style="font-weight:bold; font-size:1.05rem; color: #fff;">${fName}</div><div style="font-size:0.8rem; color:#d0a0e0; margin-top: 4px;">Dung lượng: ${(fSize/1024).toFixed(1)} KB<br>Giá: ${priceHtml} • Kho: ${fStock}</div></div><button class="fi-btn" onclick="buyFile(${f.id}, '${fName}')">MUA NGAY</button></div></div>`;
+    return `<div class="file-card">${img}<div class="file-body"><div style="flex:1;"><div style="font-weight:bold; font-size:1rem; color: #fff;">${fName}</div><div style="font-size:0.75rem; color:#d0a0e0; margin-top: 4px;">Dung lượng: ${(fSize/1024).toFixed(1)} KB<br>Giá: ${priceHtml} • Kho: ${fStock}</div></div><button class="fi-btn" onclick="buyFile(${f.id}, '${fName}')">MUA</button></div></div>`;
   }).join('');
 }
 
@@ -396,17 +431,55 @@ async function submitTopup() {
   }
 }
 
+// GỘP TOP NẠP VÀ MUA VÀO 1 HÀM
+async function loadTop() {
+  try {
+    const r = await fetch('/api/top');
+    const d = await r.json();
+    
+    if(d.topNaps.length === 0) $('topNapList').innerHTML = '<div style="font-size:0.75rem; color:#888; text-align:center;">Chưa có</div>';
+    else $('topNapList').innerHTML = d.topNaps.map((t, i) => `
+      <div class="rank-row">
+        <div class="rank-name" style="color:${i===0?'#ffd700':i===1?'#c0c0c0':i===2?'#cd7f32':'#fff'}">${i+1}. ${t.username}</div>
+        <div class="rank-val">${Number(t.total_amount).toLocaleString()}đ</div>
+      </div>
+    `).join('');
+
+    if(d.topMuas.length === 0) $('topMuaList').innerHTML = '<div style="font-size:0.75rem; color:#888; text-align:center;">Chưa có</div>';
+    else $('topMuaList').innerHTML = d.topMuas.map((t, i) => `
+      <div class="rank-row">
+        <div class="rank-name" style="color:${i===0?'#ffd700':i===1?'#c0c0c0':i===2?'#cd7f32':'#fff'}">${i+1}. ${t.username}</div>
+        <div class="rank-val" style="color:#d87cff;">${t.total_buys} File</div>
+      </div>
+    `).join('');
+  } catch(e){}
+}
+
+// CHUYỂN TAB LỊCH SỬ
+function switchHistory(type) {
+  document.querySelectorAll('.history-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.history-content').forEach(c => c.classList.remove('active'));
+  
+  if(type === 'nap') {
+    document.querySelectorAll('.history-tab')[0].classList.add('active');
+    $('historyNap').classList.add('active');
+  } else {
+    document.querySelectorAll('.history-tab')[1].classList.add('active');
+    $('historyMua').classList.add('active');
+  }
+}
+
 async function loadHistory() {
-  $('historyTopups').innerHTML = 'Đang tải...';
-  $('historyPurchases').innerHTML = 'Đang tải...';
+  $('historyNap').innerHTML = 'Đang tải...';
+  $('historyMua').innerHTML = 'Đang tải...';
   const r = await fetch('/api/history', { headers: { 'Authorization': 'Bearer ' + token } });
   const d = await r.json();
 
-  if (d.topups.length === 0) $('historyTopups').innerHTML = '<div style="color:#b090c0; font-size:0.9rem;">Chưa có lịch sử nạp.</div>';
-  else $('historyTopups').innerHTML = d.topups.map(t => `<div class="history-item">💵 Nạp ${t.amount.toLocaleString()}đ (${t.points} điểm) - <b style="color:${t.status==='pending'?'#ffcc00':'#4dff88'}">${t.status === 'pending' ? 'ĐANG XÁC MINH' : 'Thành công'}</b><br><span style="font-size:0.8rem; color:#888;">${new Date(t.created_at).toLocaleString()}</span></div>`).join('');
+  if (d.topups.length === 0) $('historyNap').innerHTML = '<div style="color:#b090c0; font-size:0.85rem; text-align:center;">Chưa có lịch sử nạp.</div>';
+  else $('historyNap').innerHTML = d.topups.map(t => `<div class="history-item">💵 Nạp ${t.amount.toLocaleString()}đ (${t.points} điểm) - <b style="color:${t.status==='pending'?'#ffcc00':'#4dff88'}">${t.status === 'pending' ? 'ĐANG XÁC MINH' : 'Thành công'}</b></div>`).join('');
 
-  if (d.purchases.length === 0) $('historyPurchases').innerHTML = '<div style="color:#b090c0; font-size:0.9rem;">Chưa có lịch sử mua.</div>';
-  else $('historyPurchases').innerHTML = d.purchases.map(p => `<div class="history-item">🛒 Mua "${p.file_name}" - <b style="color:#d87cff">-${p.price} điểm</b><br><span style="font-size:0.8rem; color:#888;">${new Date(p.created_at).toLocaleString()}</span></div>`).join('');
+  if (d.purchases.length === 0) $('historyMua').innerHTML = '<div style="color:#b090c0; font-size:0.85rem; text-align:center;">Chưa có lịch sử mua.</div>';
+  else $('historyMua').innerHTML = d.purchases.map(p => `<div class="history-item">🛒 Mua "${p.file_name}" - <b style="color:#d87cff">-${p.price} điểm</b></div>`).join('');
 }
 
 loadMe();
