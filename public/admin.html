@@ -93,7 +93,7 @@
   </div>
 </div>
 
-<!-- MODAL SỬA FILE -->
+<!-- MODAL SỬA FILE (Đã thêm ô chọn ảnh) -->
 <div id="editModal" class="modal hidden">
   <div class="modal-content">
     <h2 style="margin-bottom: 20px; justify-content: center;">✏️ SỬA FILE</h2>
@@ -104,6 +104,13 @@
       <div class="input-group" style="flex:1;"><label>Giá Sale</label><input type="number" id="editSalePoints" min="0"></div>
       <div class="input-group" style="flex:1;"><label>Kho</label><input type="number" id="editStock" min="0"></div>
     </div>
+    
+    <!-- Ô CHỌN ẢNH MỚI -->
+    <div class="input-group" style="margin-top: 16px; border-top: 1px dashed rgba(216,124,255,0.3); padding-top: 16px;">
+      <label style="color: #ffcc00;">Thay ảnh bìa mới (Bỏ trống nếu giữ nguyên)</label>
+      <input type="file" id="editImage" accept="image/*">
+    </div>
+
     <div style="display:flex; gap:12px; margin-top:24px;">
       <button class="btn btn-edit" onclick="saveEdit()">LƯU LẠI</button>
       <button class="btn btn-del" onclick="closeModal()">HỦY</button>
@@ -127,10 +134,7 @@ function enterAdmin(){
   loadFiles(); loadCodes(); loadUsers();
   
   // TỰ ĐỘNG CẬP NHẬT USER VÀ FILE MỖI 5 GIÂY
-  setInterval(() => {
-    loadUsers();
-    loadFiles();
-  }, 5000);
+  setInterval(() => { loadUsers(); loadFiles(); }, 5000);
 }
 
 $('uploadBtn').onclick = async () => {
@@ -179,11 +183,23 @@ async function loadFiles(){
 }
 
 async function delFile(id) { if(confirm('Xóa file này?')) { await fetch('/api/admin/files/'+id, {method:'DELETE', headers:auth()}); loadFiles(); } }
-function openEdit(id, name, points, sale_points, stock) { $('editId').value = id; $('editName').value = name; $('editPoints').value = points; $('editSalePoints').value = sale_points || 0; $('editStock').value = stock || 0; $('editModal').classList.remove('hidden'); }
+function openEdit(id, name, points, sale_points, stock) { 
+  $('editId').value = id; $('editName').value = name; $('editPoints').value = points; $('editSalePoints').value = sale_points || 0; $('editStock').value = stock || 0; 
+  $('editImage').value = ''; // Reset ô chọn ảnh
+  $('editModal').classList.remove('hidden'); 
+}
 function closeModal() { $('editModal').classList.add('hidden'); }
+
 async function saveEdit() {
   const id = $('editId').value;
-  const r = await fetch('/api/admin/files/' + id, { method: 'PUT', headers: { ...auth(), 'Content-Type':'application/json' }, body: JSON.stringify({ name: $('editName').value, points: parseInt($('editPoints').value), sale_points: parseInt($('editSalePoints').value), stock: parseInt($('editStock').value) }) });
+  const fd = new FormData();
+  fd.append('name', $('editName').value);
+  fd.append('points', $('editPoints').value);
+  fd.append('sale_points', $('editSalePoints').value);
+  fd.append('stock', $('editStock').value);
+  if ($('editImage').files[0]) fd.append('image', $('editImage').files[0]); // Thêm ảnh nếu có
+  
+  const r = await fetch('/api/admin/files/' + id, { method: 'PUT', headers: auth(), body: fd });
   if (r.ok) { alert('Cập nhật thành công!'); closeModal(); loadFiles(); } else { alert('Lỗi cập nhật!'); }
 }
 
@@ -209,7 +225,7 @@ async function loadUsers(){
     <div class="user-row">
       <div>
         <div style="font-weight:700; color:#fff;">👤 ${u.username}</div>
-        <div style="font-size:0.75rem; color:#b090c0; margin-top:4px;">📱 Thiết bị: ${u.device || 'Chưa rõ'}</div>
+        <div style="font-size:0.75rem; color:#b090c0; margin-top:4px;">📱 Thiết bị: <b style="color:#d87cff;">${u.device || 'Chưa rõ'}</b></div>
       </div>
       <span style="color:#d87cff; font-weight:800; background:rgba(216,124,255,0.1); padding:6px 12px; border-radius:8px;">${u.points} điểm</span>
     </div>
