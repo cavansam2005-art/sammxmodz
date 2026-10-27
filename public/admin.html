@@ -52,7 +52,7 @@
     
     <div class="panel" style="border-color: #0088ff; box-shadow: 0 0 20px rgba(0,136,255,0.2);">
       <h2 style="color: #4da6ff;">💸 Nạp điểm cho Thiết bị</h2>
-      <p style="font-size: 0.75rem; color: #b090c0; margin-bottom: 12px;">Nhập mã thiết bị (VD: SAMM-XXX-XXX) để cộng điểm trực tiếp cho tài khoản.</p>
+      <p style="font-size: 0.75rem; color: #b090c0; margin-bottom: 12px;">Nhập mã thiết bị (VD: SAMM-XXX-XXX) để cộng điểm trực tiếp.</p>
       <div style="display:flex; gap:12px;">
         <div class="input-group" style="flex:2; margin:0;"><label>Mã thiết bị</label><input type="text" id="deviceToPoint" placeholder="SAMM-XXX-XXX-XXX"></div>
         <div class="input-group" style="flex:1; margin:0;"><label>Số điểm</label><input type="number" id="pointsToAdd" value="100" min="1"></div>
@@ -68,11 +68,18 @@
         <div class="input-group" style="flex:1;"><label>Giá Sale</label><input type="number" id="upSalePoints" value="0" min="0"></div>
         <div class="input-group" style="flex:1;"><label>Kho (SL)</label><input type="number" id="upStock" value="100" min="0"></div>
       </div>
-      <div style="border: 1px dashed rgba(216,124,255,0.3); padding: 16px; border-radius: 16px; margin-bottom: 16px;">
-        <div class="input-group" style="margin-bottom: 12px;"><label style="color:#ffcc00;">Cách 1: Nhập Link URL</label><input type="text" id="upFileUrl" placeholder="https://..."></div>
-        <div class="input-group" style="margin-bottom: 0;"><label style="color:#ffcc00;">Cách 2: Tải file lên</label><input type="file" id="upFile"></div>
+      
+      <!-- PHẦN LINK ẢNH MỚI (KHÔNG BỊ MẤT) -->
+      <div class="input-group" style="border-top: 1px dashed rgba(216,124,255,0.3); padding-top: 16px;">
+        <label style="color: #ffcc00;">Link Ảnh Bìa (Dán link từ Catbox/Google, không bao giờ mất)</label>
+        <input type="text" id="upImageUrl" placeholder="https://... (Link ảnh .jpg, .png)">
       </div>
-      <div class="input-group"><label>Ảnh bìa</label><input type="file" id="upImage" accept="image/*"></div>
+      
+      <div style="border: 1px dashed rgba(216,124,255,0.3); padding: 16px; border-radius: 16px; margin-bottom: 16px;">
+        <div class="input-group" style="margin-bottom: 12px;"><label style="color:#ffcc00;">Link File tải xuống (Cách 1)</label><input type="text" id="upFileUrl" placeholder="https://..."></div>
+        <div class="input-group" style="margin-bottom: 0;"><label style="color:#ffcc00;">Hoặc Tải file lên (Cách 2 - Dễ mất)</label><input type="file" id="upFile"></div>
+      </div>
+      
       <button class="btn" id="uploadBtn" style="margin-top: 10px;">TẢI LÊN / ĐĂNG BÀI</button>
     </div>
 
@@ -81,7 +88,6 @@
       <div id="fileList"></div>
     </div>
 
-    <!-- PHẦN TẠO CODE ĐÃ THÊM Ô SỐ THIẾT BỊ -->
     <div class="panel">
       <h2>🎟 Tạo Code</h2>
       <div style="display:flex; gap:12px; margin-bottom:16px;">
@@ -163,18 +169,9 @@ async function addPointsToDevice() {
   const device = $('deviceToPoint').value.trim();
   const points = parseInt($('pointsToAdd').value);
   if(!device || !points) return alert('Nhập đủ mã thiết bị và số điểm!');
-  
-  const r = await fetch('/api/admin/device/points', {
-    method: 'POST',
-    headers: { ...auth(), 'Content-Type':'application/json' },
-    body: JSON.stringify({ device, points })
-  });
+  const r = await fetch('/api/admin/device/points', { method: 'POST', headers: { ...auth(), 'Content-Type':'application/json' }, body: JSON.stringify({ device, points }) });
   const d = await r.json();
-  if (r.ok) {
-    alert(`Đã cộng ${points} điểm cho thiết bị ${device}!`);
-    $('deviceToPoint').value = ''; $('pointsToAdd').value = '100';
-    loadUsers();
-  } else { alert(d.error); }
+  if (r.ok) { alert(`Đã cộng ${points} điểm cho thiết bị ${device}!`); $('deviceToPoint').value = ''; $('pointsToAdd').value = '100'; loadUsers(); } else { alert(d.error); }
 }
 
 $('uploadBtn').onclick = async () => {
@@ -186,8 +183,8 @@ $('uploadBtn').onclick = async () => {
   fd.append('sale_points', $('upSalePoints').value || 0);
   fd.append('stock', $('upStock').value || 0);
   if ($('upFileUrl').value.trim()) fd.append('file_url', $('upFileUrl').value.trim());
+  if ($('upImageUrl').value.trim()) fd.append('image_url', $('upImageUrl').value.trim()); // Gửi link ảnh
   if ($('upFile').files[0]) fd.append('file', $('upFile').files[0]);
-  if ($('upImage').files[0]) fd.append('image', $('upImage').files[0]);
   
   $('uploadBtn').textContent = 'ĐANG XỬ LÝ...';
   const r = await fetch('/api/admin/upload', { method:'POST', headers: auth(), body: fd });
@@ -195,14 +192,14 @@ $('uploadBtn').onclick = async () => {
   
   if (r.ok) { 
     alert('Đăng file thành công!'); 
-    $('upName').value=''; $('upPoints').value='10'; $('upSalePoints').value='0'; $('upStock').value='100'; $('upFile').value=''; $('upImage').value=''; $('upFileUrl').value='';
+    $('upName').value=''; $('upPoints').value='10'; $('upSalePoints').value='0'; $('upStock').value='100'; $('upFile').value=''; $('upImageUrl').value=''; $('upFileUrl').value='';
     loadFiles(); 
   } else { const d = await r.json(); alert(d.error || 'Lỗi upload!'); }
 };
 
 async function loadFiles(){
   const r = await fetch('/api/files'); const files = await r.json();
-  if(files.length === 0) { $('fileList').innerHTML = '<div style="text-align:center; color:#b090c0; padding:10px;">Chưa có file nào.</div>'; return; }
+  if(files.length === 0) { $('fileList').innerHTML = '<div style="text-align:center; color:#b090c0; padding:10px;">Chưa có file.</div>'; return; }
   
   $('fileList').innerHTML = files.map(f => {
     let priceHtml = `<span>${f.points} điểm</span>`;
@@ -210,7 +207,9 @@ async function loadFiles(){
       priceHtml = `<span style="text-decoration:line-through; color:#888;">${f.points}</span> <span class="badge-sale">SALE ${f.sale_points}</span>`;
     }
     let imgHtml = '';
-    if (f.image_path && f.image_path !== 'null' && f.image_path !== '') {
+    if (f.image_url) {
+      imgHtml = `<img src="${f.image_url}" class="file-cover" onerror="this.outerHTML='<div class=file-cover style=display:flex;align-items:center;justify-content:center;font-size:2rem;>📄</div>'">`;
+    } else if (f.image_path && f.image_path !== 'null' && f.image_path !== '') {
       imgHtml = `<img src="${f.image_path}" class="file-cover" onerror="this.outerHTML='<div class=file-cover style=display:flex;align-items:center;justify-content:center;font-size:2rem;>📄</div>'">`;
     } else {
       imgHtml = `<div class="file-cover" style="display:flex;align-items:center;justify-content:center;font-size:2rem;">📄</div>`;
@@ -242,22 +241,12 @@ async function saveEdit() {
   fd.append('sale_points', $('editSalePoints').value);
   fd.append('stock', $('editStock').value);
   if ($('editImage').files[0]) fd.append('image', $('editImage').files[0]);
-  
   const r = await fetch('/api/admin/files/' + id, { method: 'PUT', headers: auth(), body: fd });
   if (r.ok) { alert('Cập nhật thành công!'); closeModal(); loadFiles(); } else { alert('Lỗi cập nhật!'); }
 }
 
-// TẠO CODE
 $('createCodeBtn').onclick = async () => {
-  const r = await fetch('/api/admin/codes', { 
-    method:'POST', 
-    headers:{...auth(), 'Content-Type':'application/json'}, 
-    body: JSON.stringify({ 
-      points: parseInt($('codePoints').value), 
-      count: parseInt($('codeCount').value),
-      max_devices: parseInt($('codeMaxDevices').value)
-    }) 
-  });
+  const r = await fetch('/api/admin/codes', { method:'POST', headers:{...auth(), 'Content-Type':'application/json'}, body: JSON.stringify({ points: parseInt($('codePoints').value), count: parseInt($('codeCount').value), max_devices: parseInt($('codeMaxDevices').value) }) });
   const d = await r.json();
   if (r.ok) { $('newCodes').style.display = 'block'; $('newCodes').innerHTML = d.codes.map(c => `<span class="code-tag">${c}</span>`).join(''); loadCodes(); }
 };
@@ -265,12 +254,9 @@ $('createCodeBtn').onclick = async () => {
 async function loadCodes(){
   const r = await fetch('/api/admin/codes', { headers: auth() }); const codes = await r.json();
   if(codes.length === 0) { $('codeList').innerHTML = '<div style="text-align:center; color:#b090c0; padding:10px;">Chưa có code.</div>'; return; }
-  
   $('codeList').innerHTML = codes.map(c => `
     <div class="code-row">
-      <div style="flex:1; overflow:hidden;">
-        <span class="code-tag">${c.code}</span>
-      </div>
+      <div style="flex:1; overflow:hidden;"><span class="code-tag">${c.code}</span></div>
       <div style="font-size:0.75rem; color:#b090c0; margin-right:10px; text-align:right;">
         <div>${c.points} điểm</div>
         <div style="color:${c.used_count >= c.max_devices ? '#ff4d4d' : '#4dff88'}">Đã dùng: ${c.used_count}/${c.max_devices}</div>
@@ -284,7 +270,6 @@ async function delCode(id) { if(confirm('Xóa Key này?')) { await fetch('/api/a
 async function loadUsers(){
   const r = await fetch('/api/admin/users', { headers: auth() }); const users = await r.json();
   if(users.length === 0) { $('userList').innerHTML = '<div style="text-align:center; color:#b090c0; padding:10px;">Chưa có user.</div>'; return; }
-  
   $('userList').innerHTML = users.map(u => `
     <div class="user-row">
       <div style="flex:1; overflow:hidden;">
@@ -303,11 +288,7 @@ function closeDeviceModal() { $('deviceModal').classList.add('hidden'); }
 async function saveDevice() {
   const id = $('devUserId').value;
   const device = $('devName').value;
-  const r = await fetch('/api/admin/users/' + id + '/device', {
-    method: 'PUT',
-    headers: { ...auth(), 'Content-Type':'application/json' },
-    body: JSON.stringify({ device })
-  });
+  const r = await fetch('/api/admin/users/' + id + '/device', { method: 'PUT', headers: { ...auth(), 'Content-Type':'application/json' }, body: JSON.stringify({ device }) });
   if (r.ok) { alert('Đã cập nhật thiết bị!'); closeDeviceModal(); loadUsers(); } else { alert('Lỗi!'); }
 }
 
