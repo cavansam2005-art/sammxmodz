@@ -159,6 +159,22 @@ app.post('/api/files/buy', authUser, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
+// ===== API CODE =====
+app.post('/api/redeem', authUser, async (req, res) => {
+  const { code } = req.body;
+  if (!code) return res.status(400).json({ error: 'Chưa nhập code' });
+  try {
+    const cResult = await pool.query('SELECT * FROM codes WHERE code = $1', [code.trim().toUpperCase()]);
+    const c = cResult.rows[0];
+    if (!c) return res.status(400).json({ error: 'Code không tồn tại' });
+    if (c.used_count >= c.max_devices) return res.status(400).json({ error: 'Code này đã hết lượt sử dụng!' });
+    await pool.query('UPDATE codes SET used_count = used_count + 1 WHERE id = $1', [c.id]);
+    await pool.query('UPDATE users SET points = points + $1 WHERE id = $2', [c.points, req.user.id]);
+    const updated = await pool.query('SELECT points FROM users WHERE id = $1', [req.user.id]);
+    res.json({ success: true, points: updated.rows[0].points, added: c.points });
+  } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
+});
+
 // ===== API ADMIN =====
 app.post('/api/admin/login', (req, res) => {
   const { username, password } = req.body;
@@ -183,25 +199,11 @@ app.post('/api/admin/upload', authAdmin, upload.fields([{ name: 'file', maxCount
   } catch (err) { res.status(500).json({ error: 'Lỗi lưu file' }); }
 });
 
-app.put('/api/admin/files/:id', authAdmin, upload.single('image'), async (req, res) => {
-  const { name, points, sale_points, stock } = req.body;
-  const id = req.params.id;
-  try {
-    if (req.file) {
-      const image_path = '/uploads/' + req.file.filename;
-      await pool.query('UPDATE files SET name = $1, points = $2, sale_points = $3, stock = $4, image_path = $5 WHERE id = $6', [name, points, sale_points, stock, image_path, id]);
-    } else {
-      await pool.query('UPDATE files SET name = $1, points = $2, sale_points = $3, stock = $4 WHERE id = $5', [name, points, sale_points, stock, id]);
-    }
-    res.json({ success: true });
-  } catch (err) { res.status(500).json({ error: 'Lỗi cập nhật' }); }
-});
-
 app.delete('/api/admin/files/:id', authAdmin, async (req, res) => {
   try { await pool.query('DELETE FROM files WHERE id = $1', [req.params.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: 'Lỗi xóa' }); }
 });
 
-// === API NẠP TIỀN ADMIN ===
+// === DUYỆT NẠP & USER ===
 app.get('/api/admin/topups', authAdmin, async (req, res) => {
   try { const result = await pool.query('SELECT * FROM topups ORDER BY id DESC'); res.json(result.rows); } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
@@ -217,27 +219,28 @@ app.post('/api/admin/topups/:id/approve', authAdmin, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
-// === API QUẢN LÝ USER ADMIN ===
 app.get('/api/admin/users', authAdmin, async (req, res) => {
   try { const result = await pool.query('SELECT id, username, points, device FROM users ORDER BY id DESC'); res.json(result.rows); } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
-app.put('/api/admin/users/:id/device', authAdmin, async (req, res) => {
-  try { await pool.query('UPDATE users SET device = $1 WHERE id = $2', [req.body.device, req.params.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: 'Lỗi cập nhật' }); }
-});
-
-app.post('/api/admin/device/points', authAdmin, async (req, res) => {
-  const { device, points } = req.body;
-  if (!device || !points) return res.status(400).json({ error: 'Thiếu thông tin' });
+// SỬA ĐIỂM (GHI ĐÈ)
+app.put('/api/admin/users/:id/setpoints', authAdmin, async (req, res) => {
+  const { points } = req.body;
   try {
-    const userResult = await pool.query('SELECT id FROM users WHERE device = $1', [device]);
-    if (userResult.rows.length === 0) return res.status(404).json({ error: 'Không tìm thấy thiết bị này!' });
-    await pool.query('UPDATE users SET points = points + $1 WHERE id = $2', [points, userResult.rows[0].id]);
+    await pool.query('UPDATE users SET points = $1 WHERE id = $2', [points, req.params.id]);
     res.json({ success: true });
-  } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
+  } catch (err) { res.status(500).json({ error: 'Lỗi cập nhật điểm' }); }
 });
 
-// === API CODE ===
+// XÓA USER
+app.delete('/api/admin/users/:id', authAdmin, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM users WHERE id = $1', [req.params.id]);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: 'Lỗi xóa user' }); }
+});
+
+// === TẠO & QUẢN LÝ CODE ===
 app.post('/api/admin/codes', authAdmin, async (req, res) => {
   const { points, count, max_devices } = req.body;
   const n = Math.min(count || 1, 50);
@@ -258,21 +261,6 @@ app.get('/api/admin/codes', authAdmin, async (req, res) => {
 
 app.delete('/api/admin/codes/:id', authAdmin, async (req, res) => {
   try { await pool.query('DELETE FROM codes WHERE id = $1', [req.params.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: 'Lỗi xóa' }); }
-});
-
-app.post('/api/redeem', authUser, async (req, res) => {
-  const { code } = req.body;
-  if (!code) return res.status(400).json({ error: 'Chưa nhập code' });
-  try {
-    const cResult = await pool.query('SELECT * FROM codes WHERE code = $1', [code.trim().toUpperCase()]);
-    const c = cResult.rows[0];
-    if (!c) return res.status(400).json({ error: 'Code không tồn tại' });
-    if (c.used_count >= c.max_devices) return res.status(400).json({ error: 'Code này đã hết lượt sử dụng!' });
-    await pool.query('UPDATE codes SET used_count = used_count + 1 WHERE id = $1', [c.id]);
-    await pool.query('UPDATE users SET points = points + $1 WHERE id = $2', [c.points, req.user.id]);
-    const updated = await pool.query('SELECT points FROM users WHERE id = $1', [req.user.id]);
-    res.json({ success: true, points: updated.rows[0].points, added: c.points });
-  } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
 });
 
 app.listen(PORT, () => console.log(`✅ Server đang chạy tại cổng ${PORT}`));
