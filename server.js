@@ -13,10 +13,9 @@ const JWT_SECRET = 'SAMMXMODZ_VIP_SECRET_2024';
 const ADMIN_USER = 'admin';
 const ADMIN_PASS = 'admin123';
 
-// ====== CẤU HÌNH DATABASE SUPABASE (DÙNG SESSION POOLER) ======
-// Sử dụng cổng 6543 và thêm chữ pooler vào để Render không bị chặn IPv6
-const DATABASE_URL = 'postgresql://postgres.sfzamacyheooutadwjlj:SamKwjff123@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres';
-// =============================================================
+// ====== ĐÃ SỬA LỖI KẾT NỐI DATABASE (SESSION POOLER) ======
+const DATABASE_URL = 'postgresql://postgres.sfzamacyheooutadwjlj:SamKwjff123@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres';
+// ==========================================================
 
 const pool = new Pool({
   connectionString: DATABASE_URL,
