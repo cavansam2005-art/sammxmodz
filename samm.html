@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SAMM X MOD WEB | Premium Store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root {
+    --primary: #00f3ff;
+    --secondary: #ff00ea;
+    --bg: #030305;
+    --panel: rgba(15, 15, 25, 0.7);
+    --border: rgba(255, 255, 255, 0.08);
+    --text: #ffffff;
+    --muted: #8a8a9e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+  
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image: 
+      radial-gradient(circle at 0% 0%, rgba(0, 243, 255, 0.1), transparent 30%),
+      radial-gradient(circle at 100% 100%, rgba(255, 0, 234, 0.1), transparent 30%);
+    background-attachment: fixed;
+  }
+
+  /* --- HIỆU ỨNG NỀN LƯỚI --- */
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: -1;
+    background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 30px 30px;
+    mask-image: radial-gradient(circle at center, black, transparent 80%);
+    -webkit-mask-image: radial-gradient(circle at center, black, transparent 80%);
+  }
+
+  /* --- HEADER --- */
+  header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 20px; background: rgba(3, 3, 5, 0.8);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  }
+  .logo {
+    font-size: 24px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+    background: linear-gradient(90deg, var(--primary), #fff, var(--secondary));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(0, 243, 255, 0.5));
+    display: flex; align-items: center; gap: 10px;
+  }
+  .nav-btns { display: flex; gap: 10px; }
+  button { font-family: 'Outfit', sans-serif; cursor: pointer; transition: 0.3s; border: none; outline: none; }
+  
+  .btn-outline { background: rgba(0, 243, 255, 0.05); color: var(--primary); border: 1px solid var(--primary); padding: 8px 18px; border-radius: 10px; font-weight: 600; backdrop-filter: blur(5px); }
+  .btn-outline:hover { background: rgba(0, 243, 255, 0.15); box-shadow: 0 0 15px rgba(0, 243, 255, 0.3); }
+  
+  .btn-solid { background: linear-gradient(45deg, var(--secondary), var(--primary)); color: #000; padding: 8px 18px; border-radius: 10px; font-weight: 800; box-shadow: 0 0 20px rgba(255, 0, 234, 0.3); }
+  .btn-solid:hover { transform: translateY(-2px); box-shadow: 0 5px 25px rgba(255, 0, 234, 0.5); }
+
+  /* --- MAIN LAYOUT --- */
+  .container { max-width: 900px; margin: 0 auto; padding: 25px 20px; }
+  
+  /* --- TABS --- */
+  .tabs {
+    display: flex; background: rgba(255,255,255,0.02); border-radius: 14px;
+    padding: 6px; margin-bottom: 30px; border: 1px solid var(--border);
+    backdrop-filter: blur(10px); width: fit-content; margin-left: auto; margin-right: auto;
+  }
+  .tab {
+    padding: 10px 24px; font-size: 14px; font-weight: 700; color: var(--muted);
+    border-radius: 10px; transition: 0.3s; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .tab.active {
+    background: rgba(0, 243, 255, 0.1); color: var(--primary);
+    box-shadow: inset 0 0 15px rgba(0, 243, 255, 0.1);
+  }
+
+  /* --- MOD CARDS --- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+  .mod-card {
+    background: var(--panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border); border-radius: 20px; padding: 20px;
+    position: relative; overflow: hidden; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex; flex-direction: column; gap: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+  .mod-card::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    opacity: 0.5; transition: 0.3s;
+  }
+  .mod-card:hover { transform: translateY(-5px); border-color: rgba(0, 243, 255, 0.3); box-shadow: 0 15px 40px rgba(0,0,0,0.4), 0 0 20px rgba(0,243,255,0.1); }
+  .mod-card:hover::before { opacity: 1; box-shadow: 0 0 15px var(--primary); }
+  
+  .mod-header { display: flex; justify-content: space-between; align-items: flex-start; }
+  .mod-title { font-size: 18px; font-weight: 800; color: #fff; line-height: 1.3; }
+  .mod-badge { font-size: 10px; font-weight: 800; background: rgba(0, 243, 255, 0.1); color: var(--primary); padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(0, 243, 255, 0.2); text-transform: uppercase; }
+  
+  .mod-meta { display: flex; gap: 15px; font-size: 13px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+  .mod-meta i { color: var(--secondary); margin-right: 4px; }
+  
+  .btn-download {
+    display: flex; justify-content: center; align-items: center; gap: 10px;
+    background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.1);
+    color: #fff; text-decoration: none; padding: 14px; border-radius: 12px;
+    font-weight: 800; margin-top: auto; transition: 0.3s; letter-spacing: 1px;
+  }
+  .btn-download:hover { background: linear-gradient(45deg, var(--primary), var(--secondary)); color: #000; border-color: transparent; box-shadow: 0 0 25px rgba(255,0,234,0.4); transform: scale(1.02); }
+
+  /* --- PROFILE --- */
+  .profile-card {
+    background: var(--panel); backdrop-filter: blur(25px); border-radius: 24px;
+    padding: 40px 25px; border: 1px solid var(--border); text-align: center;
+    max-width: 500px; margin: 0 auto; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    animation: slideUp 0.5s ease;
+  }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  .avatar {
+    width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 20px;
+    background: linear-gradient(45deg, var(--secondary), var(--primary));
+    display: grid; place-items: center; font-size: 36px; font-weight: 900; color: #000;
+    box-shadow: 0 0 40px rgba(0, 243, 255, 0.4), inset 0 0 20px rgba(255,255,255,0.5);
+    border: 3px solid rgba(255,255,255,0.2);
+  }
+  .bio {
+    background: rgba(0,0,0,0.4); padding: 25px; border-radius: 16px;
+    font-size: 15px; color: #d1d1e0; border-left: 4px solid var(--primary);
+    text-align: left; margin-top: 25px; line-height: 1.8; font-weight: 300;
+  }
+  
+  /* --- MODALS --- */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px);
+    display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px;
+  }
+  .modal-content {
+    background: #0a0a10; border: 1px solid rgba(0, 243, 255, 0.3); border-radius: 24px;
+    padding: 35px 25px; width: 100%; max-width: 400px; box-shadow: 0 0 60px rgba(0, 243, 255, 0.15);
+    animation: popUp 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes popUp { from { transform: scale(0.9) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+  .modal-content h2 { text-align: center; margin-bottom: 30px; font-size: 24px; color: #fff; font-weight: 800; letter-spacing: 1px; }
+  .input-group { margin-bottom: 20px; position: relative; }
+  .input-group i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--primary); font-size: 16px; }
+  .input-group input {
+    width: 100%; padding: 16px 18px 16px 50px; border-radius: 14px;
+    border: 1px solid var(--border); background: rgba(0,0,0,0.6);
+    color: #fff; font-size: 15px; outline: none; transition: 0.3s; font-family: 'JetBrains Mono', monospace;
+  }
+  .input-group input:focus { border-color: var(--primary); box-shadow: 0 0 20px rgba(0,243,255,0.2); background: rgba(0,243,255,0.05); }
+  .modal-actions { display: flex; gap: 12px; margin-top: 30px; }
+  .modal-actions button { flex: 1; padding: 16px; border-radius: 14px; font-weight: 800; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* --- CHATBOT --- */
+  .chatbot-btn {
+    position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px;
+    border-radius: 50%; background: linear-gradient(135deg, #0068ff, #00c6ff);
+    display: grid; place-items: center; cursor: pointer; z-index: 1000;
+    box-shadow: 0 10px 30px rgba(0, 104, 255, 0.5), inset 0 0 15px rgba(255,255,255,0.4);
+    animation: float 3s ease-in-out infinite; transition: 0.3s;
+  }
+  .chatbot-btn i { font-size: 30px; color: #fff; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+  .chatbot-btn:hover { transform: scale(1.1) rotate(5deg); }
+  @keyframes float { 0% { transform: translateY(0); } 50% { transform: translateY(-12px); } 100% { transform: translateY(0); } }
+
+  .chatbot-menu {
+    position: fixed; bottom: 110px; right: 30px; width: 280px;
+    background: rgba(10, 10, 16, 0.95); backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 243, 255, 0.3); border-radius: 20px;
+    padding: 15px; display: none; flex-direction: column; gap: 12px; z-index: 1000;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8); transform-origin: bottom right;
+    animation: popUp 0.3s ease;
+  }
+  .chatbot-menu a {
+    display: flex; align-items: center; gap: 15px; padding: 15px;
+    border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 14px;
+    color: #fff; transition: 0.2s; border: 1px solid transparent;
+  }
+  .chatbot-menu a i { font-size: 24px; width: 30px; text-align: center; }
+  .chatbot-menu a.zalo { background: rgba(0, 104, 255, 0.1); }
+  .chatbot-menu a.zalo:hover { background: #0068ff; border-color: #0068ff; box-shadow: 0 0 20px rgba(0,104,255,0.4); }
+  .chatbot-menu a.group { background: rgba(254, 44, 85, 0.1); }
+  .chatbot-menu a.group:hover { background: #fe2c55; border-color: #fe2c55; box-shadow: 0 0 20px rgba(254,44,85,0.4); }
+
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 15px; grid-column: 1 / -1; }
+  .empty-state i { font-size: 50px; margin-bottom: 20px; opacity: 0.3; color: var(--primary); }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><i class="fa-solid fa-cube"></i> SAMM X MOD</div>
+  <div class="nav-btns" id="navBtns">
+    <button class="btn-outline" onclick="openLogin()">Đăng nhập</button>
+    <button class="btn-solid" onclick="openRegister()">Đăng ký</button>
+  </div>
+</header>
+
+<div class="container">
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('home', this)">Trang Chủ</div>
+    <div class="tab" onclick="switchTab('orders', this)" id="tabOrders" style="display:none;">Đơn Hàng</div>
+  </div>
+
+  <!-- TRANG CHỦ -->
+  <div id="homeView">
+    <div class="grid" id="modsList">
+      <div class="empty-state"><i class="fa-solid fa-circle-notch fa-spin"></i><br>Đang tải kho file...</div>
+    </div>
+  </div>
+
+  <!-- ĐƠN HÀNG -->
+  <div id="ordersView" class="hidden">
+    <div class="grid" id="ordersList"></div>
+  </div>
+
+  <!-- TÀI KHOẢN -->
+  <div id="profileView" class="hidden">
+    <div class="profile-card">
+      <div class="avatar" id="profileAvatar">S</div>
+      <h2 id="profileName" style="font-size: 28px; font-weight: 800;">SAMM X MODZ</h2>
+      <p id="profileAuthor" style="color: var(--primary); font-weight: 700; font-family: 'JetBrains Mono', monospace; margin-top: 5px; font-size: 13px; letter-spacing: 1px;">TÁC GIẢ: VAN SAM</p>
+      <div class="bio" id="profileBio"></div>
+      <button onclick="logout()" style="margin-top: 30px; width: 100%; padding: 16px; background: rgba(255,0,0,0.1); color: #ff4d4f; border: 1px solid #ff4d4f; border-radius: 14px; cursor: pointer; font-weight: 800; font-size: 15px; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;"><i class="fa-solid fa-right-from-bracket"></i> Đăng Xuất</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AUTH -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal-content">
+    <h2 id="modalTitle">Đăng Nhập</h2>
+    <div class="input-group">
+      <i class="fa-solid fa-user-astronaut"></i>
+      <input type="text" id="authUser" placeholder="Tên đăng nhập" autocomplete="off">
+    </div>
+    <div class="input-group">
+      <i class="fa-solid fa-shield-halved"></i>
+      <input type="password" id="authPass" placeholder="Mật khẩu">
+    </div>
+    <div class="modal-actions">
+      <button onclick="closeModal()" style="background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border);">HỦY</button>
+      <button onclick="submitAuth()" style="background: linear-gradient(45deg, var(--secondary), var(--primary)); color: #000;" id="modalSubmitBtn">ĐĂNG NHẬP</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHATBOT LIÊN HỆ -->
+<div class="chatbot-btn" onclick="toggleChatbot()">
+  <i class="fa-solid fa-headset"></i>
+</div>
+<div class="chatbot-menu" id="chatbotMenu">
+  <a href="https://zalo.me/0355757211" target="_blank" class="zalo">
+    <i class="fa-solid fa-user-shield"></i>
+    <div>
+      <div style="font-size: 12px; color: #8ab4ff; font-weight: 600; text-transform: uppercase;">Liên hệ Admin</div>
+      <div style="font-family: 'JetBrains Mono'; font-size: 16px;">0355757211</div>
+    </div>
+  </a>
+  <a href="https://zalo.me/g/s7dslaz2mkhxgn9dfntj" target="_blank" class="group">
+    <i class="fa-solid fa-users"></i>
+    <div>
+      <div style="font-size: 12px; color: #ff8aa8; font-weight: 600; text-transform: uppercase;">Cộng đồng</div>
+      <div style="font-size: 15px;">Nhóm SAMM VIP IOS</div>
+    </div>
+  </a>
+</div>
+
+<script>
+  // ĐÃ CẬP NHẬT LINK SERVER CỦA BẠN
+  const SERVER_URL = "https://sammxmodz.onrender.com"; 
+  
+  let currentUser = localStorage.getItem('samm_user');
+  let currentBio = localStorage.getItem('samm_bio');
+  let currentAuthor = localStorage.getItem('samm_author');
+  let isLoginMode = true;
+
+  // Ghi nhận ID Thiết bị ngầm
+  let deviceId = localStorage.getItem('samm_device_id');
+  if (!deviceId) {
+    deviceId = 'DEV_' + Math.random().toString(36).substring(2, 15).toUpperCase();
+    localStorage.setItem('samm_device_id', deviceId);
+  }
+  fetch(SERVER_URL + '/api/track-device', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ device_id: deviceId })
+  }).catch(()=>{});
+
+  function updateUI() {
+    const navBtns = document.getElementById('navBtns');
+    if (currentUser) {
+      navBtns.innerHTML = `<button class="btn-solid" onclick="showProfile()"><i class="fa-solid fa-user-astronaut"></i> ${currentUser}</button>`;
+      document.getElementById('tabOrders').style.display = 'block';
+    } else {
+      navBtns.innerHTML = `
+        <button class="btn-outline" onclick="openLogin()">Đăng nhập</button>
+        <button class="btn-solid" onclick="openRegister()">Đăng ký</button>
+      `;
+      document.getElementById('tabOrders').style.display = 'none';
+    }
+  }
+  updateUI();
+
+  async function loadMods() {
+    try {
+      const res = await fetch(SERVER_URL + '/api/mods');
+      const mods = await res.json();
+      const list = document.getElementById('modsList');
+      
+      if (mods.length === 0) {
+        list.innerHTML = '<div class="empty-state"><i class="fa-solid fa-box-open"></i><br>Chưa có file mod nào. Admin đang cập nhật...</div>';
+        return;
+      }
+
+      list.innerHTML = mods.map(m => `
+        <div class="mod-card">
+          <div class="mod-header">
+            <div class="mod-title">${m.title}</div>
+            <div class="mod-badge">Premium</div>
+          </div>
+          <div class="mod-meta">
+            <span><i class="fa-solid fa-user-pen"></i> ${m.author}</span>
+            <span><i class="fa-solid fa-weight-hanging"></i> ${m.size}</span>
+          </div>
+          <div class="mod-meta">
+            <span><i class="fa-regular fa-clock"></i> ${m.date}</span>
+          </div>
+          <a href="${SERVER_URL}/api/download/${m.id}?username=${currentUser || ''}" class="btn-download" onclick="setTimeout(loadOrders, 1500)">
+            <i class="fa-solid fa-cloud-arrow-down"></i> TẢI NGAY
+          </a>
+        </div>
+      `).join('');
+    } catch (e) {
+      document.getElementById('modsList').innerHTML = '<div class="empty-state" style="color:#ff4d4f;"><i class="fa-solid fa-triangle-exclamation"></i><br>Lỗi kết nối đến Server!</div>';
+    }
+  }
+  loadMods();
+
+  function switchTab(tabName, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+
+    document.getElementById('homeView').classList.add('hidden');
+    document.getElementById('ordersView').classList.add('hidden');
+    document.getElementById('profileView').classList.add('hidden');
+
+    if (tabName === 'home') {
+      document.getElementById('homeView').classList.remove('hidden');
+    } else if (tabName === 'orders') {
+      document.getElementById('ordersView').classList.remove('hidden');
+      loadOrders();
+    }
+  }
+
+  async function loadOrders() {
+    if (!currentUser) return;
+    try {
+      const res = await fetch(SERVER_URL + '/api/orders/' + currentUser);
+      const orders = await res.json();
+      const list = document.getElementById('ordersList');
+      
+      if (orders.length === 0) {
+        list.innerHTML = '<div class="empty-state"><i class="fa-solid fa-receipt"></i><br>Bạn chưa tải file nào.</div>';
+        return;
+      }
+
+      list.innerHTML = orders.map(o => `
+        <div class="mod-card" style="border-left-color: var(--primary);">
+          <div class="mod-title" style="font-size: 16px;">${o.title}</div>
+          <div class="mod-meta"><span><i class="fa-regular fa-calendar-check"></i> Đã tải: ${o.date}</span></div>
+        </div>
+      `).join('');
+    } catch (e) {}
+  }
+
+  function showProfile() {
+    document.getElementById('homeView').classList.add('hidden');
+    document.getElementById('ordersView').classList.add('hidden');
+    document.getElementById('profileView').classList.remove('hidden');
+    
+    document.getElementById('profileName').innerText = currentUser;
+    document.getElementById('profileAuthor').innerText = 'TÁC GIẢ: ' + (currentAuthor || 'VAN SAM');
+    document.getElementById('profileBio').innerText = currentBio || 'Chào mừng bạn đến với web của chúng tôi.';
+  }
+
+  function logout() {
+    localStorage.removeItem('samm_user');
+    localStorage.removeItem('samm_bio');
+    localStorage.removeItem('samm_author');
+    location.reload();
+  }
+
+  function openLogin() {
+    isLoginMode = true;
+    document.getElementById('modalTitle').innerText = 'Đăng Nhập';
+    document.getElementById('modalSubmitBtn').innerText = 'ĐĂNG NHẬP';
+    document.getElementById('authModal').style.display = 'flex';
+  }
+
+  function openRegister() {
+    isLoginMode = false;
+    document.getElementById('modalTitle').innerText = 'Đăng Ký Tài Khoản';
+    document.getElementById('modalSubmitBtn').innerText = 'ĐĂNG KÝ';
+    document.getElementById('authModal').style.display = 'flex';
+  }
+
+  function closeModal() {
+    document.getElementById('authModal').style.display = 'none';
+  }
+
+  async function submitAuth() {
+    const username = document.getElementById('authUser').value.trim();
+    const password = document.getElementById('authPass').value.trim();
+    if (!username || !password) return alert('Vui lòng nhập đủ thông tin!');
+
+    const endpoint = isLoginMode ? '/api/login' : '/api/register';
+    try {
+      const res = await fetch(SERVER_URL + endpoint, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        if (isLoginMode) {
+          localStorage.setItem('samm_user', username);
+          localStorage.setItem('samm_bio', data.bio || '');
+          localStorage.setItem('samm_author', data.author || '');
+          alert('Đăng nhập thành công!');
+          location.reload();
+        } else {
+          alert('Đăng ký thành công! Hãy đăng nhập.');
+          openLogin();
+        }
+      } else {
+        alert(data.error);
+      }
+    } catch (e) {
+      alert('Lỗi kết nối Server!');
+    }
+  }
+
+  function toggleChatbot() {
+    const menu = document.getElementById('chatbotMenu');
+    menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+  }
+</script>
+
+</body>
+</html>
