@@ -61,7 +61,7 @@
   }
   .tab {
     flex: 1; text-align: center; padding: 10px; font-size: 14px; font-weight: 600;
-    color: var(--muted); border-radius: 8px; transition: 0.3s;
+    color: var(--muted); border-radius: 8px; transition: 0.3s; cursor: pointer;
   }
   .tab.active {
     background: rgba(0, 243, 255, 0.1); color: var(--primary);
@@ -246,7 +246,8 @@
 </div>
 
 <script>
-  const SERVER_URL = "https://api-proxy-18ww.onrender.com"; // <-- LINK RENDER CỦA BẠN
+  // ĐÃ CẬP NHẬT LINK SERVER MỚI CỦA BẠN
+  const SERVER_URL = "https://sammxmodz.onrender.com"; 
   
   let currentUser = localStorage.getItem('samm_user');
   let currentBio = localStorage.getItem('samm_bio');
