@@ -1,337 +1,304 @@
 const express = require('express');
-const { Pool } = require('pg');
+const cors = require('cors');
 const multer = require('multer');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const path = require('path');
 const fs = require('fs');
-const crypto = require('crypto');
-
 const app = express();
-const PORT = process.env.PORT || 3000;
-const JWT_SECRET = 'SAMMXMODZ_VIP_SECRET_2024';
-const ADMIN_USER = 'admin';
-const ADMIN_PASS = 'admin123';
 
-const DATABASE_URL = 'postgresql://postgres.sfzamacyheooutadwjlj:SamKwjff123@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres';
-const pool = new Pool({ connectionString: DATABASE_URL, ssl: { rejectUnauthorized: false } });
-
-async function initDB() {
-  try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, username TEXT UNIQUE, password TEXT, points INTEGER DEFAULT 0, device TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
-      CREATE TABLE IF NOT EXISTS files (id SERIAL PRIMARY KEY, name TEXT, size INTEGER, file_path TEXT, image_path TEXT, image_url TEXT, os TEXT, game TEXT, points INTEGER DEFAULT 0, sale_points INTEGER DEFAULT 0, stock INTEGER DEFAULT 0, acc_user TEXT, acc_pass TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
-      CREATE TABLE IF NOT EXISTS codes (id SERIAL PRIMARY KEY, code TEXT UNIQUE, points INTEGER, max_devices INTEGER DEFAULT 1, used_count INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
-      CREATE TABLE IF NOT EXISTS code_uses (id SERIAL PRIMARY KEY, code_id INTEGER, device TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
-      CREATE TABLE IF NOT EXISTS topups (id SERIAL PRIMARY KEY, username TEXT, amount INTEGER, points INTEGER, status TEXT DEFAULT 'pending', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
-      CREATE TABLE IF NOT EXISTS purchases (id SERIAL PRIMARY KEY, username TEXT, file_name TEXT, price INTEGER, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
-      CREATE TABLE IF NOT EXISTS reviews (id SERIAL PRIMARY KEY, username TEXT, stars INTEGER, comment TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
-    `);
-    
-    // Tự động nâng cấp cột nếu database cũ chưa có
-    try { await pool.query("ALTER TABLE files ADD COLUMN acc_user TEXT"); } catch(e) {}
-    try { await pool.query("ALTER TABLE files ADD COLUMN acc_pass TEXT"); } catch(e) {}
-    try { await pool.query("ALTER TABLE files ADD COLUMN os TEXT"); } catch(e) {}
-    try { await pool.query("ALTER TABLE files ADD COLUMN game TEXT"); } catch(e) {}
-    try { await pool.query("ALTER TABLE files ADD COLUMN image_url TEXT"); } catch(e) {}
-    
-    console.log('✅ Kết nối Database Supabase thành công!');
-  } catch (err) { console.error('❌ Lỗi khởi tạo DB:', err); }
-}
-initDB();
-
-const uploadDir = path.join(__dirname, 'public', 'uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => cb(null, Date.now() + '_' + crypto.randomBytes(4).toString('hex') + path.extname(file.originalname))
-});
-const upload = multer({ storage, limits: { fileSize: 100 * 1024 * 1024 } });
+app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
 
-function authUser(req, res, next) {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'Chưa đăng nhập' });
-  try { req.user = jwt.verify(token, JWT_SECRET); next(); } catch { res.status(401).json({ error: 'Token lỗi' }); }
-}
-function authAdmin(req, res, next) {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'Chưa đăng nhập admin' });
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    if (decoded.role !== 'admin') return res.status(403).json({ error: 'Không có quyền' });
-    req.admin = decoded; next();
-  } catch { res.status(401).json({ error: 'Token lỗi' }); }
-}
+// Cấu hình lưu trữ file
+const upload = multer({ dest: 'uploads/' });
+if (!fs.existsSync('uploads')) fs.mkdirSync('uploads');
 
-// API USER
-app.post('/api/register', async (req, res) => {
-  const { username, password, device } = req.body;
-  if (!username || !password) return res.status(400).json({ error: 'Thiếu thông tin' });
-  try {
-    const exists = await pool.query('SELECT id FROM users WHERE username = $1', [username]);
-    if (exists.rows.length > 0) return res.status(400).json({ error: 'Username đã tồn tại' });
-    const hash = bcrypt.hashSync(password, 10);
-    await pool.query('INSERT INTO users (username, password, device) VALUES ($1, $2, $3)', [username, hash, device || 'Không rõ']);
-    res.json({ success: true });
-  } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
-});
+// Cơ sở dữ liệu tạm trên RAM
+const dbUsers = {
+  "SAMM X MODZ": { password: "123456", role: "admin", bio: "Chào mừng bạn đến với web của chúng tôi. AE cần gì hãy liên hệ từ bot trong app nhé. Hiện tại web của chúng tôi đang cập nhật file cho ae sài an toàn bảo mật cao nhé. Chúc ae tìm file mình thích nha!", author: "VAN SAM" }
+};
+const dbDevices = {}; 
+const dbMods = []; 
+const dbOrders = {}; 
 
-app.post('/api/login', async (req, res) => {
-  const { username, password, device } = req.body;
-  try {
-    const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
-    const user = result.rows[0];
-    if (!user || !bcrypt.compareSync(password, user.password)) return res.status(400).json({ error: 'Sai tài khoản hoặc mật khẩu' });
-    if (device) await pool.query('UPDATE users SET device = $1 WHERE id = $2', [device, user.id]);
-    const token = jwt.sign({ id: user.id, username: user.username, role: 'user' }, JWT_SECRET, { expiresIn: '7d' });
-    res.json({ token, username: user.username, points: user.points });
-  } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
-});
-
-app.get('/api/me', authUser, async (req, res) => {
-  try { const result = await pool.query('SELECT id, username, points FROM users WHERE id = $1', [req.user.id]); res.json(result.rows[0]); } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
-});
-
-// API TOP
-app.get('/api/top', async (req, res) => {
-  try {
-    const topNaps = await pool.query(`SELECT username, SUM(amount) as total_amount FROM topups WHERE status = 'success' GROUP BY username ORDER BY total_amount DESC LIMIT 5`);
-    const topMuas = await pool.query(`SELECT username, COUNT(id) as total_buys FROM purchases GROUP BY username ORDER BY total_buys DESC LIMIT 5`);
-    res.json({ topNaps: topNaps.rows, topMuas: topMuas.rows });
-  } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
-});
-
-// API NẠP TIỀN
-app.post('/api/topup/request', authUser, async (req, res) => {
-  const { amount, points } = req.body;
-  try {
-    await pool.query('INSERT INTO topups (username, amount, points, status) VALUES ($1, $2, $3, $4)', [req.user.username, amount, points, 'pending']);
-    res.json({ success: true });
-  } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
-});
-
-app.get('/api/history', authUser, async (req, res) => {
-  try {
-    const topups = await pool.query('SELECT * FROM topups WHERE username = $1 ORDER BY id DESC', [req.user.username]);
-    const purchases = await pool.query('SELECT * FROM purchases WHERE username = $1 ORDER BY id DESC', [req.user.username]);
-    res.json({ topups: topups.rows, purchases: purchases.rows });
-  } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
-});
-
-// API FILE (Trả về cả acc_user và acc_pass)
-app.get('/api/files', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT id, name, size, file_path, image_path, image_url, os, game, points, sale_points, stock, acc_user, acc_pass, created_at FROM files ORDER BY id DESC');
-    res.json(result.rows || []);
-  } catch (err) { 
-    console.error('Lỗi API files:', err);
-    res.status(500).json({ error: 'Lỗi server' }); 
-  }
-});
-
-app.post('/api/files/buy', authUser, async (req, res) => {
-  const { fileId } = req.body;
-  try {
-    const fResult = await pool.query('SELECT * FROM files WHERE id = $1', [fileId]);
-    const file = fResult.rows[0];
-    if (!file) return res.status(404).json({ error: 'File không tồn tại' });
-    if (file.stock <= 0) return res.status(400).json({ error: 'File này đã hết hàng!' });
-    
-    const uResult = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
-    const user = uResult.rows[0];
-    const finalPrice = (file.sale_points > 0 && file.sale_points < file.points) ? file.sale_points : file.points;
-
-    if (user.points < finalPrice) return res.status(400).json({ error: `Bạn cần ${finalPrice} điểm. Số dư: ${user.points} điểm` });
-    
-    if (finalPrice > 0) await pool.query('UPDATE users SET points = points - $1 WHERE id = $2', [finalPrice, req.user.id]);
-    await pool.query('UPDATE files SET stock = stock - 1 WHERE id = $1', [file.id]);
-    await pool.query('INSERT INTO purchases (username, file_name, price) VALUES ($1, $2, $3)', [req.user.username, file.name, finalPrice]);
-    
-    res.json({ success: true, file_path: file.file_path, acc_user: file.acc_user, acc_pass: file.acc_pass, new_points: user.points - finalPrice });
-  } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
-});
-
-// API CODE
-app.post('/api/redeem', authUser, async (req, res) => {
-  const { code, device } = req.body; 
-  if (!code) return res.status(400).json({ error: 'Chưa nhập code' });
-  try {
-    const cResult = await pool.query('SELECT * FROM codes WHERE code = $1', [code.trim().toUpperCase()]);
-    const c = cResult.rows[0];
-    if (!c) return res.status(400).json({ error: 'Code không tồn tại' });
-    
-    const usedResult = await pool.query('SELECT * FROM code_uses WHERE code_id = $1 AND device = $2', [c.id, device]);
-    if (usedResult.rows.length > 0) return res.status(400).json({ error: 'Thiết bị này đã sử dụng code này rồi!' });
-    
-    const countResult = await pool.query('SELECT COUNT(*) FROM code_uses WHERE code_id = $1', [c.id]);
-    if (parseInt(countResult.rows[0].count) >= c.max_devices) return res.status(400).json({ error: 'Code này đã hết lượt sử dụng!' });
-    
-    await pool.query('INSERT INTO code_uses (code_id, device) VALUES ($1, $2)', [c.id, device]);
-    await pool.query('UPDATE codes SET used_count = used_count + 1 WHERE id = $1', [c.id]);
-    await pool.query('UPDATE users SET points = points + $1 WHERE id = $2', [c.points, req.user.id]);
-    
-    const updated = await pool.query('SELECT points FROM users WHERE id = $1', [req.user.id]);
-    res.json({ success: true, points: updated.rows[0].points, added: c.points });
-  } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
-});
-
-// API ĐÁNH GIÁ (REVIEWS)
-app.get('/api/reviews', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM reviews ORDER BY id DESC LIMIT 10');
-    res.json(result.rows);
-  } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
-});
-
-app.post('/api/reviews', authUser, async (req, res) => {
-  const { stars, comment } = req.body;
-  if (!stars || !comment) return res.status(400).json({ error: 'Thiếu thông tin' });
-  try {
-    await pool.query('INSERT INTO reviews (username, stars, comment) VALUES ($1, $2, $3)', [req.user.username, stars, comment]);
-    res.json({ success: true });
-  } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
-});
-
-// API ADMIN
-app.post('/api/admin/login', (req, res) => {
-  const { username, password } = req.body;
-  if (username !== ADMIN_USER || password !== ADMIN_PASS) return res.status(400).json({ error: 'Sai tài khoản admin' });
-  res.json({ token: jwt.sign({ role: 'admin', username }, JWT_SECRET, { expiresIn: '1d' }) });
-});
-
-// ĐĂNG BÀI (HỖ TRỢ ACC)
-app.post('/api/admin/upload', authAdmin, upload.fields([{ name: 'file', maxCount: 1 }, { name: 'image', maxCount: 1 }]), async (req, res) => {
-  const { name, points, sale_points, stock, file_url, image_url, os, game, acc_user, acc_pass } = req.body;
-  let final_file_path = '', final_size = 0;
-  
-  // Nếu là Acc thì không cần file
-  if (game === 'acc_ff' || game === 'acc_gg') {
-    final_file_path = 'ACC_ACCOUNT';
+// 1. API Ghi nhận ID Thiết bị
+app.post('/api/track-device', (req, res) => {
+  const { device_id } = req.body;
+  if (device_id) {
+    dbDevices[device_id] = { last_seen: new Date().toLocaleString('vi-VN') };
+    res.json({ ok: true });
   } else {
-    if (file_url && file_url.trim() !== '') { final_file_path = file_url.trim(); }
-    else if (req.files?.file) { const f = req.files.file[0]; final_file_path = '/uploads/' + f.filename; final_size = f.size; }
-    else { return res.status(400).json({ error: 'Vui lòng chọn file hoặc nhập URL' }); }
-  }
-  
-  let image_path = null;
-  if (req.files?.image) image_path = '/uploads/' + req.files.image[0].filename;
-
-  try {
-    await pool.query(
-      'INSERT INTO files (name, size, file_path, image_path, image_url, os, game, points, sale_points, stock, acc_user, acc_pass, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, CURRENT_TIMESTAMP)',
-      [name, final_size, final_file_path, image_path, image_url || null, os, game, parseInt(points) || 0, parseInt(sale_points) || 0, parseInt(stock) || 0, acc_user || null, acc_pass || null]
-    );
-    res.json({ success: true });
-  } catch (err) { res.status(500).json({ error: 'Lỗi lưu file' }); }
-});
-
-// SỬA FILE
-app.put('/api/admin/files/:id', authAdmin, upload.fields([{ name: 'file', maxCount: 1 }, { name: 'image', maxCount: 1 }]), async (req, res) => {
-  const { name, points, sale_points, stock, image_url, file_url, acc_user, acc_pass } = req.body;
-  const id = req.params.id;
-  
-  try {
-    let updateQuery = 'UPDATE files SET name = $1, points = $2, sale_points = $3, stock = $4, acc_user = $5, acc_pass = $6, created_at = CURRENT_TIMESTAMP';
-    let queryParams = [name, points, sale_points, stock, acc_user || null, acc_pass || null];
-    let paramIndex = 7;
-
-    if (req.files?.image) {
-      updateQuery += `, image_path = $${paramIndex}`;
-      queryParams.push('/uploads/' + req.files.image[0].filename);
-      paramIndex++;
-    } else if (image_url) {
-      updateQuery += `, image_url = $${paramIndex}`;
-      queryParams.push(image_url);
-      paramIndex++;
-    }
-
-    if (req.files?.file) {
-      updateQuery += `, file_path = $${paramIndex}, size = $${paramIndex+1}`;
-      queryParams.push('/uploads/' + req.files.file[0].filename);
-      queryParams.push(req.files.file[0].size);
-      paramIndex += 2;
-    } else if (file_url) {
-      updateQuery += `, file_path = $${paramIndex}`;
-      queryParams.push(file_url);
-      paramIndex++;
-    }
-
-    updateQuery += ` WHERE id = $${paramIndex}`;
-    queryParams.push(id);
-
-    await pool.query(updateQuery, queryParams);
-    res.json({ success: true });
-  } catch (err) { 
-    console.error(err);
-    res.status(500).json({ error: 'Lỗi cập nhật' }); 
+    res.status(400).json({ error: 'No device ID' });
   }
 });
 
-app.delete('/api/admin/files/:id', authAdmin, async (req, res) => {
-  try { await pool.query('DELETE FROM files WHERE id = $1', [req.params.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: 'Lỗi xóa' }); }
+// 2. API Đăng nhập
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+  const user = dbUsers[username];
+  if (user && user.password === password) {
+    res.json({ success: true, username: username, bio: user.bio, author: user.author, role: user.role });
+  } else {
+    res.json({ success: false, error: 'Sai tài khoản hoặc mật khẩu!' });
+  }
 });
 
-app.get('/api/admin/topups', authAdmin, async (req, res) => {
-  try { const result = await pool.query('SELECT * FROM topups ORDER BY id DESC'); res.json(result.rows); } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
+// 3. API Đăng ký
+app.post('/api/register', (req, res) => {
+  const { username, password } = req.body;
+  if (dbUsers[username]) return res.json({ success: false, error: 'Tài khoản đã tồn tại!' });
+  dbUsers[username] = { password: password, role: "user" };
+  dbOrders[username] = [];
+  res.json({ success: true, message: 'Đăng ký thành công!' });
 });
 
-app.post('/api/admin/topups/:id/approve', authAdmin, async (req, res) => {
-  try {
-    const topup = await pool.query('SELECT * FROM topups WHERE id = $1 AND status = $2', [req.params.id, 'pending']);
-    if (topup.rows.length === 0) return res.status(400).json({ error: 'Không tìm thấy' });
-    const t = topup.rows[0];
-    await pool.query('UPDATE users SET points = points + $1 WHERE username = $2', [t.points, t.username]);
-    await pool.query('UPDATE topups SET status = $1 WHERE id = $2', ['success', t.id]);
-    res.json({ success: true });
-  } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
+// 4. API Lấy danh sách Mod
+app.get('/api/mods', (req, res) => {
+  res.json(dbMods);
 });
 
-app.get('/api/admin/users', authAdmin, async (req, res) => {
-  try { const result = await pool.query('SELECT id, username, points, device FROM users ORDER BY id DESC'); res.json(result.rows); } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
+// 5. API Admin Upload File Mod
+app.post('/api/admin/upload', upload.single('modfile'), (req, res) => {
+  const { title, author } = req.body;
+  if (!req.file) return res.status(400).json({ error: 'Không có file!' });
+
+  const newMod = {
+    id: Date.now().toString(),
+    title: title,
+    author: author || 'VAN SAM',
+    filename: req.file.originalname,
+    filepath: req.file.filename,
+    size: (req.file.size / 1024 / 1024).toFixed(2) + ' MB',
+    date: new Date().toLocaleString('vi-VN')
+  };
+  dbMods.unshift(newMod);
+  res.json({ success: true, message: 'Upload thành công!', mod: newMod });
 });
 
-app.put('/api/admin/users/:id/setpoints', authAdmin, async (req, res) => {
-  const { points } = req.body;
-  try { await pool.query('UPDATE users SET points = $1 WHERE id = $2', [points, req.params.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: 'Lỗi' }); }
-});
+// 6. API Tải File
+app.get('/api/download/:id', (req, res) => {
+  const { id } = req.params;
+  const { username } = req.query;
+  const mod = dbMods.find(m => m.id === id);
 
-app.delete('/api/admin/users/:id', authAdmin, async (req, res) => {
-  try { await pool.query('DELETE FROM users WHERE id = $1', [req.params.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: 'Lỗi' }); }
-});
-
-app.post('/api/admin/device/points', authAdmin, async (req, res) => {
-  const { device, points } = req.body;
-  if (!device || !points) return res.status(400).json({ error: 'Thiếu thông tin' });
-  try {
-    const userResult = await pool.query('SELECT id FROM users WHERE device = $1', [device]);
-    if (userResult.rows.length === 0) return res.status(404).json({ error: 'Không tìm thấy thiết bị!' });
-    await pool.query('UPDATE users SET points = points + $1 WHERE id = $2', [points, userResult.rows[0].id]);
-    res.json({ success: true });
-  } catch (err) { res.status(500).json({ error: 'Lỗi server' }); }
-});
-
-app.post('/api/admin/codes', authAdmin, async (req, res) => {
-  const { points, count, max_devices } = req.body;
-  const n = Math.min(count || 1, 50);
-  const created = [];
-  try {
-    for (let i = 0; i < n; i++) {
-      let code = 'VIP-' + crypto.randomBytes(4).toString('hex').toUpperCase();
-      await pool.query('INSERT INTO codes (code, points, max_devices) VALUES ($1, $2, $3)', [code, points, max_devices || 1]);
-      created.push(code);
+  if (mod) {
+    if (username && dbOrders[username]) {
+      dbOrders[username].unshift({ title: mod.title, date: new Date().toLocaleString('vi-VN') });
     }
-    res.json({ success: true, codes: created });
-  } catch (err) { res.status(500).json({ error: 'Lỗi tạo code' }); }
+    res.download(path.join(__dirname, 'uploads', mod.filepath), mod.filename);
+  } else {
+    res.status(404).send('File không tồn tại!');
+  }
 });
 
-app.get('/api/admin/codes', authAdmin, async (req, res) => {
-  try { const result = await pool.query('SELECT * FROM codes ORDER BY id DESC'); res.json(result.rows); } catch (err) { res.status(500).json({ error: 'Lỗi' }); }
+// 7. API Lấy Đơn Hàng
+app.get('/api/orders/:username', (req, res) => {
+  res.json(dbOrders[req.params.username] || []);
 });
 
-app.delete('/api/admin/codes/:id', authAdmin, async (req, res) => {
-  try { await pool.query('DELETE FROM codes WHERE id = $1', [req.params.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: 'Lỗi' }); }
+// ==========================================
+// TRANG ADMIN (GIAO DIỆN CYBERPUNK MỚI)
+// ==========================================
+app.get('/admin', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="vi">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Admin Panel - SAMM X MOD</title>
+      <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+      <style>
+        :root { --primary: #00f3ff; --secondary: #ff00ea; --bg: #05050a; --panel: rgba(20, 20, 30, 0.6); --border: rgba(255, 255, 255, 0.1); --text: #fff; --muted: #8a8a9e; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+        body { background: var(--bg); color: var(--text); display: flex; min-height: 100vh; background-image: radial-gradient(circle at 10% 20%, rgba(0, 243, 255, 0.05), transparent 30%), radial-gradient(circle at 90% 80%, rgba(255, 0, 234, 0.05), transparent 30%); }
+        
+        /* SIDEBAR */
+        .sidebar { width: 260px; background: rgba(10, 10, 15, 0.9); backdrop-filter: blur(20px); border-right: 1px solid var(--border); padding: 30px 20px; display: flex; flex-direction: column; position: fixed; height: 100vh; }
+        .logo { font-size: 22px; font-weight: 800; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
+        .nav-item { display: flex; align-items: center; gap: 15px; padding: 15px; border-radius: 12px; color: var(--muted); font-weight: 600; cursor: pointer; margin-bottom: 10px; transition: 0.3s; }
+        .nav-item:hover, .nav-item.active { background: rgba(0, 243, 255, 0.1); color: var(--primary); border-left: 3px solid var(--primary); }
+        .nav-item i { font-size: 18px; width: 24px; text-align: center; }
+        
+        /* MAIN CONTENT */
+        .main-content { margin-left: 260px; flex: 1; padding: 40px; }
+        .page-title { font-size: 28px; font-weight: 800; margin-bottom: 30px; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .page-title i { color: var(--primary); }
+        
+        /* GLASS BOX */
+        .glass-box { background: var(--panel); backdrop-filter: blur(15px); border: 1px solid var(--border); border-radius: 20px; padding: 30px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .glass-box h3 { margin-bottom: 20px; font-size: 18px; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        
+        /* FORM UPLOAD */
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
+        .input-group input[type="text"] { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--border); background: rgba(0,0,0,0.5); color: #fff; font-size: 15px; outline: none; transition: 0.3s; }
+        .input-group input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(0,243,255,0.2); }
+        
+        .file-drop-area { position: relative; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 40px; border: 2px dashed rgba(0, 243, 255, 0.4); border-radius: 15px; background: rgba(0, 243, 255, 0.05); cursor: pointer; transition: 0.3s; margin-bottom: 20px; }
+        .file-drop-area:hover { background: rgba(0, 243, 255, 0.1); border-color: var(--primary); }
+        .file-drop-area i { font-size: 40px; color: var(--primary); margin-bottom: 15px; }
+        .file-drop-area span { color: var(--muted); font-size: 14px; }
+        .file-drop-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .file-name { margin-top: 10px; font-size: 13px; color: var(--primary); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+        
+        .btn-submit { width: 100%; padding: 16px; border-radius: 12px; border: none; background: linear-gradient(45deg, var(--secondary), var(--primary)); color: #000; font-weight: 800; font-size: 16px; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255, 0, 234, 0.3); }
+        
+        /* TABLE */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+        th { color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: rgba(255,255,255,0.02); }
+        .mono { font-family: 'JetBrains Mono', monospace; color: var(--primary); font-size: 13px; }
+        .badge { background: rgba(0,243,255,0.1); border: 1px solid rgba(0,243,255,0.3); color: var(--primary); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        
+        /* TABS */
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 768px) {
+          body { flex-direction: column; }
+          .sidebar { width: 100%; height: auto; position: relative; flex-direction: row; overflow-x: auto; padding: 15px; align-items: center; border-right: none; border-bottom: 1px solid var(--border); }
+          .logo { margin-bottom: 0; margin-right: 20px; font-size: 18px; }
+          .nav-item { margin-bottom: 0; white-space: nowrap; padding: 10px 15px; border-left: none !important; border-bottom: 3px solid transparent; }
+          .nav-item.active { border-bottom-color: var(--primary); }
+          .main-content { margin-left: 0; padding: 20px; }
+          th, td { font-size: 12px; padding: 10px; }
+        }
+      </style>
+    </head>
+    <body>
+
+      <div class="sidebar">
+        <div class="logo"><i class="fa-solid fa-cube"></i> SAMM ADMIN</div>
+        <div class="nav-item active" onclick="switchTab('upload', this)"><i class="fa-solid fa-cloud-arrow-up"></i> Upload Mod</div>
+        <div class="nav-item" onclick="switchTab('devices', this)"><i class="fa-solid fa-mobile-screen-button"></i> Thiết bị truy cập</div>
+        <div class="nav-item" onclick="switchTab('mods', this)"><i class="fa-solid fa-box-open"></i> Kho File Mod</div>
+      </div>
+
+      <div class="main-content">
+        
+        <!-- TAB UPLOAD -->
+        <div id="tab-upload" class="tab-content active">
+          <div class="page-title"><i class="fa-solid fa-cloud-arrow-up"></i> Tải Lên File Mod Mới</div>
+          <div class="glass-box">
+            <form id="uploadForm">
+              <div class="input-group">
+                <label>Tên File Mod</label>
+                <input type="text" id="modTitle" placeholder="VD: Mod Nhân Vật Alok VIP" required>
+              </div>
+              <div class="input-group">
+                <label>Tác giả (Mặc định: VAN SAM)</label>
+                <input type="text" id="modAuthor" placeholder="VAN SAM">
+              </div>
+              <div class="file-drop-area">
+                <i class="fa-solid fa-file-arrow-up"></i>
+                <span>Kéo thả file vào đây hoặc Bấm để chọn file</span>
+                <div class="file-name" id="fileNameDisplay"></div>
+                <input type="file" id="modFile" required onchange="showFileName()">
+              </div>
+              <button type="submit" class="btn-submit"><i class="fa-solid fa-upload"></i> BẮT ĐẦU TẢI LÊN</button>
+            </form>
+            <p id="uploadStatus" style="text-align: center; margin-top: 15px; font-weight: bold;"></p>
+          </div>
+        </div>
+
+        <!-- TAB DEVICES -->
+        <div id="tab-devices" class="tab-content">
+          <div class="page-title"><i class="fa-solid fa-mobile-screen-button"></i> Danh Sách Thiết Bị Truy Cập</div>
+          <div class="glass-box">
+            <h3><i class="fa-solid fa-signal"></i> Tổng cộng: ${Object.keys(dbDevices).length} thiết bị</h3>
+            <div style="overflow-x: auto;">
+              <table>
+                <thead><tr><th>ID Thiết Bị</th><th>Thời Gian Truy Cập Cuối</th></tr></thead>
+                <tbody>
+                  ${Object.keys(dbDevices).map(k => `<tr><td class="mono">${k}</td><td>${dbDevices[k].last_seen}</td></tr>`).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB MODS -->
+        <div id="tab-mods" class="tab-content">
+          <div class="page-title"><i class="fa-solid fa-box-open"></i> Kho File Mod Trên Server</div>
+          <div class="glass-box">
+            <h3><i class="fa-solid fa-database"></i> Tổng cộng: ${dbMods.length} file</h3>
+            <div style="overflow-x: auto;">
+              <table>
+                <thead><tr><th>Tên File</th><th>Tác giả</th><th>Dung lượng</th><th>Ngày tạo</th></tr></thead>
+                <tbody>
+                  ${dbMods.map(m => `<tr><td style="color: #fff; font-weight: 600;">${m.title}</td><td><span class="badge">${m.author}</span></td><td class="mono">${m.size}</td><td>${m.date}</td></tr>`).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <script>
+        function switchTab(tabName, el) {
+          document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+          
+          el.classList.add('active');
+          document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
+        function showFileName() {
+          const input = document.getElementById('modFile');
+          const display = document.getElementById('fileNameDisplay');
+          if (input.files.length > 0) {
+            display.innerText = "📦 " + input.files[0].name + " (" + (input.files[0].size / 1024 / 1024).toFixed(2) + " MB)";
+          } else {
+            display.innerText = "";
+          }
+        }
+
+        document.getElementById('uploadForm').onsubmit = async (e) => {
+          e.preventDefault();
+          const statusEl = document.getElementById('uploadStatus');
+          const btn = document.querySelector('.btn-submit');
+          
+          statusEl.innerText = "Đang tải file lên Server, vui lòng đợi...";
+          statusEl.style.color = "var(--primary)";
+          btn.disabled = true;
+          btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ĐANG XỬ LÝ...';
+
+          const formData = new FormData();
+          formData.append('title', document.getElementById('modTitle').value);
+          formData.append('author', document.getElementById('modAuthor').value);
+          formData.append('modfile', document.getElementById('modFile').files[0]);
+          
+          try {
+            const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+            const data = await res.json();
+            if (data.success) {
+              statusEl.innerText = "Tải lên thành công! Đang làm mới trang...";
+              statusEl.style.color = "#10b981";
+              setTimeout(() => location.reload(), 1500);
+            } else {
+              statusEl.innerText = 'Lỗi: ' + data.error;
+              statusEl.style.color = "#ef4444";
+              btn.disabled = false;
+              btn.innerHTML = '<i class="fa-solid fa-upload"></i> BẮT ĐẦU TẢI LÊN';
+            }
+          } catch (e) {
+            statusEl.innerText = 'Lỗi kết nối đến Server!';
+            statusEl.style.color = "#ef4444";
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-upload"></i> BẮT ĐẦU TẢI LÊN';
+          }
+        };
+      </script>
+    </body>
+    </html>
+  `);
 });
 
-app.listen(PORT, () => console.log(`✅ Server đang chạy tại cổng ${PORT}`));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, '0.0.0.0', () => console.log('🚀 SAMM X MOD SERVER chạy thành công!'));
